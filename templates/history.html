@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}History — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="history-page">
+  
+  <!-- Page Header -->
+  <div class="page-header-box">
+    <div class="page-eyebrow">Your Farming Journey</div>
+    <h1 class="page-title page-title-serif">History</h1>
+    <p class="page-subtitle">Your previous recommendations and crop analyses, all in one place.</p>
+  </div>
+
+  <!-- Top 3 Stat Cards -->
+  <div class="metric-row">
+    <div class="metric-card">
+      <div class="metric-label">Recommendations</div>
+      <div class="metric-value">{{ recom_count }}</div>
+      <div class="metric-sub">Crop evaluations</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Weather Analyses</div>
+      <div class="metric-value">{{ analysis_count }}</div>
+      <div class="metric-sub">7-day forecast simulations</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Most Recent Crop</div>
+      <div class="metric-value">Rice</div>
+      <div class="metric-sub">Ludhiana, Punjab</div>
+    </div>
+  </div>
+
+  <!-- Main Card with Filter Tabs & Table -->
+  <div class="ks-card">
+    
+    <!-- Filter Tabs & Search Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 14px;">
+      
+      <!-- Filter Tabs -->
+      <div class="filter-tabs" style="margin-bottom: 0;">
+        <button type="button" class="filter-tab active" onclick="filterHistory('all', this)">All activity</button>
+        <button type="button" class="filter-tab" onclick="filterHistory('recommendation', this)">Recommendations</button>
+        <button type="button" class="filter-tab" onclick="filterHistory('analysis', this)">Analyses</button>
+        <button type="button" class="filter-tab" onclick="filterHistory('disease', this)">Disease scans</button>
+      </div>
+
+      <!-- Live Search Box -->
+      <div style="position: relative; min-width: 260px;">
+        <input 
+          type="text" 
+          id="historySearch" 
+          class="form-control" 
+          placeholder="Search by crop or location…" 
+          style="padding-left: 36px; font-size: 0.84rem; border-radius: var(--radius-full);"
+          oninput="searchHistory(this.value)"
+        >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-light);">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+
+    </div>
+
+    <!-- Records Table -->
+    <div style="overflow-x: auto;">
+      <table class="ks-table" id="historyTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Activity</th>
+            <th>Crop & Location</th>
+            <th>Result</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          {% for r in records %}
+          <tr data-type="{{ r.activity_type }}" data-crop="{{ r.crop | lower }}" data-loc="{{ r.location | lower }}">
+            <td style="font-weight: 500; color: var(--color-text-muted); white-space: nowrap;">{{ r.date }}</td>
+            <td style="font-weight: 600;">
+              {% if r.activity_type == 'recommendation' %}
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span style="width: 7px; height: 7px; border-radius: 50%; background-color: var(--color-primary-dark);"></span>
+                  {{ r.activity }}
+                </span>
+              {% elif r.activity_type == 'analysis' %}
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #0284c7;"></span>
+                  {{ r.activity }}
+                </span>
+              {% else %}
+                <span style="display: inline-flex; align-items: center; gap: 6px;">
+                  <span style="width: 7px; height: 7px; border-radius: 50%; background-color: #16a34a;"></span>
+                  {{ r.activity }}
+                </span>
+              {% endif %}
+            </td>
+            <td><strong>{{ r.crop }}</strong>, {{ r.location }}</td>
+            <td>
+              <span style="background-color: var(--color-sage-bg); padding: 3px 8px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.8rem; color: var(--color-primary-dark);">
+                {{ r.result }}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <button 
+                type="button" 
+                class="btn btn-secondary" 
+                style="padding: 5px 12px; font-size: 0.78rem;"
+                onclick="showHistoryModal({{ r | tojson | forceescape }})"
+              >
+                {{ r.status }} →
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination & Status -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--color-border-subtle); font-size: 0.82rem; color: var(--color-text-muted);">
+      <span id="historyCount">Showing {{ records | length }} of 13 records</span>
+      
+      <div style="display: flex; gap: 6px;">
+        <button class="filter-tab active" style="padding: 4px 10px;">1</button>
+        <button class="filter-tab" style="padding: 4px 10px;">2</button>
+        <button class="filter-tab" style="padding: 4px 10px;">3</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom CTA Banner matching Screen 10 -->
+  <div style="margin-top: 28px; background-color: var(--color-sage-card); border: 1px solid var(--color-sage-border); border-radius: var(--radius-lg); padding: 22px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+    <div>
+      <h3 class="card-heading" style="color: var(--color-primary-dark); margin-bottom: 4px;">
+        Ready to plan your next harvest?
+      </h3>
+      <p class="secondary-desc">
+        Update your soil parameters or analyze another seasonal crop.
+      </p>
+    </div>
+    <a href="{{ url_for('crop.recommendation') }}" class="btn btn-primary">
+      <span>New recommendation</span>
+      <span>→</span>
+    </a>
+  </div>
+
+</div>
+
+<!-- Historical Record Detail Modal -->
+<div id="historyModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1100; align-items: center; justify-content: center; padding: 20px;">
+  <div class="ks-card" style="width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--color-border-subtle); padding-bottom: 12px;">
+      <h3 id="modalTitle" class="card-heading" style="color: var(--color-primary-dark);">Record Details</h3>
+      <button onclick="closeHistoryModal()" style="background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--color-text-muted);">&times;</button>
+    </div>
+    
+    <div id="modalContent" class="body-text" style="line-height: 1.6; font-size: 14px;">
+      <!-- Dynamic body -->
+    </div>
+    
+    <div style="margin-top: 20px; text-align: right;">
+      <button class="btn btn-secondary" onclick="closeHistoryModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function filterHistory(cat, btn) {
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const rows = document.querySelectorAll('#historyBody tr');
+    let visibleCount = 0;
+    rows.forEach(r => {
+      const type = r.getAttribute('data-type');
+      if (cat === 'all' || type === cat) {
+        r.style.display = '';
+        visibleCount++;
+      } else {
+        r.style.display = 'none';
+      }
+    });
+    document.getElementById('historyCount').textContent = `Showing ${visibleCount} of 13 records`;
+  }
+
+  function searchHistory(query) {
+    const q = query.toLowerCase().trim();
+    const rows = document.querySelectorAll('#historyBody tr');
+    let visibleCount = 0;
+    rows.forEach(r => {
+      const crop = r.getAttribute('data-crop');
+      const loc = r.getAttribute('data-loc');
+      if (!q || crop.includes(q) || loc.includes(q)) {
+        r.style.display = '';
+        visibleCount++;
+      } else {
+        r.style.display = 'none';
+      }
+    });
+    document.getElementById('historyCount').textContent = `Showing ${visibleCount} records`;
+  }
+
+  function showHistoryModal(record) {
+    document.getElementById('modalTitle').textContent = `${record.activity} — ${record.crop}`;
+    let html = `
+      <div style="background-color: var(--color-sage-bg); padding: 12px; border-radius: 6px; margin-bottom: 14px;">
+        <div><strong>Date:</strong> ${record.date}</div>
+        <div><strong>Location:</strong> ${record.location}</div>
+        <div><strong>Result:</strong> ${record.result}</div>
+      </div>
+      <div style="font-weight: 700; margin-bottom: 8px;">Breakdown Parameters:</div>
+      <ul style="padding-left: 20px;">
+    `;
+    for (let key in record.details) {
+      html += `<li><strong>${key.replace('_', ' ')}:</strong> ${record.details[key]}</li>`;
+    }
+    html += `</ul>`;
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('historyModal').style.display = 'flex';
+  }
+
+  function closeHistoryModal() {
+    document.getElementById('historyModal').style.display = 'none';
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Suitability Analysis — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="cs-page">
+
+  <!-- Page Header -->
+  <div class="cs-header">
+    <div class="cs-eyebrow">Crop Suitability Analysis</div>
+    <h1 class="cs-title">Crop suitability analysis</h1>
+    <p class="cs-subtitle">Already have a crop in mind? Check its suitability against upcoming weather.</p>
+  </div>
+
+  <!-- Main Form Card -->
+  <div class="cs-card cs-form-card">
+    <div class="cs-card-header">
+      <h2 class="cs-card-title">Choose a crop & location</h2>
+    </div>
+
+    <form id="csForm" method="POST" action="{{ url_for('crop_suitability.suitability_analysis') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- Crop Selection -->
+      <div class="cs-field-group">
+        <label class="cs-field-label" for="cropSearch">Crop to analyse</label>
+        <div class="cs-crop-selector">
+          <div class="cs-crop-search-wrap">
+            <input type="text" id="cropSearch" class="cs-field-control" placeholder="Search crop name..." autocomplete="off">
+            <button type="button" class="cs-btn cs-btn-category" id="btnShowCategories">Categories</button>
+          </div>
+          <div class="cs-crop-category-list" id="categoryList" style="display: none;">
+            {% for cat in categories %}
+            <button type="button" class="cs-btn cs-btn-category-outline" data-category="{{ cat }}">{{ cat }}</button>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="crop" name="crop" value="">
+          <div class="cs-crop-search-results" id="cropResults" style="display: none;"></div>
+        </div>
+      </div>
+
+      <!-- Location Selection (4-level: State → District → Tehsil → Village) -->
+      <div class="cs-field-group">
+        <div class="cs-location-row">
+          <div class="cs-location-col">
+            <label class="cs-field-sub-label">State</label>
+            <select id="state" name="state_id" class="cs-field-control" data-selected="{{ current_user.state_id|default('') }}">
+              <option value="">Select a state</option>
+            </select>
+            <input type="hidden" name="state_name" id="state_name" value="{{ current_user.state|default('') }}">
+          </div>
+          <div class="cs-location-col">
+            <label class="cs-field-sub-label">District</label>
+            <select id="district" name="district_id" class="cs-field-control" disabled data-selected="{{ current_user.district_id|default('') }}">
+              <option value="">Select a district</option>
+            </select>
+            <input type="hidden" name="district_name" id="district_name" value="{{ current_user.district|default('') }}">
+          </div>
+          <div class="cs-location-col">
+            <label class="cs-field-sub-label">Tehsil / Subdistrict</label>
+            <select id="tehsil" name="tehsil_id" class="cs-field-control" disabled data-selected="{{ current_user.tehsil_id|default('') }}">
+              <option value="">Select a tehsil</option>
+            </select>
+            <input type="hidden" name="tehsil_name" id="tehsil_name" value="{{ current_user.tehsil|default('') }}">
+          </div>
+          <div class="cs-location-col">
+            <label class="cs-field-sub-label">Village</label>
+            <select id="village" name="village_id" class="cs-field-control" disabled data-selected="{{ current_user.village_id|default('') }}">
+              <option value="">Select a village</option>
+            </select>
+            <input type="hidden" name="village_name" id="village_name" value="{{ current_user.village|default('') }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Soil pH Input -->
+      <div class="cs-field-group">
+        <label class="cs-field-label" for="soil_ph">Soil pH (optional)</label>
+        <input type="number" step="0.1" id="soil_ph" name="soil_ph" class="cs-field-control"
+               placeholder="e.g. 6.5" min="0" max="14">
+        <p class="cs-field-hint">Enter your measured soil pH for pH suitability analysis.</p>
+      </div>
+
+      <!-- Sowing Date Input -->
+      <div class="cs-field-group">
+        <label class="cs-field-label" for="sowing_date">Sowing / Planting Date (optional)</label>
+        <input type="date" id="sowing_date" name="sowing_date" class="cs-field-control">
+        <p class="cs-field-hint">Enter the sowing date to estimate crop growth progress.</p>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="analyzeBtn" class="cs-btn-analyze">
+        <span>Analyse crop suitability</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Results Section (hidden by default) -->
+  <div id="csResults" class="cs-results-section" style="display: none;">
+
+    <!-- Dashboard Header: Crop & Location Summary -->
+    <div class="cs-dashboard-header">
+      <div class="cs-dash-title-wrap">
+        <h2 class="cs-dash-crop" id="dashCropName"></h2>
+        <p class="cs-dash-sub" id="dashCropSub"></p>
+      </div>
+      <div class="cs-dash-location" id="dashLocation"></div>
+      <div class="cs-dash-period" id="dashPeriod"></div>
+    </div>
+
+    <!-- Farm Overview Heading -->
+    <div class="cs-farm-overview">
+      <div class="cs-farm-overview-content">
+        <div class="cs-farm-overview-eyebrow">FARM OVERVIEW</div>
+        <h2 class="cs-farm-overview-title">A clearer view of your growing week.</h2>
+        <p class="cs-farm-overview-subtitle">Weather, crop stages and soil health — all in one place.</p>
+      </div>
+    </div>
+
+    <!-- Module 1: Overall Weather Suitability (two-panel layout per design) -->
+    <div class="cs-module1">
+      <div class="cs-module-grid cs-module1-layout">
+        <!-- Left panel: Dark green overall card -->
+        <div class="cs-module1-card--overall-panel" id="csCardOverall">
+          <div class="cs-overall-label" id="csOverallLabelWrap">OVERALL WEATHER SUITABILITY</div>
+          <div class="cs-overall-score">
+            <span id="csOverallScore">--</span><span class="cs-overall-unit"> %</span>
+          </div>
+          <div class="cs-overall-footer">Weather suitability score</div>
+        </div>
+
+        <!-- Right panel: Distribution as cards -->
+        <div class="cs-module1-card--dist-panel" id="csCardDistribution">
+          <div class="cs-dist-header">
+            <div class="cs-dist-title">Every day, at a glance</div>
+            <div class="cs-dist-subtitle">Distribution across 7 valid days</div>
+            <div class="cs-days-badge" id="csDaysBadge"></div>
+          </div>
+          <div class="cs-dist-cards">
+            <div class="cs-dist-card cs-dist-card-good">
+              <div class="cs-dist-card-title">Good Days</div>
+              <div class="cs-dist-card-value" id="csDistGoodCount">2 days</div>
+              <div class="cs-dist-card-pct" id="csDistGoodPct">28.6%</div>
+            </div>
+            <div class="cs-dist-card cs-dist-card-sustainable">
+              <div class="cs-dist-card-title">Sustainable Days</div>
+              <div class="cs-dist-card-value" id="csDistSustainableCount">5 days</div>
+              <div class="cs-dist-card-pct" id="csDistSustainablePct">71.4%</div>
+            </div>
+            <div class="cs-dist-card cs-dist-card-marginal">
+              <div class="cs-dist-card-title">Marginal Days</div>
+              <div class="cs-dist-card-value" id="csDistMarginalCount">0 days</div>
+              <div class="cs-dist-card-pct" id="csDistMarginalPct">0%</div>
+            </div>
+            <div class="cs-dist-card cs-dist-card-bad">
+              <div class="cs-dist-card-title">Bad Days</div>
+              <div class="cs-dist-card-value" id="csDistBadCount">0 days</div>
+              <div class="cs-dist-card-pct" id="csDistBadPct">0%</div>
+            </div>
+          </div>
+          <div class="cs-dist-footer" id="csDistFooter"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module 2: Weather Metrics -->
+    <div class="cs-module2">
+      <div class="cs-module-grid cs-module2-grid" id="csModule2Grid">
+        <div class="cs-summary-card" id="csCardTemperature">
+          <div class="cs-summary-label">Temperature</div>
+          <div class="cs-summary-value">
+            <span id="csTempValue">--</span><span class="cs-summary-unit">°C</span>
+          </div>
+          <div class="cs-summary-sub">Weekly average temperature</div>
+        </div>
+
+        <div class="cs-summary-card" id="csCardHumidity">
+          <div class="cs-summary-label">Humidity</div>
+          <div class="cs-summary-value">
+            <span id="csHumidityValue">--</span><span class="cs-summary-unit"> %</span>
+          </div>
+          <div class="cs-summary-sub">Weekly average</div>
+        </div>
+
+        <div class="cs-summary-card" id="csCardRainfall">
+          <div class="cs-summary-label">Rainfall</div>
+          <div class="cs-summary-value">
+            <span id="csRainfallValue">--</span><span class="cs-summary-unit">mm</span>
+          </div>
+          <div class="cs-summary-sub">Weekly total</div>
+        </div>
+
+        <div class="cs-summary-card" id="csCardWind">
+          <div class="cs-summary-label">Wind Speed</div>
+          <div class="cs-summary-value">
+            <span id="csWindValue">--</span><span class="cs-summary-unit">m/s</span>
+          </div>
+          <div class="cs-summary-sub">Weekly average</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Soil pH Analysis -->
+    <div class="cs-ph-card" id="phAnalysis">
+      <div class="cs-ph-header">
+        <h3 class="cs-section-title">Soil pH Analysis</h3>
+        <span class="cs-ph-status-badge" id="csPhStatusBadge">GOOD</span>
+      </div>
+      <div class="cs-ph-info-row">
+        <div class="cs-ph-value-section">
+          <span class="cs-ph-value" id="csPhValue">7.3</span>
+          <span class="cs-ph-caption">Your soil pH</span>
+        </div>
+        <div class="cs-ph-details">
+          <div class="cs-ph-detail">
+            <span class="cs-ph-detail-label">Crop minimum</span>
+            <span class="cs-ph-detail-value" id="csPhCropMin">4.4</span>
+          </div>
+          <div class="cs-ph-detail">
+            <span class="cs-ph-detail-label">Crop maximum</span>
+            <span class="cs-ph-detail-value" id="csPhCropMax">7.5</span>
+          </div>
+          <div class="cs-ph-detail">
+            <span class="cs-ph-detail-label">Difference</span>
+            <span class="cs-ph-detail-value" id="csPhDiff">0.0</span>
+          </div>
+        </div>
+      </div>
+      <div class="cs-ph-scale-container">
+        <div class="cs-ph-scale">
+          <div class="cs-ph-zone cs-ph-zone-acidic" id="csPhZoneAcidic"></div>
+          <div class="cs-ph-zone cs-ph-zone-recommended" id="csPhZoneRecommended"></div>
+          <div class="cs-ph-zone cs-ph-zone-alkaline" id="csPhZoneAlkaline"></div>
+          <div class="cs-ph-marker" id="csPhMarker"></div>
+        </div>
+        <div class="cs-ph-scale-labels">
+          <span>0</span>
+          <span id="csPhLabelMin">4.4</span>
+          <span id="csPhLabelMax">7.5</span>
+          <span>14</span>
+        </div>
+      </div>
+      <p class="cs-ph-explanation" id="csPhExplanation">Your soil pH (7.3) is within the crop's recommended range of 4.4–7.5.</p>
+      <p class="cs-ph-message" id="csPhMessage" style="display:none;"></p>
+    </div>
+
+    <!-- Day-wise Suitability Cards -->
+    <div class="cs-daywise-section">
+      <h3 class="cs-section-title">Day-wise suitability</h3>
+      <div class="cs-daywise-grid" id="daywiseGrid"></div>
+    </div>
+
+    <!-- Compact Factor Analysis -->
+    <div class="cs-factors-section">
+      <h3 class="cs-section-title">Weather summary</h3>
+      <div class="cs-factors-grid">
+        <!-- Temperature -->
+        <div class="cs-factor-card">
+          <div class="cs-factor-header">
+            <span class="cs-factor-icon">Temp</span>
+            <h3 class="cs-factor-title">Temperature</h3>
+          </div>
+          <div class="cs-factor-body">
+            <div class="cs-factor-status" id="resTempStatus">
+              <span class="cs-status-dot" id="resTempDot"></span>
+              <span id="resTempLabel">--</span>
+            </div>
+            <p class="cs-factor-message" id="resTempMessage"></p>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Crop range:</span>
+              <span class="cs-detail-value" id="resTempCropRange"></span>
+            </div>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Forecast:</span>
+              <span class="cs-detail-value" id="resTempForecast"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Humidity -->
+        <div class="cs-factor-card">
+          <div class="cs-factor-header">
+            <span class="cs-factor-icon">Hum</span>
+            <h3 class="cs-factor-title">Humidity</h3>
+          </div>
+          <div class="cs-factor-body">
+            <div class="cs-factor-status" id="resHumidityStatus">
+              <span class="cs-status-dot" id="resHumidityDot"></span>
+              <span id="resHumidityLabel">--</span>
+            </div>
+            <p class="cs-factor-message" id="resHumidityMessage"></p>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Weekly average:</span>
+              <span class="cs-detail-value" id="resHumidityValue"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rainfall -->
+        <div class="cs-factor-card">
+          <div class="cs-factor-header">
+            <span class="cs-factor-icon">Rain</span>
+            <h3 class="cs-factor-title">Rainfall</h3>
+          </div>
+          <div class="cs-factor-body">
+            <div class="cs-factor-status" id="resRainfallStatus">
+              <span class="cs-status-dot" id="resRainfallDot"></span>
+              <span id="resRainfallLabel">--</span>
+            </div>
+            <p class="cs-factor-message" id="resRainfallMessage"></p>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Weekly total:</span>
+              <span class="cs-detail-value" id="resRainfallTotal"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wind Speed -->
+        <div class="cs-factor-card">
+          <div class="cs-factor-header">
+            <span class="cs-factor-icon">Wind</span>
+            <h3 class="cs-factor-title">Wind speed</h3>
+          </div>
+          <div class="cs-factor-body">
+            <div class="cs-factor-status" id="resWindStatus">
+              <span class="cs-status-dot" id="resWindDot"></span>
+              <span id="resWindLabel">--</span>
+            </div>
+            <p class="cs-factor-message" id="resWindMessage"></p>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Weekly average:</span>
+              <span class="cs-detail-value" id="resWindValue"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Soil pH -->
+        <div class="cs-factor-card">
+          <div class="cs-factor-header">
+            <span class="cs-factor-icon">pH</span>
+            <h3 class="cs-factor-title">Soil pH</h3>
+          </div>
+          <div class="cs-factor-body">
+            <div class="cs-factor-status" id="resPhStatus">
+              <span class="cs-status-dot" id="resPhDot"></span>
+              <span id="resPhLabel">--</span>
+            </div>
+            <p class="cs-factor-message" id="resPhMessage"></p>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Crop range:</span>
+              <span class="cs-detail-value" id="resPhCropRange"></span>
+            </div>
+            <div class="cs-factor-detail">
+              <span class="cs-detail-label">Your soil pH:</span>
+              <span class="cs-detail-value" id="resPhFarmer"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="cs-charts-section">
+      <h3 class="cs-section-title">7-day forecast charts</h3>
+      <div class="cs-charts-grid">
+        <div class="cs-chart-card">
+          <canvas id="chartTemperature"></canvas>
+        </div>
+        <div class="cs-chart-card">
+          <canvas id="chartHumidity"></canvas>
+        </div>
+        <div class="cs-chart-card">
+          <canvas id="chartRainfall"></canvas>
+        </div>
+        <div class="cs-chart-card">
+          <canvas id="chartWind"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Crop Season & Duration -->
+    <div class="cs-card cs-section">
+      <div class="cs-crop-season-header">
+        <div>
+          <h3 class="cs-section-title">Crop season & duration</h3>
+          <span class="cs-crop-category" id="csCropCategory">Cereals and millets</span>
+        </div>
+        <span class="cs-season-badge" id="csSeasonBadge">Rabi / Zaid season</span>
+      </div>
+      <div class="cs-season-layout">
+        <div class="cs-total-duration">
+          <div class="cs-duration-value" id="csTotalDuration">75</div>
+          <div class="cs-duration-label">days</div>
+          <div class="cs-duration-caption">Total crop duration</div>
+        </div>
+        <div class="cs-stages-row">
+          <div class="cs-stage">
+            <div class="cs-stage-num">01</div>
+            <div class="cs-stage-name">Establishment</div>
+            <div class="cs-stage-days" id="csStage1Days">12 days</div>
+            <div class="cs-stage-bar">
+              <div class="cs-stage-fill" id="csStage1Fill" style="width: 16%;"></div>
+            </div>
+          </div>
+          <div class="cs-stage">
+            <div class="cs-stage-num">02</div>
+            <div class="cs-stage-name">Vegetative growth</div>
+            <div class="cs-stage-days" id="csStage2Days">25 days</div>
+            <div class="cs-stage-bar">
+              <div class="cs-stage-fill" id="csStage2Fill" style="width: 33%;"></div>
+            </div>
+          </div>
+          <div class="cs-stage">
+            <div class="cs-stage-num">03</div>
+            <div class="cs-stage-name">Flowering</div>
+            <div class="cs-stage-days" id="csStage3Days">20 days</div>
+            <div class="cs-stage-bar">
+              <div class="cs-stage-fill" id="csStage3Fill" style="width: 27%;"></div>
+            </div>
+          </div>
+          <div class="cs-stage">
+            <div class="cs-stage-num">04</div>
+            <div class="cs-stage-name">Fruiting / grain filling</div>
+            <div class="cs-stage-days" id="csStage4Days">10 days</div>
+            <div class="cs-stage-bar">
+              <div class="cs-stage-fill" id="csStage4Fill" style="width: 13%;"></div>
+            </div>
+          </div>
+          <div class="cs-stage">
+            <div class="cs-stage-num">05</div>
+            <div class="cs-stage-name">Maturity / harvesting</div>
+            <div class="cs-stage-days" id="csStage5Days">8 days</div>
+            <div class="cs-stage-bar">
+              <div class="cs-stage-fill" id="csStage5Fill" style="width: 11%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estimated Crop Growth Progress -->
+    <div class="cs-card cs-section" id="growthProgressSection">
+      <div class="cs-gp-header">
+        <h3 class="cs-section-title">Estimated crop growth progress</h3>
+        <p class="cs-gp-subtitle">A clearer timeline starts with your sowing date.</p>
+      </div>
+      <div class="cs-gp-layout">
+        <!-- Left column: Current stage -->
+        <div class="cs-gp-left">
+          <div class="cs-stage-card">
+            <div class="cs-stage-label">CURRENT STAGE</div>
+            <div class="cs-stage-name-display" id="gpStageName">Not yet sown</div>
+            <div class="cs-stage-desc" id="gpStageDesc">Enter the sowing date to begin tracking estimated growth.</div>
+            <button class="cs-enter-sowing-btn" id="gpEnterSowingBtn">Enter sowing date &rarr;</button>
+          </div>
+        </div>
+        <!-- Right column: Progress -->
+        <div class="cs-gp-right">
+          <div class="cs-progress-head">
+            <span class="cs-progress-label">Estimated progress</span>
+            <span class="cs-progress-value" id="gpProgressValue">0%</span>
+          </div>
+          <div class="cs-progress-bar-wrap">
+            <div class="cs-progress-track">
+              <div class="cs-progress-fill" id="gpProgressFill"></div>
+            </div>
+          </div>
+          <div class="cs-gp-details">
+            <div class="cs-gp-detail">
+              <span class="cs-gp-detail-label">Elapsed days</span>
+              <span class="cs-gp-detail-value" id="gpElapsedDays">--</span>
+            </div>
+            <div class="cs-gp-detail">
+              <span class="cs-gp-detail-label">Remaining days</span>
+              <span class="cs-gp-detail-value" id="gpRemainingDays">--</span>
+            </div>
+            <div class="cs-gp-detail">
+              <span class="cs-gp-detail-label">Total duration</span>
+              <span class="cs-gp-detail-value" id="gpTotalDuration">75 days</span>
+            </div>
+            <div class="cs-gp-detail">
+              <span class="cs-gp-detail-label">Expected maturity</span>
+              <span class="cs-gp-detail-value" id="gpMaturityDate">--</span>
+            </div>
+          </div>
+          <p class="cs-gp-note" id="gpNote">
+            Estimate based on sowing date and general crop duration. Actual growth may vary with weather, soil, variety, and farming practices.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Advisory Banner -->
+    <div class="cs-advisory-banner" id="csAdvisoryBanner" style="display: none;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <div>
+        <strong id="csAdvisoryTitle"></strong>
+        <p id="csAdvisoryMessage"></p>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="cs-card cs-disclaimer-card">
+      <p class="cs-disclaimer-text">
+        <strong>Important:</strong> This analysis is based on a 7-day weather forecast and crop-specific
+        temperature and pH reference data. Temperature limits are reference/tolerance values, not guaranteed
+        optimal growing temperatures. Weather can change quickly, and a 7-day forecast cannot guarantee
+        conditions for the entire growing season. Always consult local agricultural experts before making
+        major planting decisions.
+      </p>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crop_suitability.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/location.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/crop_suitability_analysis.js') }}"></script>
+<script>
+  const CS_CATEGORIES = {{ categories | tojson }};
+</script>
+{% endblock %}

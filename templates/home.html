@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kisaan Suvidha — Your Farming Companion</title>
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23153a25'><path d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z'/></svg>">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+</head>
+<body>
+
+  <!-- Top Navigation Bar (Guest) -->
+  <header class="app-header" style="position: static; border-bottom: 1px solid var(--color-border-subtle);">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 36px; width: 100%; max-width: 1400px; margin: 0 auto;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="brand-icon" style="width: 32px; height: 32px; background-color: var(--color-primary-dark); color: #ffffff; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+          </svg>
+        </div>
+        <span class="brand-name" style="font-size: 18px; font-weight: var(--weight-bold); color: var(--color-primary-dark); letter-spacing: -0.01em;">Kisaan Suvidha</span>
+      </div>
+      <nav style="display: flex; gap: 24px; align-items: center;">
+        <a href="#" style="font-family: var(--font-sans); font-size: var(--font-size-secondary); font-weight: var(--weight-medium); color: var(--color-text-main);">Home</a>
+        <a href="#" style="font-family: var(--font-sans); font-size: var(--font-size-secondary); font-weight: var(--weight-medium); color: var(--color-text-main);">Features</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="padding: 8px 16px; font-size: 14px;">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="btn" style="padding: 8px 16px; font-size: 14px; border: 1px solid var(--color-border-subtle); color: var(--color-primary-dark);">Create Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-container" style="padding-top: 20px;">
+    
+    <!-- Hero Section -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; margin-bottom: 48px;">
+      <div>
+        <div class="page-eyebrow" style="font-size: 15px;">Welcome to Kisaan Suvidha</div>
+        <h1 class="page-title page-title-serif" style="font-size: 42px; line-height: 1.2;">Rooted in knowledge.<br>Growing your future.</h1>
+        <p class="page-subtitle" style="font-size: 17px; max-width: 480px;">
+          Personalised crop advice, local weather insights, soil health analysis, government schemes,
+          and an AI farming assistant — all built for Indian farmers.
+        </p>
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-block" style="padding: 14px 24px; font-size: 16px;">
+            <span>Get Started — Create Account</span>
+          </a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-block" style="padding: 14px 24px; font-size: 16px;">
+            <span>Log in</span>
+          </a>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <div class="hero-card" style="padding: 40px; text-align: center;">
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.25; margin-bottom: 16px;">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+          </svg>
+          <h3 style="font-family: var(--font-serif); font-size: 24px; margin-bottom: 10px;">No account needed to explore</h3>
+          <p style="color: var(--color-text-muted); font-size: 14px;">
+            Browse features and public information freely. Log in to unlock your personalised dashboard.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div style="margin-bottom: 48px;">
+      <h2 class="section-heading" style="margin-bottom: 16px;">Features for every farmer</h2>
+      <div class="action-grid">
+        <div class="action-card">
+          <div>
+            <div class="action-card-num">01</div>
+            <div class="action-card-title">Crop Recommendation</div>
+            <div class="action-card-desc">Get personalised crop suggestions based on your soil, season, and location.</div>
+          </div>
+          <a href="{{ url_for('auth.login') }}" class="action-card-link">
+            <span>Log in to start</span><span>→</span>
+          </a>
+        </div>
+
+        <div class="action-card">
+          <div>
+            <div class="action-card-num">02</div>
+            <div class="action-card-title">Weather Analysis</div>
+            <div class="action-card-desc">Check 7-day weather suitability for your crops and plan field activities.</div>
+          </div>
+          <a href="{{ url_for('auth.login') }}" class="action-card-link">
+            <span>Log in to start</span><span>→</span>
+          </a>
+        </div>
+
+        <div class="action-card">
+          <div>
+            <div class="action-card-num">03</div>
+            <div class="action-card-title">Disease Detection</div>
+            <div class="action-card-desc">Scan leaf photos with AI to identify diseases and get treatment recommendations.</div>
+          </div>
+          <a href="{{ url_for('auth.login') }}" class="action-card-link">
+            <span>Log in to start</span><span>→</span>
+          </a>
+        </div>
+
+        <div class="action-card">
+          <div>
+            <div class="action-card-num">04</div>
+            <div class="action-card-title">KisaanBot AI</div>
+            <div class="action-card-desc">Chat with your agricultural assistant in Hindi, English, or Hinglish.</div>
+          </div>
+          <a href="{{ url_for('auth.login') }}" class="action-card-link">
+            <span>Log in to chat</span><span>→</span>
+          </a>
+        </div>
+
+        <div class="action-card">
+          <div>
+            <div class="action-card-num">05</div>
+            <div class="action-card-title">Government Schemes</div>
+            <div class="action-card-desc">Explore PM-KISAN, PMFBY, KCC, and other support programmes.</div>
+          </div>
+          <a href="{{ url_for('schemes.schemes_page') }}" class="action-card-link">
+            <span>Explore schemes</span><span>→</span>
+          </a>
+        </div>
+
+        <div class="action-card">
+          <div>
+            <div class="action-card-num">06</div>
+            <div class="action-card-title">Farming History</div>
+            <div class="action-card-desc">Revisit your past recommendations, weather analyses, and disease scans.</div>
+          </div>
+          <a href="{{ url_for('auth.login') }}" class="action-card-link">
+            <span>Log in to view</span><span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Getting Started Section -->
+    <div style="background-color: var(--color-primary-dark); color: #ffffff; border-radius: var(--radius-lg); padding: 36px; margin-bottom: 36px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: 22px; margin-bottom: 12px;">How it works</h3>
+          <ol style="padding-left: 20px; color: #d1ded6; line-height: 1.8; font-size: 15px;">
+            <li>Create your farmer account with mobile verification.</li>
+            <td>
+            <li>Select your state, district, tehsil, and village.</li>
+            <td>
+            <li>Log in to access your personalised dashboard.</li>
+            <td>
+            <li>Get crop advice, weather insights, and chat with KisaanBot.</li>
+          </ol>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: 22px; margin-bottom: 12px;">Why Kisaan Suvidha?</h3>
+          <ul style="padding-left: 20px; color: #d1ded6; line-height: 1.8; font-size: 15px;">
+            <li><strong>Local:</strong> Recommendations tailored to your LGD location.</li>
+            <li><strong>Secure:</strong> OTP-verified accounts and hashed passwords.</li>
+            <li><strong>Multilingual:</strong> English, Hindi, and Hinglish support.</li>
+            <li><strong>Private:</strong> Your farm data stays yours.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="app-footer-note" style="max-width: 1400px; margin: 0 auto; padding: 32px 36px;">
+    <span>Kisaan Suvidha © 2025</span>
+    <span>Your farm data is used only to personalise your recommendations.</span>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Support — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="support-page">
+  
+  <!-- Page Header -->
+  <div class="page-header-box">
+    <div class="page-eyebrow">We're Here to Help</div>
+    <h1 class="page-title page-title-serif">Customer support</h1>
+    <p class="page-subtitle">A question about your account, your results or a scheme? Let's work through it.</p>
+  </div>
+
+  <div class="layout-split">
+    
+    <!-- Left Column: Support Form -->
+    <div class="ks-card">
+      <h2 class="card-heading" style="margin-bottom: 6px;">
+        Send us a message
+      </h2>
+      <p class="secondary-desc" style="margin-bottom: 22px;">
+        We usually respond within 1-2 working days.
+      </p>
+
+      <form method="POST" action="{{ url_for('support.support_page') }}">
+        
+        <!-- Name & Mobile Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="name">Your name</label>
+            <input type="text" id="name" name="name" class="form-control" value="{{ current_user.name }}" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="mobile">Mobile number</label>
+            <input type="tel" id="mobile" name="mobile" class="form-control" value="{{ current_user.mobile }}" required>
+          </div>
+        </div>
+
+        <!-- Topic Dropdown -->
+        <div class="form-group">
+          <label class="form-label" for="topic">What do you need help with?</label>
+          <select id="topic" name="topic" class="form-control">
+            <option value="Crop recommendation" selected>Crop recommendation</option>
+            <option value="Crop suitability analysis">Crop suitability analysis</option>
+            <option value="Disease detection">AI Crop disease detection</option>
+            <option value="Soil inputs">Soil inputs & test interpretation</option>
+            <option value="Government schemes">Government schemes query</option>
+            <option value="Account & Login">Account & login issues</option>
+          </select>
+        </div>
+
+        <!-- Subject -->
+        <div class="form-group">
+          <label class="form-label" for="subject">Subject</label>
+          <input type="text" id="subject" name="subject" class="form-control" value="Help understanding my soil inputs" required>
+        </div>
+
+        <!-- Message Body -->
+        <div class="form-group">
+          <label class="form-label" for="message">Your message</label>
+          <textarea id="message" name="message" class="form-control" rows="4" placeholder="Tell us a little more about the issue…" required></textarea>
+        </div>
+
+        <!-- Privacy reminder -->
+        <p class="secondary-desc" style="font-size: 13px; color: var(--color-text-light); margin-bottom: 18px;">
+          Please do not share your password or OTP.
+        </p>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Submit support request</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Right Column: Context & FAQs matching Screen 12 -->
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <!-- Need Farming Guidance Box -->
+      <div class="ks-card-sage">
+        <h3 class="card-heading" style="color: var(--color-primary-dark); margin-bottom: 6px;">
+          Need farming guidance?
+        </h3>
+        <p class="secondary-desc" style="margin-bottom: 12px; line-height: 1.5;">
+          KisaanBot can help with general crop, soil and weather questions, anytime.
+        </p>
+        <a href="{{ url_for('bot.kisaanbot_page') }}" style="font-size: 14px; font-weight: 600; color: var(--color-primary-dark); text-decoration: underline;">
+          Talk to KisaanBot →
+        </a>
+      </div>
+
+      <!-- Common Questions Accordion/Card -->
+      <div class="ks-card">
+        <div class="card-caption" style="margin-bottom: 14px;">
+          Common questions
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          
+          <div>
+            <div style="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px;">
+              Why am I not receiving an OTP?
+            </div>
+            <p class="secondary-desc" style="margin-bottom: 0; line-height: 1.45;">
+              Check your mobile number and signal. Wait for the resend timer before trying again.
+            </p>
+          </div>
+
+          <div style="border-top: 1px solid var(--color-border-subtle); padding-top: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px;">
+              Do I need a soil test?
+            </div>
+            <p class="secondary-desc" style="margin-bottom: 0; line-height: 1.45;">
+              No. Basic mode uses soil type averages. A recent soil test improves personalisation.
+            </p>
+          </div>
+
+          <div style="border-top: 1px solid var(--color-border-subtle); padding-top: 12px;">
+            <div style="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px;">
+              Can I change my farm location?
+            </div>
+            <p class="secondary-desc" style="margin-bottom: 0; line-height: 1.45;">
+              Yes. Update your state and district in <a href="{{ url_for('main.profile') }}" style="color: var(--color-primary-dark); text-decoration: underline;">Profile settings</a>.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Urgent Health Note -->
+      <div class="secondary-desc" style="font-size: 13px; color: var(--color-text-light); line-height: 1.45;">
+        For urgent crop health concerns, contact your local agricultural extension office.
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

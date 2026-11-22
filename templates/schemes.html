@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Government Schemes — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="schemes-page">
+  
+  <!-- Page Header -->
+  <div class="page-header-box">
+    <div class="page-eyebrow">Support For Your Next Chapter</div>
+    <h1 class="page-title page-title-serif">Government schemes</h1>
+    <p class="page-subtitle">Discover programmes that can support your farm and your family.</p>
+  </div>
+
+  <!-- Filter Category Tabs -->
+  <div class="filter-tabs" style="margin-bottom: 24px;">
+    <a href="{{ url_for('schemes.schemes_page', cat='all') }}" class="filter-tab {% if selected_category == 'all' %}active{% endif %}">
+      All schemes
+    </a>
+    <a href="{{ url_for('schemes.schemes_page', cat='income') }}" class="filter-tab {% if selected_category == 'income' %}active{% endif %}">
+      Income support
+    </a>
+    <a href="{{ url_for('schemes.schemes_page', cat='insurance') }}" class="filter-tab {% if selected_category == 'insurance' %}active{% endif %}">
+      Insurance
+    </a>
+    <a href="{{ url_for('schemes.schemes_page', cat='credit') }}" class="filter-tab {% if selected_category == 'credit' %}active{% endif %}">
+      Credit & loans
+    </a>
+  </div>
+
+  <!-- Grid of Schemes Cards -->
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 32px;">
+    
+    {% for s in schemes %}
+    <div class="ks-card" style="display: flex; flex-direction: column; justify-content: space-between; min-height: 280px;">
+      <div>
+        <!-- Category Badge -->
+        <div class="card-caption" style="color: var(--color-primary-dark); margin-bottom: 10px;">
+          {{ s.category_badge }}
+        </div>
+
+        <!-- Scheme Title -->
+        <h2 class="card-heading" style="margin-bottom: 4px;">
+          {{ s.code }}
+        </h2>
+
+        <!-- Subtitle -->
+        <div class="secondary-desc" style="font-weight: 500; margin-bottom: 14px;">
+          {{ s.full_name }}
+        </div>
+
+        <!-- Benefit description -->
+        <p class="secondary-desc" style="margin-bottom: 14px;">
+          {{ s.benefit }}
+        </p>
+
+        <!-- Requirements -->
+        <p style="font-size: 13px; color: var(--color-text-light); line-height: 1.4; border-top: 1px solid var(--color-border-subtle); padding-top: 10px;">
+          {{ s.requirements }}
+        </p>
+      </div>
+
+      <!-- Action Button / Link -->
+      <div style="margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--color-border-subtle);">
+        <a href="{{ s.url }}" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; color: var(--color-primary-dark);">
+          <span>View official details</span>
+          <span>↗</span>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+  <!-- Highlight Banner Card matching Screen 11 -->
+  <div class="ks-card-dark" style="margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div style="max-width: 600px;">
+      <h3 class="section-heading" style="color: #ffffff; margin-bottom: 4px;">More support. More possibilities.</h3>
+      <p class="secondary-desc" style="color: #d1ded6;">
+        Explore official programme details and check eligibility before applying.
+      </p>
+    </div>
+    <a href="https://agricoop.nic.in" target="_blank" class="btn" style="background-color: #ffffff; color: var(--color-primary-dark);">
+      <span>View official details ↗</span>
+    </a>
+  </div>
+
+  <!-- Bottom Advisory Banner -->
+  <div style="background-color: var(--color-sage-card); border: 1px solid var(--color-sage-border); border-radius: var(--radius-lg); padding: 20px 26px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div>
+      <h4 class="card-heading" style="margin-bottom: 4px;">
+        Need help understanding a scheme?
+      </h4>
+      <p class="secondary-desc">
+        Ask KisaanBot or contact your local agriculture office. Eligibility and benefits may change; official portals are authoritative.
+      </p>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="openBotForSchemes()">
+      <span>Ask KisaanBot about schemes</span>
+      <span>→</span>
+    </button>
+  </div>
+
+</div>
+
+<script>
+  function openBotForSchemes() {
+    toggleKisaanBot();
+    sendWidgetChip('Which schemes can help me?');
+  }
+</script>
+{% endblock %}

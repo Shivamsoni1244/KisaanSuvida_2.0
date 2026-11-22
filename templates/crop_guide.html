@@ -1,0 +1,640 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Guide — {{ crop_name }} — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="crop-guide-page">
+
+  <!-- Back to Recommendations -->
+  <div class="guide-back" style="margin-bottom: 20px;">
+  <a href="{{ url_for('crop.recommendation_result', result_id=result_id) }}" class="guide-back-link">
+    <span>←</span> Back to Recommendations
+  </a>
+  </div>
+
+  <!-- Page Header -->
+  <div class="guide-header">
+    <div class="guide-eyebrow">Crop Cultivation Guide</div>
+    <h1 class="guide-title">{{ guide.crop_name }}<span class="guide-hindi">({{ guide.hindi_name }})</span></h1>
+    <div class="guide-location-row">
+      <span>{{ guide.farm_context.district }}, {{ guide.farm_context.state }}</span>
+      <span class="guide-separator">•</span>
+      <span>{{ guide.farm_context.season }}</span>
+      <span class="guide-separator">•</span>
+      <span>{{ guide.farm_context.soil_type }} soil</span>
+    </div>
+
+    <!-- Info Chips: Sowing Window | Crop Duration | Expected Yield -->
+    <div class="guide-info-chips">
+      <div class="guide-chip">
+        <span class="guide-chip-label">Sowing window</span>
+        <span class="guide-chip-value">{{ guide.sowing_time }}</span>
+      </div>
+      <div class="guide-chip">
+        <span class="guide-chip-label">Crop duration</span>
+        <span class="guide-chip-value">{{ guide.crop_duration_days }} days</span>
+      </div>
+      <div class="guide-chip">
+        <span class="guide-chip-label">Expected yield</span>
+        <span class="guide-chip-value">{{ guide.expected_yield }}</span>
+      </div>
+    </div>
+
+    <!-- Export button -->
+    <a href="{{ url_for('crop.download_crop_guide_pdf', crop_name=guide.crop_name, result_id=result_id) }}" class="guide-btn-export">
+      <span>Export Guide PDF</span>
+    </a>
+  </div>
+
+  <!-- Section 01: Before you plant -->
+  <div class="guide-section">
+    <div class="guide-section-header">
+      <span class="guide-section-number">01</span>
+      <h2 class="guide-section-title">Before you plant</h2>
+    </div>
+    <div class="guide-section-grid">
+      <!-- Climate & temperature -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Climate & temperature</h3>
+        <p class="guide-sub-text">{{ guide.climate_temperature }}</p>
+        {% if guide.rainfall_requirements %}
+        <p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Rainfall:</strong> {{ guide.rainfall_requirements }}</p>
+        {% endif %}
+      </div>
+      <!-- Soil preparation -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Soil preparation</h3>
+        <p class="guide-sub-text">{{ guide.land_preparation }}</p>
+        <p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Soil types:</strong> {{ guide.soil_types }}</p>
+        <p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Recommended pH:</strong> {{ guide.recommended_ph }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 02: Seeds & sowing -->
+  <div class="guide-section">
+    <div class="guide-section-header">
+      <span class="guide-section-number">02</span>
+      <h2 class="guide-section-title">Seeds & sowing</h2>
+    </div>
+    <div class="guide-section-grid">
+      <!-- Seed selection -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Seed selection</h3>
+        <p class="guide-sub-text">{{ guide.seed_selection }}</p>
+        <p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Seed treatment:</strong> {{ guide.seed_treatment }}</p>
+        <p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Seed rate:</strong> {{ guide.seed_rate }}</p>
+      </div>
+      <!-- Sowing & planting -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Sowing & planting</h3>
+        <p class="guide-sub-text">{{ guide.sowing_method }}</p>
+        <p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Sowing time:</strong> {{ guide.sowing_time }}</p>
+        {% if guide.spacing_row %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Row spacing:</strong> {{ guide.spacing_row }}</p>{% endif %}
+        {% if guide.spacing_plant %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Plant spacing:</strong> {{ guide.spacing_plant }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 03: Nutrition & water -->
+  <div class="guide-section">
+    <div class="guide-section-header">
+      <span class="guide-section-number">03</span>
+      <h2 class="guide-section-title">Nutrition & water</h2>
+    </div>
+    <div class="guide-section-grid">
+      <!-- Fertilizer management -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Fertilizer management</h3>
+        <p class="guide-sub-text">{{ guide.fertilizer_requirements }}</p>
+        {% if guide.nitrogen_management %}<p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Nitrogen:</strong> {{ guide.nitrogen_management }}</p>{% endif %}
+        {% if guide.phosphorus_management %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Phosphorus:</strong> {{ guide.phosphorus_management }}</p>{% endif %}
+        {% if guide.potassium_management %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Potassium:</strong> {{ guide.potassium_management }}</p>{% endif %}
+        {% if guide.organic_fertilizer %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Organic:</strong> {{ guide.organic_fertilizer }}</p>{% endif %}
+        {% if guide.nutrient_deficiency %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Deficiency:</strong> {{ guide.nutrient_deficiency }}</p>{% endif %}
+      </div>
+      <!-- Irrigation management -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Irrigation management</h3>
+        <p class="guide-sub-text">{{ guide.irrigation_requirements }}</p>
+        {% if guide.irrigation_frequency %}<p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Frequency:</strong> {{ guide.irrigation_frequency }}</p>{% endif %}
+        {% if guide.critical_irrigation_stages %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Critical stages:</strong> {{ guide.critical_irrigation_stages }}</p>{% endif %}
+        {% if guide.drip_sprinkler %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Method:</strong> {{ guide.drip_sprinkler }}</p>{% endif %}
+        {% if guide.waterlogging_precautions %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Precautions:</strong> {{ guide.waterlogging_precautions }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 04: Protect your crop -->
+  <div class="guide-section">
+    <div class="guide-section-header">
+      <span class="guide-section-number">04</span>
+      <h2 class="guide-section-title">Protect your crop</h2>
+    </div>
+    <div class="guide-section-grid">
+      <!-- Weed management -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Weed management</h3>
+        <p class="guide-sub-text">{{ guide.weed_management }}</p>
+        {% if guide.common_weeds %}<p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Common weeds:</strong> {{ guide.common_weeds }}</p>{% endif %}
+        {% if guide.weed_manual_control %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Manual control:</strong> {{ guide.weed_manual_control }}</p>{% endif %}
+        {% if guide.herbicide_precautions %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Herbicide caution:</strong> {{ guide.herbicide_precautions }}</p>{% endif %}
+      </div>
+      <!-- Pest & disease management -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Pest & disease management</h3>
+        <p class="guide-sub-text">{{ guide.pest_disease_management }}</p>
+        {% if guide.common_pests %}<p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Common pests:</strong> {{ guide.common_pests }}</p>{% endif %}
+        {% if guide.common_diseases %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Common diseases:</strong> {{ guide.common_diseases }}</p>{% endif %}
+        {% if guide.ipm %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>IPM approach:</strong> {{ guide.ipm }}</p>{% endif %}
+        {% if guide.pesticide_precautions %}<p class="guide-sub-text" style="font-size: 13px; color: var(--color-text-muted);"><strong>Pesticide caution:</strong> {{ guide.pesticide_precautions }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 05: Follow the growth stages -->
+  <div class="guide-section">
+    <div class="guide-section-header">
+      <span class="guide-section-number">05</span>
+      <h2 class="guide-section-title">Follow the growth stages</h2>
+    </div>
+    <div class="guide-timeline">
+      {% if guide.growth_stage_germination %}
+      <div class="timeline-item">
+        <span class="timeline-number">01</span>
+        <div class="timeline-content">
+          <strong>Germination</strong>
+          <p class="timeline-text">{{ guide.growth_stage_germination }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if guide.growth_stage_seedling %}
+      <div class="timeline-item">
+        <span class="timeline-number">02</span>
+        <div class="timeline-content">
+          <strong>Seedling establishment</strong>
+          <p class="timeline-text">{{ guide.growth_stage_seedling }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if guide.growth_stage_vegetative %}
+      <div class="timeline-item">
+        <span class="timeline-number">03</span>
+        <div class="timeline-content">
+          <strong>Vegetative growth</strong>
+          <p class="timeline-text">{{ guide.growth_stage_vegetative }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if guide.growth_stage_flowering %}
+      <div class="timeline-item">
+        <span class="timeline-number">04</span>
+        <div class="timeline-content">
+          <strong>Flowering</strong>
+          <p class="timeline-text">{{ guide.growth_stage_flowering }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if guide.growth_stage_fruit_grain %}
+      <div class="timeline-item">
+        <span class="timeline-number">05</span>
+        <div class="timeline-content">
+          <strong>Fruit/grain formation</strong>
+          <p class="timeline-text">{{ guide.growth_stage_fruit_grain }}</p>
+        </div>
+      </div>
+      {% endif %}
+      {% if guide.growth_stage_maturity %}
+      <div class="timeline-item">
+        <span class="timeline-number">06</span>
+        <div class="timeline-content">
+          <strong>Maturity</strong>
+          <p class="timeline-text">{{ guide.growth_stage_maturity }}</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Section 06: Harvest & post-harvest -->
+  <div class="guide-section">
+    <div class="guide-section-header">
+      <span class="guide-section-number">06</span>
+      <h2 class="guide-section-title">Harvest & post-harvest</h2>
+    </div>
+    <div class="guide-section-grid">
+      <!-- Harvesting -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Harvesting</h3>
+        <p class="guide-sub-text">{{ guide.harvesting_time }} • {{ guide.harvesting_method }}</p>
+        {% if guide.harvesting_signs %}<p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Signs of maturity:</strong> {{ guide.harvesting_signs }}</p>{% endif %}
+      </div>
+      <!-- Post-harvest management -->
+      <div class="guide-subsection">
+        <h3 class="guide-sub-title">Post-harvest management</h3>
+        <p class="guide-sub-text">{{ guide.post_harvest_management }}</p>
+        {% if guide.expected_yield %}<p class="guide-sub-text" style="margin-top: 10px; font-size: 13px; color: var(--color-text-muted);"><strong>Expected yield:</strong> {{ guide.expected_yield }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Important precautions (dark card) -->
+  <div class="guide-section">
+    <div class="guide-card guide-card-dark">
+      <div class="guide-card-header-dark">
+        <h3 class="guide-card-title-dark">Important precautions</h3>
+      </div>
+      <div class="guide-card-content-dark">
+        <p class="guide-card-text-dark">{{ guide.precautions }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consult expert -->
+  <div class="guide-section">
+    <div class="guide-card guide-card-expert">
+      <div class="guide-expert-content">
+        <strong>Consult your local agricultural expert</strong>
+        <p style="margin: 8px 0 0 0; font-size: 13px; color: var(--color-text-muted);">
+          Visit local agricultural experts and KVK before implementation. Do not invent fertilizer dosages or guaranteed yields.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="result-disclaimer-box" style="margin-top: 32px; padding: 16px 20px; background-color: #f8faf8; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); font-size: 13.5px; color: var(--color-text-light); line-height: 1.6;">
+    <strong style="color: var(--color-primary-dark);">Disclaimer:</strong> {{ guide.disclaimer }}
+  </div>
+
+  <div style="margin-top: 16px; font-size: 12px; color: var(--color-text-light); text-align: center;">
+    Kisan Suvidha 2025 • Your farm data is used to personalise your recommendations.
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crop_result.css') }}">
+<style>
+  /* ==========================================================================
+     Crop Guide - Polished to match reference design
+     ========================================================================== */
+
+  .crop-guide-page {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-height: 0;
+  }
+
+  /* ---------- Back link ---------- */
+  .guide-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: var(--weight-medium);
+    color: var(--color-primary-dark);
+    text-decoration: none;
+  }
+
+  .guide-back-link:hover {
+    text-decoration: underline;
+  }
+
+  /* ---------- Header ---------- */
+  .guide-header {
+    background-color: var(--color-primary-dark);
+    color: #ffffff;
+    border-radius: var(--radius-lg);
+    padding: 32px 40px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .guide-eyebrow {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-caption);
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--ls-caption);
+    text-transform: uppercase;
+    color: var(--color-accent-light);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .guide-title {
+    font-family: var(--font-serif);
+    font-size: 48px;
+    font-weight: var(--weight-regular);
+    line-height: var(--lh-heading);
+    letter-spacing: var(--ls-tight);
+    color: #ffffff;
+    margin: 0 0 10px 0;
+  }
+
+  .guide-hindi {
+    font-size: 24px;
+    color: #d1ded6;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  .guide-location-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: var(--weight-medium);
+    color: #d1ded6;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .guide-separator {
+    color: #8fb09e;
+  }
+
+  /* Info chips */
+  .guide-info-chips {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .guide-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    min-width: 150px;
+  }
+
+  .guide-chip-label {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: var(--weight-semibold);
+    letter-spacing: var(--ls-caption);
+    text-transform: uppercase;
+    color: #a8c7b8;
+  }
+
+  .guide-chip-value {
+    font-family: var(--font-sans);
+    font-size: 17px;
+    font-weight: var(--weight-bold);
+    color: #ffffff;
+  }
+
+  /* ---------- Sections ---------- */
+  .guide-section {
+    margin-bottom: 32px;
+  }
+
+  .guide-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .guide-section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-sage-bg);
+    color: var(--color-primary-dark);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: var(--weight-bold);
+    flex-shrink: 0;
+  }
+
+  .guide-section-title {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: var(--weight-bold);
+    color: var(--color-text-main);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  /* Subsection grid */
+  .guide-section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+
+  .guide-subsection {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .guide-sub-title {
+    font-family: var(--font-sans);
+    font-size: 19px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-primary-dark);
+    margin: 0 0 8px 0;
+  }
+
+  .guide-sub-text {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: var(--weight-regular);
+    color: var(--color-text-main);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* ---------- Timeline (growth stages) ---------- */
+  .guide-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .timeline-item:last-child {
+    border-bottom: none;
+  }
+
+  .timeline-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-sage-bg);
+    color: var(--color-primary-dark);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: var(--weight-bold);
+    flex-shrink: 0;
+  }
+
+  .timeline-content strong {
+    display: block;
+    font-size: 18px;
+    color: var(--color-primary-dark);
+    margin-bottom: 6px;
+  }
+
+  .timeline-text {
+    font-size: 16px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ---------- Dark cards ---------- */
+  .guide-card-dark {
+    background-color: var(--color-primary-dark);
+    color: #ffffff;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .guide-card-header-dark {
+    padding: 22px 26px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .guide-card-title-dark {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: var(--weight-bold);
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .guide-card-content-dark {
+    padding: 22px 26px;
+  }
+
+  .guide-card-text-dark {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: var(--weight-regular);
+    color: #d1ded6;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Expert card */
+  .guide-card-expert {
+    background-color: #f8faf8;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: 24px 28px;
+  }
+
+  .guide-expert-content strong {
+    color: var(--color-primary-dark);
+    font-weight: var(--weight-semibold);
+    font-size: 16px;
+  }
+
+  .guide-expert-content p {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: 8px 0 0 0;
+  }
+
+  /* Export button */
+  .guide-btn-export {
+    position: absolute;
+    top: 40px;
+    right: 40px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: var(--color-primary-dark);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: var(--weight-semibold);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    border: 1px solid var(--color-primary-dark);
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .guide-btn-export:hover {
+    background-color: #f0fdf4;
+    box-shadow: 0 4px 12px rgba(21, 58, 37, 0.12);
+    transform: translateY(-1px);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1023px) {
+    .guide-section-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .guide-info-chips {
+      flex-direction: column;
+    }
+
+    .guide-chip {
+      min-width: auto;
+      width: 100%;
+    }
+
+    .guide-header {
+      padding: 24px;
+    }
+
+    .guide-title {
+      font-size: 36px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .guide-header {
+      padding: 20px;
+    }
+
+    .guide-title {
+      font-size: 32px;
+    }
+
+    .timeline-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .guide-section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

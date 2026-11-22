@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendation Result — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="result-page">
+
+  <!-- Page Header -->
+  <header class="result-header">
+    <div class="result-eyebrow">Your Personalised Crop Match</div>
+    <h1 class="result-title">A promising season starts with {{ result.top_crop.name.split(' ')[0] | lower }}.</h1>
+    <div class="result-actions">
+      <a href="{{ url_for('crop.recommendation_result_download', result_id=result_id) }}" class="result-btn-download">
+        <span>Download detailed report</span>
+      </a>
+    </div>
+    <div class="result-meta-row">
+      <span class="result-meta-item">{{ result.farm_context.district }}, {{ result.farm_context.state }}</span>
+      <span class="result-meta-separator">•</span>
+      <span class="result-meta-item">{{ result.selected_season }}</span>
+      <span class="result-meta-separator">•</span>
+      <span class="result-meta-item">{{ result.farm_context.soil_type }} soil</span>
+      <span class="result-meta-separator">•</span>
+      <span class="result-meta-item">{{ result.farm_context.irrigation }}</span>
+    </div>
+  </header>
+
+  <!-- Top Recommendation Card -->
+  <div class="result-card result-card-top">
+    <div class="top-badge">TOP RECOMMENDATION</div>
+    <div class="top-crop-content">
+      <div class="top-text">
+        <h2 class="top-crop-name">{{ result.top_crop.name }}</h2>
+        <p class="top-crop-desc">{{ result.top_crop.summary }}</p>
+      </div>
+      <div class="top-image">
+        <img src="{{ crop_image_url(result.top_crop.name) }}" alt="{{ result.top_crop.name }}" loading="lazy">
+      </div>
+    </div>
+  </div>
+
+  <!-- Spacer above Why this crop -->
+  <div class="result-spacer"></div>
+
+  <!-- Why this crop card -->
+  <div class="result-card result-card-section">
+    <h3 class="card-heading">Why this crop</h3>
+    <p class="card-text">{{ result.top_crop.explanation }}</p>
+  </div>
+
+  <!-- How to grow card (clickable) -->
+  <a href="{{ url_for('crop.crop_guide', crop_name=result.top_crop.name, result_id=result_id) }}" class="result-card result-card-section result-card-clickable" tabindex="0">
+    <h3 class="card-heading">How to grow</h3>
+    <p class="card-text">{{ result.top_crop.important_considerations[0] if result.top_crop.important_considerations else 'Consult local agricultural experts for detailed cultivation instructions.' }}</p>
+    <span class="card-grow-arrow">View cultivation guide →</span>
+  </a>
+
+  <!-- Two-column: Weather + Compatibility -->
+  <div class="result-two-col">
+    <!-- Weather & Water section (standalone, no card) -->
+    <div class="weather-section">
+      <div class="weather-label">Weather & Water</div>
+      {% if result.weather_display.is_real_time %}
+      <div class="weather-main">{{ result.weather_display.temperature_display }} • {{ result.weather_display.humidity_display }}</div>
+      {% else %}
+      <div class="weather-main">{{ result.top_crop.weather_summary }}</div>
+      {% endif %}
+      <p class="weather-sub">
+        {{ result.top_crop.water_requirement }} irrigation need • {{ result.farm_context.irrigation }}
+      </p>
+      <p class="weather-note">
+        {% if result.weather_display.is_real_time %}
+        {{ result.weather_display.description }} • {{ result.top_crop.irrigation_advice }}
+        {% else %}
+        Adjust irrigation to rainfall and local guidance.
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Farm compatibility card -->
+    <div class="result-card result-card-compat">
+      <div class="compat-label">Your farm compatibility</div>
+      <div class="compat-sub">Illustrative match scores</div>
+      <div class="compat-bars">
+        <div class="compat-bar-row">
+          <span class="compat-bar-label">Soil</span>
+          <div class="compat-bar-track">
+            <div class="compat-bar-fill" style="width: {{ result.top_crop.soil_compatibility }}%;"></div>
+          </div>
+          <span class="compat-bar-value">{{ result.top_crop.soil_compatibility }} %</span>
+        </div>
+        <div class="compat-bar-row">
+          <span class="compat-bar-label">Season</span>
+          <div class="compat-bar-track">
+            <div class="compat-bar-fill" style="width: {{ result.top_crop.seasonal_compatibility }}%;"></div>
+          </div>
+          <span class="compat-bar-value">{{ result.top_crop.seasonal_compatibility }} %</span>
+        </div>
+        <div class="compat-bar-row">
+          <span class="compat-bar-label">Region</span>
+          <div class="compat-bar-track">
+            <div class="compat-bar-fill" style="width: {{ result.top_crop.regional_compatibility }}%;"></div>
+          </div>
+          <span class="compat-bar-value">{{ result.top_crop.regional_compatibility }} %</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two-column: States + Did You Know -->
+  <div class="result-two-col result-two-col-stretch">
+    <div class="result-card result-card-didyouknow">
+      <div class="didyouknow-label">DID YOU KNOW?</div>
+      <p class="didyouknow-text">{{ result.top_crop.did_you_know }}</p>
+    </div>
+
+    <div class="result-card result-card-states">
+      <h3 class="card-heading">States where it grows</h3>
+      <div class="states-chips">
+        {% for state in result.top_crop.states_where_it_grows %}
+        <span class="state-chip">{{ state }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Other crops worth considering + KisaanBot -->
+  <div class="result-section">
+    <h2 class="section-heading">Other crops worth considering</h2>
+    <div class="result-alts-kb-grid">
+      <!-- Alternative crops column -->
+      {% for alt in result.alternatives %}
+      <a href="{{ url_for('crop.crop_guide', crop_name=alt.name, result_id=result_id) }}" class="result-alt-card-link" tabindex="0">
+        <div class="result-alt-card">
+          <div class="result-alt-name">{{ alt.name }}</div>
+          <div class="result-alt-suitability">{{ alt.suitability_score }} % suitability</div>
+          {% if alt.summary and alt.summary != "Not available" %}
+          <p class="result-alt-desc">{{ alt.summary }}</p>
+          {% endif %}
+          {% if alt.water_requirement and alt.water_requirement != "Not available" or alt.season and alt.season != "Not available" %}
+          <div class="result-alt-meta">
+            {% if alt.water_requirement and alt.water_requirement != "Not available" %}
+            <span>Water needs: {{ alt.water_requirement }}</span>
+            {% endif %}
+            {% if alt.water_requirement and alt.water_requirement != "Not available" and alt.season and alt.season != "Not available" %}
+            <span class="result-alt-divider">•</span>
+            {% endif %}
+            {% if alt.season and alt.season != "Not available" %}
+            <span>Season: {{ alt.season }}</span>
+            {% endif %}
+          </div>
+          {% endif %}
+          <div class="result-alt-view-details">
+            View crop details
+            <span>→</span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+
+      <!-- KisaanBot card column -->
+      <div class="result-kisaanbot-card result-card">
+          <div class="kisaanbot-content">
+            <h3 class="kisaanbot-heading">Why is {{ result.top_crop.name }} a good fit?</h3>
+            <p class="kisaanbot-text">Let KisaanBot explain why this crop is a good fit in simple words.</p>
+          </div>
+        <div class="kisaanbot-action">
+          <a href="{{ url_for('bot.kisaanbot_page') }}" onclick="sendKisaanbotQuestion('{{ result.top_crop.name }}', {{ result.top_crop|tojson }})" class="kisaanbot-btn">
+            <span>Ask KisaanBot</span>
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="result-card result-card-disclaimer">
+    <strong class="disclaimer-label">Disclaimer:</strong> <span class="disclaimer-text">{{ result.disclaimer }}</span>
+  </div>
+
+  <!-- Bottom Action -->
+  <div class="result-bottom-action">
+    <a href="{{ url_for('crop.recommendation') }}" class="result-btn-edit">
+      <span>Edit farm inputs</span>
+    </a>
+    <span class="result-footnote">
+      AI-generated suitability scores are estimates, not ML model probabilities.
+    </span>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/crop_result.css') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/location.js') }}"></script>
+<script>
+function sendKisaanbotQuestion(cropName, cropData) {
+  const question = `Why is ${cropName} a good fit for my farm? Explain using my actual location, soil type, season, irrigation, weather and recommendation details.`;
+
+  if (typeof toggleKisaanBot === 'function') {
+    toggleKisaanBot();
+  }
+
+  setTimeout(() => {
+    if (typeof window.KisaanBotWidget !== 'undefined' && window.KisaanBotWidget.sendMessage) {
+      window.KisaanBotWidget.sendMessage(question, 'en');
+    } else if (typeof sendWidgetMessage === 'function') {
+      const input = document.getElementById('widgetInput');
+      if (input) {
+        input.value = question;
+        sendWidgetMessage();
+      }
+    }
+  }, 300);
+}
+</script>
+{% endblock %}

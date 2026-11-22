@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Kisaan Suvidha — Rooted in knowledge. Growing your future.{% endblock %}</title>
+  
+  <!-- Favicon / Leaf SVG -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23153a25'><path d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z'/></svg>">
+  
+  <!-- Google Fonts: DM Sans & DM Serif Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/widget.css') }}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert-toast {{ category }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <div class="app-container">
+    
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+    <!-- App Left Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <!-- Brand Header -->
+      <a href="{{ url_for('main.dashboard') }}" class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+          </svg>
+        </div>
+        <span class="brand-name">Kisaan Suvidha</span>
+      </a>
+
+      <!-- Micro Section Label -->
+      <div class="sidebar-section-tag">Grow With Confidence</div>
+
+      <!-- Navigation List - Dynamic based on auth state -->
+      <ul class="sidebar-nav">
+        {% if is_authenticated %}
+        <!-- Dashboard -->
+        <li class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+          <a href="{{ url_for('main.dashboard') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+
+        <!-- Crop Recommendation -->
+        <li class="nav-item {% if active_page == 'recommendation' %}active{% endif %}">
+          <a href="{{ url_for('crop.recommendation') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </span>
+            <span>Crop recommendation</span>
+          </a>
+        </li>
+
+        <!-- Crop Suitability Analysis -->
+        <li class="nav-item {% if active_page == 'suitability' %}active{% endif %}">
+          <a href="{{ url_for('crop_suitability.suitability_analysis') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"></path></svg>
+            </span>
+            <span>Suitability analysis</span>
+          </a>
+        </li>
+
+        <!-- AI Crop Disease Detection -->
+        <li class="nav-item {% if active_page == 'disease' %}active{% endif %}">
+          <a href="{{ url_for('disease.disease_detection') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.39 0 4.68 .94 6.4 2.6l-2.4 2.4"></path><path d="M9 12l2 2 4-4"></path></svg>
+            </span>
+            <span>Disease detection</span>
+            <span class="nav-badge">AI</span>
+          </a>
+        </li>
+
+        <!-- KisaanBot -->
+        <li class="nav-item {% if active_page == 'kisaanbot' %}active{% endif %}">
+          <a href="{{ url_for('bot.kisaanbot_page') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </span>
+            <span>KisaanBot</span>
+          </a>
+        </li>
+
+        <!-- History -->
+        <li class="nav-item {% if active_page == 'history' %}active{% endif %}">
+          <a href="{{ url_for('history.history_page') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </span>
+            <span>History</span>
+          </a>
+        </li>
+
+        <!-- Government Schemes -->
+        <li class="nav-item {% if active_page == 'schemes' %}active{% endif %}">
+          <a href="{{ url_for('schemes.schemes_page') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2L2 7h20L12 2z"></path></svg>
+            </span>
+            <span>Government schemes</span>
+          </a>
+        </li>
+
+        <!-- Customer Support -->
+        <li class="nav-item {% if active_page == 'support' %}active{% endif %}">
+          <a href="{{ url_for('support.support_page') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </span>
+            <span>Customer support</span>
+          </a>
+        </li>
+        {% else %}
+        <!-- Guest navigation -->
+        <li class="nav-item {% if active_page == 'home' %}active{% endif %}">
+          <a href="{{ url_for('index') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </span>
+            <span>Home</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a href="{{ url_for('schemes.schemes_page') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M12 2L2 7h20L12 2z"></path></svg>
+            </span>
+            <span>Government schemes</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+
+      <!-- Subtle divider before guidance card -->
+      <div class="sidebar-divider"></div>
+
+      <!-- Sidebar Guidance Card matching PDF -->
+      <div class="sidebar-guidance-card">
+        <h4>{% if is_authenticated %}A little guidance.<br>A better harvest.{% else %}Explore Kisaan Suvidha<br>Log in for personalised features.{% endif %}</h4>
+        <p>{% if is_authenticated %}Your farming companion, every step of the season.{% else %}Create an account to unlock your personalised dashboard.{% endif %}</p>
+      </div>
+
+      <!-- Sidebar Footer Links -->
+      <div class="sidebar-footer">
+        {% if is_authenticated %}
+        <a href="{{ url_for('main.profile') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span>Profile settings</span>
+        </a>
+        <a href="{{ url_for('auth.logout') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>Log out</span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="21" y1="15" x2="15" y2="21"></line><polyline points="21 9 18 12 21 12"></polyline></svg>
+          <span>Log in</span>
+        </a>
+        <a href="{{ url_for('auth.register') }}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9"></path><path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9"></path><path d="M22 4h-1v2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4H2a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-1"></path></svg>
+          <span>Create account</span>
+        </a>
+        {% endif %}
+      </div>
+    </aside>
+
+    <!-- App Main Area -->
+    <div class="app-main">
+      
+      <!-- Top Sticky Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          
+          <!-- Location Pill -->
+          <div class="location-pill">
+            <span class="location-dot"></span>
+            <span>{% if is_authenticated %}{{ current_user.state }} / {{ current_user.district }}{% else %}Public access{% endif %}</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <!-- Language Switcher -->
+          <div class="lang-switcher">
+            <button class="lang-btn active" id="btnLangEn" onclick="switchGlobalLanguage('en')">English</button>
+            <span class="lang-divider">/</span>
+            <button class="lang-btn" id="btnLangHi" onclick="switchGlobalLanguage('hi')">हिन्दी</button>
+          </div>
+
+          <!-- User Profile Capsule -->
+          {% if is_authenticated %}
+          <div class="user-capsule">
+            <div class="user-avatar">
+              {{ current_user.name[:1] if current_user.name else 'U' }}
+            </div>
+            <div class="user-info">
+              <span class="user-name">{{ current_user.name }}</span>
+              <span class="user-role">Farmer • {{ current_user.district }}</span>
+            </div>
+          </div>
+          {% else %}
+          <a href="{{ url_for('auth.login') }}" class="user-capsule" style="text-decoration: none;">
+            <div class="user-avatar" style="background-color: var(--color-sage-bg); border-color: var(--color-border-subtle);">
+              S
+            </div>
+            <div class="user-info">
+              <span class="user-name">Sign in</span>
+              <span class="user-role">Access your account</span>
+            </div>
+          </a>
+          {% endif %}
+        </div>
+      </header>
+
+      <!-- Main Dynamic Content -->
+      <main class="page-container">
+        {% block content %}{% endblock %}
+
+        <!-- Footer Copyright & Privacy -->
+        <footer class="app-footer-note">
+          <span>Kisaan Suvidha © {{ app_year }}</span>
+          <span>Your farm data is used only to personalise your recommendations.</span>
+        </footer>
+      </main>
+    </div>
+
+  </div>
+
+  <!-- =========================================================================
+       GLOBAL FLOATING KISAANBOT AI ASSISTANT WIDGET
+       Accessible from anywhere in the application
+       ========================================================================= -->
+  {% if is_authenticated %}
+  <div class="ks-bot-launcher" id="ksBotLauncher" onclick="toggleKisaanBot()" title="Ask KisaanBot">
+    <div class="ks-bot-launcher-pulse"></div>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <circle cx="9" cy="10" r="1" fill="currentColor"></circle>
+      <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+    </svg>
+    <div class="ks-bot-tooltip">Ask KisaanBot AI</div>
+  </div>
+
+  <!-- Floating Chat Window -->
+  <div class="ks-bot-window" id="ksBotWindow">
+    <div class="ks-bot-header">
+      <div class="ks-bot-header-info">
+        <div class="ks-bot-avatar">🌾</div>
+        <div class="ks-bot-title-group">
+          <h3>KisaanBot</h3>
+          <span>Online • AI Assistant</span>
+        </div>
+      </div>
+      <div class="ks-bot-actions">
+        <select class="ks-bot-lang-select" id="widgetLangSelect" onchange="changeWidgetLanguage(this.value)">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="hinglish">Hinglish</option>
+        </select>
+        <button class="ks-bot-close-btn" onclick="toggleKisaanBot()" aria-label="Close chat">×</button>
+      </div>
+    </div>
+
+    <!-- Scrollable Message Body -->
+    <div class="ks-bot-messages" id="widgetMessages">
+      <div class="msg-wrapper bot">
+        <div class="msg-bubble">
+          Namaste {{ current_user.name if current_user.name else 'farmer' }}! I am KisaanBot, your agricultural assistant. How can I help your farm today?
+        </div>
+        <span class="msg-time">Just now</span>
+      </div>
+    </div>
+
+    <!-- Interactive Prompt Suggestion Chips -->
+    <div class="ks-bot-chips" id="widgetChips">
+      <button class="ks-bot-chip" onclick="sendWidgetChip('Why was rice recommended for my farm?')">Why rice?</button>
+      <button class="ks-bot-chip" onclick="sendWidgetChip('How much water does rice need?')">Water needs</button>
+      <button class="ks-bot-chip" onclick="sendWidgetChip('What does my soil pH mean?')">Soil pH</button>
+      <button class="ks-bot-chip" onclick="sendWidgetChip('Which schemes can help me?')">Govt Schemes</button>
+    </div>
+
+    <!-- Chat Input Bar -->
+    <div class="ks-bot-input-bar">
+      <input type="text" class="ks-bot-input" id="widgetInput" placeholder="Ask about crops, soil, pests..." onkeydown="handleWidgetKeyDown(event)">
+      <button class="ks-bot-icon-btn" id="widgetMicBtn" onclick="toggleSpeechRecognition()" title="Voice input">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+      </button>
+      <button class="ks-bot-send-btn" onclick="sendWidgetMessage()" title="Send">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
+  {% else %}
+  <div class="ks-bot-launcher" id="ksBotLauncher" onclick="showLoginPrompt()" title="Sign in to use KisaanBot">
+    <div class="ks-bot-launcher-pulse"></div>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <circle cx="9" cy="10" r="1" fill="currentColor"></circle>
+      <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+    </svg>
+    <div class="ks-bot-tooltip">Sign in to chat</div>
+  </div>
+  {% endif %}
+
+  <!-- Login prompt modal (shown when guest clicks KisaanBot) -->
+  <div id="loginPromptModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="ks-card" style="max-width: 440px; padding: 32px; text-align: center;">
+      <div class="otp-icon-badge" style="margin: 0 auto 16px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </div>
+      <h3 style="font-family: var(--font-serif); font-size: 24px; margin-bottom: 12px;">Sign in to use KisaanBot</h3>
+      <p style="color: var(--color-text-muted); margin-bottom: 24px;">
+        Sign in to use KisaanBot and receive personalised agricultural assistance based on your farm profile.
+      </p>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <a href="{{ url_for('auth.login') }}" style="flex: 1;">Log in</a>
+        <a href="{{ url_for('auth.register') }}" style="flex: 1;">Create account</a>
+      </div>
+      <p style="margin-top: 16px; font-size: 13px; color: var(--color-text-light);">
+        Guest users can browse public features but cannot access KisaanBot chat.
+      </p>
+    </div>
+  </div>
+
+  <!-- JavaScript Files -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/kisaanbot-widget.js') }}"></script>
+  {% block extra_js %}<script src="{{ url_for('static', filename='js/location.js') }}"></script>{% endblock %}
+
+  <script>
+    function showLoginPrompt() {
+      const modal = document.getElementById('loginPromptModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function (e) {
+      const modal = document.getElementById('loginPromptModal');
+      if (modal && e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

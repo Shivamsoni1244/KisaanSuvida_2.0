@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KisaanBot Embeddable Widget Showcase — Punjab Agricultural Extension Portal</title>
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23153a25'><path d='M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z'/></svg>">
+  <!-- Google Fonts: DM Sans & DM Serif Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/widget.css') }}">
+
+  <style>
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-family: var(--font-sans);
+      padding: 0;
+      margin: 0;
+    }
+    .ext-header {
+      background-color: #047857;
+      color: #ffffff;
+      padding: 18px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .ext-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ext-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    .code-box {
+      background-color: #1e293b;
+      color: #f8fafc;
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      margin: 16px 0;
+      line-height: 1.6;
+    }
+    .ext-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mock Third Party External Portal Header -->
+  <header class="ext-header">
+    <div class="ext-logo">
+      <span>🌾</span>
+      <span>Punjab Krishi Extension & Advisory Portal (External Website)</span>
+    </div>
+    <div>
+      <a href="{{ url_for('main.dashboard') }}" style="color: #ffffff; font-size: 0.88rem; text-decoration: underline;">
+        ← Back to Kisaan Suvidha App
+      </a>
+    </div>
+  </header>
+
+  <main class="ext-container">
+    
+    <div class="ext-card">
+      <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #047857;">
+        Developer Integration Guide
+      </span>
+      <h1 style="font-size: 1.85rem; font-weight: 700; margin: 8px 0 12px 0;">
+        Embed KisaanBot on Any Website
+      </h1>
+      <p style="font-size: 0.95rem; color: #475569; line-height: 1.6;">
+        This page demonstrates how agricultural portals, university websites (e.g. PAU, CCS HAU), state agriculture departments, and private agro-tech applications can embed the <strong>KisaanBot AI Assistant</strong> with a single script tag.
+      </p>
+
+      <h2 style="font-size: 1.15rem; font-weight: 700; margin-top: 24px;">1. Embed Code Snippet</h2>
+      <p style="font-size: 0.85rem; color: #64748b;">
+        Place this tag just before the closing <code>&lt;/body&gt;</code> tag on your website:
+      </p>
+
+      <div class="code-box">
+&lt;!-- Include KisaanBot Embeddable AI Assistant Widget --&gt;
+&lt;script 
+  src="{{ request.host_url.rstrip('/') }}/static/js/kisaanbot-widget.js" 
+  data-api-url="{{ request.host_url.rstrip('/') }}/api/kisaanbot/chat" 
+  data-language="en"
+  data-farmer-name="Farmer"
+  data-theme="forest-green"&gt;
+&lt;/script&gt;
+      </div>
+
+      <h2 style="font-size: 1.15rem; font-weight: 700; margin-top: 24px;">2. Try the Live Widget</h2>
+      <p style="font-size: 0.88rem; color: #475569; line-height: 1.5;">
+        Notice the <strong>floating KisaanBot widget</strong> in the bottom right corner of this external page! Click on it to test conversations in <strong>English</strong>, <strong>हिन्दी</strong>, or <strong>Hinglish</strong>. It communicates directly with the Kisaan Suvidha backend via clean JSON REST APIs.
+      </p>
+
+      <div style="margin-top: 20px; display: flex; gap: 12px;">
+        <button class="btn btn-primary" onclick="window.KisaanBotWidget ? window.KisaanBotWidget.open() : alert('Widget is loading...')">
+          Open Embedded KisaanBot
+        </button>
+        <a href="{{ url_for('bot.kisaanbot_page') }}" class="btn btn-secondary">
+          Open In-App KisaanBot Page
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Embeddable Widget Script Injection -->
+  <script 
+    src="{{ url_for('static', filename='js/kisaanbot-widget.js') }}" 
+    data-api-url="{{ url_for('bot.api_chat') }}"
+    data-language="en"
+  ></script>
+
+</body>
+</html>

@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Recommendation — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="recommendation-page">
+  
+  <!-- Page Header -->
+  <div class="page-header-box">
+    <div class="page-eyebrow">Plan Your Next Harvest</div>
+    <h1 class="page-title page-title-serif">Crop recommendation</h1>
+    <p class="page-subtitle">Tell us about your farm. Our ML model will help you discover suitable crops.</p>
+  </div>
+    
+    <!-- Left Column: Form -->
+    <div class="layout-split">
+    <div class="ks-card">
+      <h2 class="section-heading" style="margin-bottom: 22px;">
+        Farm & soil details
+      </h2>
+
+      <form method="POST" action="{{ url_for('crop.recommendation') }}" id="cropForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="mode" id="formModeInput" value="advanced">
+
+        <!-- 01 Location & Growing Conditions -->
+        <div class="form-section-title">
+          <span>01</span> Location & Growing Conditions
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="state">State</label>
+            <select id="state" name="state_id" class="form-control"
+              data-selected="{{ current_user.state_id|default('') }}">
+              <option value="">Select a state</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="district">District</label>
+            <select id="district" name="district_id" class="form-control"
+              data-selected="{{ current_user.district_id|default('') }}">
+              <option value="">Select a district</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="tehsil">Tehsil / Sub-District</label>
+            <select id="tehsil" name="tehsil_id" class="form-control"
+              data-selected="{{ current_user.tehsil_id|default('') }}">
+              <option value="">Select a tehsil</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="village">Village</label>
+            <select id="village" name="village_id" class="form-control"
+              data-selected="{{ current_user.village_id|default('') }}">
+              <option value="">Select a village</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Hidden display names submitted with the form (populated by location.js) -->
+        <input type="hidden" name="state_name" id="state_name"
+          value="{{ current_user.state|default('') }}">
+        <input type="hidden" name="district_name" id="district_name"
+          value="{{ current_user.district|default('') }}">
+        <input type="hidden" name="tehsil_name" id="tehsil_name"
+          value="{{ current_user.tehsil|default('') }}">
+        <input type="hidden" name="village_name" id="village_name"
+          value="{{ current_user.village|default('') }}">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="season">Season</label>
+            <select id="season" name="season" class="form-control">
+              <option value="Kharif" selected>Kharif (Monsoon/Summer)</option>
+              <option value="Rabi">Rabi (Winter)</option>
+              <option value="Zaid">Zaid (Pre-monsoon/Summer)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="soil_type">Soil type</label>
+            <select id="soil_type" name="soil_type" class="form-control" onchange="handleSoilTypeChange(this.value)">
+              <option value="Alluvial" {% if current_user.soil_type == 'Alluvial' %}selected{% endif %}>Alluvial</option>
+              <option value="Black" {% if current_user.soil_type == 'Black' %}selected{% endif %}>Black (Regur)</option>
+              <option value="Red" {% if current_user.soil_type == 'Red' %}selected{% endif %}>Red Soil</option>
+              <option value="Clayey" {% if current_user.soil_type == 'Clayey' %}selected{% endif %}>Clayey</option>
+              <option value="Sandy loam" {% if current_user.soil_type == 'Sandy loam' %}selected{% endif %}>Sandy loam</option>
+              <option value="Laterite" {% if current_user.soil_type == 'Laterite' %}selected{% endif %}>Laterite</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 02 Soil Inputs Section -->
+        <div class="form-section-title" style="margin-top: 24px;">
+          <span>02</span> Soil Inputs
+        </div>
+
+        <!-- Mode Toggle Tabs (Basic vs Advanced) -->
+        <div class="mode-toggle-bar">
+          <button type="button" class="mode-toggle-btn" id="btnModeBasic" onclick="setMode('basic')">
+            Basic (use soil averages)
+          </button>
+          <button type="button" class="mode-toggle-btn active" id="btnModeAdvanced" onclick="setMode('advanced')">
+            Advanced (enter test values)
+          </button>
+        </div>
+
+        <!-- Basic Mode Information Box (Shown when Basic is active) -->
+        <div id="basicModeContainer" style="display: none; margin-bottom: 20px;">
+          <div class="ks-card-sage" style="padding: 16px; margin-bottom: 16px;">
+            <div style="font-size: 0.86rem; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">
+              No lab report needed. We'll use typical values for <span id="basicSoilName">alluvial</span> soil.
+            </div>
+            <div style="font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.45;">
+              Using regional soil type averages: N, P, K and pH will be estimated. Switch to Advanced to use your soil health card values.
+            </div>
+          </div>
+        </div>
+
+        <!-- Advanced Mode Inputs (N, P, K, pH) -->
+        <div id="advancedModeContainer">
+          <p style="font-size: 0.82rem; color: var(--color-text-muted); margin-bottom: 14px;">
+            Have a soil health card? Add your values for more precise advice.
+          </p>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label" for="nitrogen">Nitrogen (N)<span class="unit">kg/ha</span></label>
+              <input type="number" id="nitrogen" name="nitrogen" class="form-control" value="90" min="10" max="250">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="phosphorus">Phosphorus (P)<span class="unit">kg/ha</span></label>
+              <input type="number" id="phosphorus" name="phosphorus" class="form-control" value="42" min="5" max="150">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="potassium">Potassium (K)<span class="unit">kg/ha</span></label>
+              <input type="number" id="potassium" name="potassium" class="form-control" value="43" min="5" max="150">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="soil_ph">Soil pH</label>
+              <input type="number" step="0.1" id="soil_ph" name="soil_ph" class="form-control" value="6.5" min="3.5" max="10.0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="irrigation">Irrigation availability</label>
+              <select id="irrigation" name="irrigation" class="form-control">
+                <option value="Canal irrigation" selected>Available — Canal irrigation</option>
+                <option value="Borewell/Tubewell">Available — Borewell / Tubewell</option>
+                <option value="Drip irrigation">Available — Drip irrigation</option>
+                <option value="Rainfed only">Rainfed only (No canal/well)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Irrigation field for basic mode when advanced container is hidden -->
+        <div id="basicIrrigationContainer" style="display: none;" class="form-group">
+          <label class="form-label" for="basic_irrigation">Irrigation availability</label>
+          <select id="basic_irrigation" name="basic_irrigation" class="form-control" onchange="document.getElementById('irrigation').value = this.value">
+            <option value="Canal irrigation" selected>Available — Canal irrigation</option>
+            <option value="Borewell/Tubewell">Available — Borewell / Tubewell</option>
+            <option value="Drip irrigation">Available — Drip irrigation</option>
+            <option value="Rainfed only">Rainfed only</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">
+          <span>Find recommended crops</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Column: Guidance Cards -->
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      
+      <!-- Card 1: Soil Test Results -->
+      <div class="ks-card-sage">
+        <h3 class="hero-heading" style="color: var(--color-primary-dark); font-size: 24px; line-height: 1.25; margin-bottom: 8px;">
+          A healthier soil.<br>A better prediction.
+        </h3>
+        <div class="card-heading" style="font-size: 16px; margin-bottom: 4px;">
+          Use recent soil test results
+        </div>
+        <p class="secondary-desc">
+          Values from the last 6 months help us understand your farm better.
+        </p>
+      </div>
+
+      <!-- Card 2: No Soil Report -->
+      <div class="ks-card">
+        <div class="card-heading" style="margin-bottom: 6px;">
+          No soil report? No problem.
+        </div>
+        <p class="secondary-desc" style="margin-bottom: 12px;">
+          Choose Basic mode to use typical nutrient values for your soil type. You can update your farm details anytime.
+        </p>
+        <span style="font-size: 13px; color: var(--color-text-light);">
+          You can update your farm details anytime.
+        </span>
+      </div>
+
+      <!-- Card 3: How Recommendations Work -->
+      <div class="ks-card">
+        <div class="card-heading" style="margin-bottom: 6px;">
+          How recommendations work
+        </div>
+        <p class="secondary-desc" style="margin-bottom: 12px;">
+          We combine ML predictions with soil, season and regional compatibility to suggest your best fit crops.
+        </p>
+        <p style="font-size: 13px; color: var(--color-text-light); border-top: 1px solid var(--color-border-subtle); padding-top: 10px;">
+          Advice supports your decision; local conditions may vary.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const soilAverages = {{ soil_averages | tojson }};
+
+  function setMode(mode) {
+    const btnBasic = document.getElementById('btnModeBasic');
+    const btnAdv = document.getElementById('btnModeAdvanced');
+    const formMode = document.getElementById('formModeInput');
+    const basicBox = document.getElementById('basicModeContainer');
+    const advBox = document.getElementById('advancedModeContainer');
+    const basicIrr = document.getElementById('basicIrrigationContainer');
+
+    formMode.value = mode;
+
+    if (mode === 'basic') {
+      btnBasic.classList.add('active');
+      btnAdv.classList.remove('active');
+      basicBox.style.display = 'block';
+      advBox.style.display = 'none';
+      basicIrr.style.display = 'block';
+      
+      // Auto-populate averages
+      const currentSoil = document.getElementById('soil_type').value;
+      if (soilAverages[currentSoil]) {
+        document.getElementById('nitrogen').value = soilAverages[currentSoil].n;
+        document.getElementById('phosphorus').value = soilAverages[currentSoil].p;
+        document.getElementById('potassium').value = soilAverages[currentSoil].k;
+        document.getElementById('soil_ph').value = soilAverages[currentSoil].ph;
+      }
+    } else {
+      btnAdv.classList.add('active');
+      btnBasic.classList.remove('active');
+      basicBox.style.display = 'none';
+      advBox.style.display = 'block';
+      basicIrr.style.display = 'none';
+    }
+  }
+
+  function handleSoilTypeChange(soil) {
+    document.getElementById('basicSoilName').textContent = soil.toLowerCase();
+    if (document.getElementById('formModeInput').value === 'basic' && soilAverages[soil]) {
+      document.getElementById('nitrogen').value = soilAverages[soil].n;
+      document.getElementById('phosphorus').value = soilAverages[soil].p;
+      document.getElementById('potassium').value = soilAverages[soil].k;
+      document.getElementById('soil_ph').value = soilAverages[soil].ph;
+    }
+  }
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .page-header-box {
+    position: relative;
+  }
+  .page-btn-export {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: #0f5132;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: 1px solid #0f5132;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+  .page-btn-export:hover {
+    background-color: #f0fdf4;
+    box-shadow: 0 4px 12px rgba(21, 58, 37, 0.12);
+    transform: translateY(-1px);
+  }
+</style>
+{% endblock %}

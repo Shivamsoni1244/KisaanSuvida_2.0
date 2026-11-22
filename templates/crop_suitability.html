@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Suitability Analysis — Kisaan Suvidha{% endblock %}
+
+{% block content %}
+<div class="suitability-page">
+
+  {% if show_result %}
+  <!-- =========================================================================
+       SCREEN 8: WEATHER BASED CROP ANALYSIS RESULT VIEW
+       ========================================================================= -->
+  <div class="page-header-box">
+    <div class="page-eyebrow">Weather Based Crop Analysis</div>
+    <h1 class="page-title page-title-serif">{{ analysis.crop.split(' ')[0] }}: your week at a glance</h1>
+    <p class="page-subtitle">
+      {{ analysis.district }}, {{ analysis.state }} • {{ analysis.date_range }} • Sample 7-day forecast
+    </p>
+  </div>
+
+  <!-- 4 Summary Metrics Cards -->
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+    
+    <div class="metric-card">
+      <div class="metric-label">Total Analysed Days</div>
+      <div class="metric-value">{{ analysis.total_days }}</div>
+      <div class="metric-sub">{{ analysis.date_range }}</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Good Days</div>
+      <div class="metric-value" style="color: #15803d;">{{ analysis.good_days }}</div>
+      <div class="metric-sub">Favourable conditions</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Poor Days</div>
+      <div class="metric-value" style="color: #dc2626;">{{ analysis.poor_days }}</div>
+      <div class="metric-sub">Extra care needed</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Overall Suitability</div>
+      <div class="metric-value">{{ analysis.overall_suitability }}%</div>
+      <div class="metric-sub">
+        {% if analysis.overall_suitability >= 80 %}Highly suitable
+        {% elif analysis.overall_suitability >= 65 %}Moderately suitable
+        {% else %}Care needed{% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Day-wise Suitability Header & Legend -->
+  <div class="ks-card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+      <h3 class="card-heading">
+        Day-wise suitability
+      </h3>
+      <div style="display: flex; gap: 14px; font-size: 0.78rem;">
+        <span style="display: inline-flex; align-items: center; gap: 5px;">
+          <span class="status-dot" style="background-color: #16a34a;"></span> Good
+        </span>
+        <span style="display: inline-flex; align-items: center; gap: 5px;">
+          <span class="status-dot" style="background-color: #d97706;"></span> Moderate
+        </span>
+        <span style="display: inline-flex; align-items: center; gap: 5px;">
+          <span class="status-dot" style="background-color: #dc2626;"></span> Poor
+        </span>
+      </div>
+    </div>
+
+    <!-- 7 Day Cards Row -->
+    <div class="forecast-week-grid">
+      {% for d in analysis.days %}
+      <div class="forecast-day-card">
+        <div class="forecast-day-name">{{ d.day }}</div>
+        <div class="forecast-day-date">{{ d.date }}</div>
+        
+        <div class="status-badge {{ d.status.lower() }}">
+          <span class="status-dot"></span>
+          <span>{{ d.status }}</span>
+        </div>
+
+        <div class="forecast-temp">{{ d.temp }}°C</div>
+        
+        <div class="forecast-meta">{{ d.humidity }}% humidity</div>
+        <div class="forecast-meta">{{ d.rain }} mm rain</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- 3 Dynamic Trend Graphs (Temperature, Humidity, Rainfall) -->
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--color-border-subtle);">
+      
+      <!-- Temperature SVG Line Chart -->
+      <div class="ks-card-sage" style="padding: 16px;">
+        <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-light); margin-bottom: 4px;">
+          Temperature
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 12px;">
+          Daily temperature °C
+        </div>
+        <svg viewBox="0 0 280 80" style="width: 100%; height: auto; overflow: visible;">
+          <polyline
+            fill="none"
+            stroke="#153a25"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            points="20,40 60,35 100,10 140,25 180,40 220,45 260,30"
+          />
+          <circle cx="20" cy="40" r="4" fill="#153a25" />
+          <circle cx="60" cy="35" r="4" fill="#153a25" />
+          <circle cx="100" cy="10" r="5" fill="#dc2626" />
+          <circle cx="140" cy="25" r="4" fill="#153a25" />
+          <circle cx="180" cy="40" r="4" fill="#153a25" />
+          <circle cx="220" cy="45" r="4" fill="#153a25" />
+          <circle cx="260" cy="30" r="4" fill="#153a25" />
+          <text x="100" y="4" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">36°C</text>
+        </svg>
+        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--color-text-light); margin-top: 8px;">
+          <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+        </div>
+      </div>
+
+      <!-- Humidity SVG Line Chart -->
+      <div class="ks-card-sage" style="padding: 16px;">
+        <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-light); margin-bottom: 4px;">
+          Humidity
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 12px;">
+          Daily humidity %
+        </div>
+        <svg viewBox="0 0 280 80" style="width: 100%; height: auto; overflow: visible;">
+          <polyline
+            fill="none"
+            stroke="#2d6a4f"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            points="20,25 60,20 100,60 140,40 180,18 220,15 260,35"
+          />
+          <circle cx="20" cy="25" r="4" fill="#2d6a4f" />
+          <circle cx="60" cy="20" r="4" fill="#2d6a4f" />
+          <circle cx="100" cy="60" r="4" fill="#d97706" />
+          <circle cx="140" cy="40" r="4" fill="#2d6a4f" />
+          <circle cx="180" cy="18" r="4" fill="#2d6a4f" />
+          <circle cx="220" cy="15" r="4" fill="#2d6a4f" />
+          <circle cx="260" cy="35" r="4" fill="#2d6a4f" />
+        </svg>
+        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--color-text-light); margin-top: 8px;">
+          <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+        </div>
+      </div>
+
+      <!-- Rainfall Bar Chart -->
+      <div class="ks-card-sage" style="padding: 16px;">
+        <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-light); margin-bottom: 4px;">
+          Rainfall
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 12px;">
+          Daily rainfall mm
+        </div>
+        <svg viewBox="0 0 280 80" style="width: 100%; height: auto;">
+          <rect x="15" y="45" width="12" height="35" fill="#40916c" rx="2" />
+          <rect x="55" y="30" width="12" height="50" fill="#40916c" rx="2" />
+          <rect x="95" y="78" width="12" height="2" fill="#cbd5e1" rx="1" />
+          <rect x="135" y="65" width="12" height="15" fill="#40916c" rx="2" />
+          <rect x="175" y="25" width="12" height="55" fill="#40916c" rx="2" />
+          <rect x="215" y="15" width="12" height="65" fill="#166534" rx="2" />
+          <rect x="255" y="60" width="12" height="20" fill="#40916c" rx="2" />
+        </svg>
+        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--color-text-light); margin-top: 8px;">
+          <span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Weather Advisory Banner -->
+    <div class="weather-advisory-banner">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      <div>
+        <strong>{{ analysis.alert }}</strong>
+      </div>
+    </div>
+
+    <!-- Action & Explanation Footer -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--color-border-subtle); flex-wrap: wrap; gap: 12px;">
+      <span style="font-size: 0.76rem; color: var(--color-text-light);">
+        Score: Good = 1, Moderate = 0.6, Poor = 0. Forecast guidance is illustrative.
+      </span>
+      <a href="{{ url_for('crop_suitability.suitability_analysis') }}" class="btn btn-secondary">
+        <span>Analyse another crop</span>
+      </a>
+    </div>
+
+  </div>
+
+  {% else %}
+  <!-- =========================================================================
+       SCREEN 7: CROP SUITABILITY INPUT FORM
+       ========================================================================= -->
+  <div class="page-header-box">
+    <div class="page-eyebrow">Know Before You Sow</div>
+    <h1 class="page-title page-title-serif">Crop suitability analysis</h1>
+    <p class="page-subtitle">Already have a crop in mind? Check its suitability against upcoming weather.</p>
+  </div>
+
+  <div class="layout-split">
+    
+    <!-- Left Column: Selection Form -->
+    <div class="ks-card">
+      <h2 class="section-heading" style="margin-bottom: 22px;">
+        Choose a crop & weather source
+      </h2>
+
+      <form method="POST" action="{{ url_for('crop_suitability.suitability_analysis') }}">
+        
+        <!-- Crop to analyse -->
+        <div class="form-group">
+          <label class="form-label" for="crop">Crop to analyse</label>
+          <select id="crop" name="crop" class="form-control">
+            {% for c in crops_list %}
+              <option value="{{ c }}" {% if c == selected_crop %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- State & District -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="state">State</label>
+            <select id="state" name="state" class="form-control">
+              {% for s in geo_data.keys() %}
+                <option value="{{ s }}" {% if s == current_user.state %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="district">District</label>
+            <select id="district" name="district" class="form-control">
+              <option value="{{ current_user.district }}" selected>{{ current_user.district }}</option>
+              <option value="Amritsar">Amritsar</option>
+              <option value="Jalandhar">Jalandhar</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Weather Input Radio -->
+        <div class="form-group" style="margin-top: 10px;">
+          <label class="form-label">Weather input</label>
+          <div style="background-color: var(--color-sage-bg); border: 1px solid var(--color-sage-border); border-radius: var(--radius-sm); padding: 12px 14px;">
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
+              <input type="radio" name="weather_source" value="forecast" checked style="margin-top: 4px;">
+              <div>
+                <strong style="font-size: 0.88rem; color: var(--color-text-main);">Local 7-day forecast</strong>
+                <p style="font-size: 0.78rem; color: var(--color-text-muted); margin-top: 2px;">
+                  Upcoming conditions for Ludhiana (08 — 14 July 2025)
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Expected Average Conditions Box -->
+        <div style="margin: 20px 0;">
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-light); margin-bottom: 8px;">
+            Expected average conditions
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background-color: #ffffff; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); padding: 12px; text-align: center;">
+            <div>
+              <div style="font-size: 0.7rem; color: var(--color-text-light);">Temperature °C</div>
+              <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark);">31</div>
+            </div>
+            <div>
+              <div style="font-size: 0.7rem; color: var(--color-text-light);">Humidity %</div>
+              <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark);">68</div>
+            </div>
+            <div>
+              <div style="font-size: 0.7rem; color: var(--color-text-light);">Rainfall mm/day</div>
+              <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark);">8.4</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Analyse crop suitability</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Column: Guidance Cards -->
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      
+      <div class="ks-card-sage">
+        <h3 class="hero-heading" style="color: var(--color-primary-dark); font-size: 24px; line-height: 1.25; margin-bottom: 8px;">
+          Your crop.<br>Your local weather.
+        </h3>
+        <p class="secondary-desc">
+          This tool does not recommend a new crop. It checks how the crop you select may perform in upcoming conditions.
+        </p>
+      </div>
+
+      <div class="ks-card">
+        <div class="card-caption" style="margin-bottom: 6px;">
+          Temperature • Humidity • Rainfall
+        </div>
+        <h4 class="card-heading" style="margin-bottom: 6px;">
+          A forecast, not a guarantee
+        </h4>
+        <p class="secondary-desc">
+          Weather can change quickly. Review your day-wise results and keep checking local forecasts before field work.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
