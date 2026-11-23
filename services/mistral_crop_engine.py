@@ -13,7 +13,6 @@ recommend_crops() - Sends complete farmer input and available weather to Mistral
 import json
 import logging
 import os
-import random
 import re
 import time
 from typing import Any, Dict, List, Optional
@@ -23,7 +22,6 @@ from cachetools import TTLCache
 
 from services.cost_tracker import record_api_call
 from services.groq_service import get_crop_guide_part1, get_crop_guide_part2
-from utils.api_resilience import pace_mistral_call
 
 logger = logging.getLogger(__name__)
 
@@ -73,52 +71,13 @@ def _call_mistral_api(
     }
 
     try:
-        pace_mistral_call()
         start_time = time.time()
-
-        # Retry on HTTP 429 (rate limit) with exponential backoff + jitter.
-        # max_retries=4 => up to 5 total attempts (1 initial + 4 retries).
-        response = None
-        for attempt in range(5):
-            response = requests.post(
-                f"{base_url.rstrip('/')}/chat/completions",
-                headers=headers,
-                json=payload,
-                timeout=30,
-            )
-            if response.status_code != 429:
-                break
-            # Honor Retry-After header if present
-            retry_after = response.headers.get("Retry-After")
-            wait: Optional[float] = None
-            if retry_after is not None:
-                try:
-                    wait = float(retry_after)
-                except (TypeError, ValueError):
-                    wait = None
-            if wait is None:
-                wait = min(1.5 * (2 ** attempt), 10.0)
-                wait = wait + random.uniform(0, 1.0)
-            wait = min(wait, 10.0)
-            logger.warning(
-                "Mistral API HTTP 429 (attempt %d/5): retrying after %.2fs",
-                attempt + 1, wait,
-            )
-            time.sleep(wait)
-        else:
-            # All attempts returned 429
-            logger.error("Mistral API rate limit exceeded after all retries")
-            record_api_call(
-                provider="mistral",
-                model=model,
-                input_text=prompt,
-                output_text="",
-                latency_ms=0,
-                success=False,
-                error="Rate limit exceeded (429)",
-            )
-            return None
-
+        response = requests.post(
+            f"{base_url.rstrip('/')}/chat/completions",
+            headers=headers,
+            json=payload,
+            timeout=30,
+        )
         latency_ms = (time.time() - start_time) * 1000
 
         # Log HTTP response status code

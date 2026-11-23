@@ -18,8 +18,8 @@ import os
 from datetime import datetime
 from typing import Any, Dict, Optional
 
+import requests
 from cachetools import TTLCache
-from utils.api_resilience import cached_get_json
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ def _geocode_location(
 
     for query in queries:
         try:
-            data = cached_get_json(
+            response = requests.get(
                 "https://api.openweathermap.org/geo/1.0/direct",
                 params={
                     "q": query,
@@ -76,6 +76,8 @@ def _geocode_location(
                 },
                 timeout=10,
             )
+            response.raise_for_status()
+            data = response.json()
             if data and len(data) > 0:
                 result = {
                     "lat": data[0]["lat"],
@@ -137,7 +139,7 @@ def get_current_weather(
     lon = location["lon"]
 
     try:
-        data = cached_get_json(
+        response = requests.get(
             f"{config['base_url']}/weather",
             params={
                 "lat": lat,
@@ -147,39 +149,54 @@ def get_current_weather(
             },
             timeout=15,
         )
-        if data is None:
-            logger.error("OpenWeatherMap API request failed")
-            result = _fallback_weather(state, district, reason="api_error")
+        response.raise_for_status()
+        data = response.json()
+
+        result = {
+            "source": "openweathermap",
+            "location": {
+                "state": state,
+                "district": district,
+                "resolved_name": location.get("name", district),
+                "resolved_state": location.get("state", state),
+                "lat": lat,
+                "lon": lon,
+            },
+            "temperature": round(data.get("main", {}).get("temp", 0), 1),
+            "feels_like": round(data.get("main", {}).get("feels_like", 0), 1),
+            "humidity": data.get("main", {}).get("humidity", 0),
+            "pressure": data.get("main", {}).get("pressure", 0),
+            "wind_speed": data.get("wind", {}).get("speed", 0),
+            "wind_deg": data.get("wind", {}).get("deg", 0),
+            "description": data.get("weather", [{}])[0].get("description", "Unknown"),
+            "condition": data.get("weather", [{}])[0].get("main", "Unknown"),
+            "cloud_coverage": data.get("clouds", {}).get("all", 0),
+            "rainfall_1h": data.get("rain", {}).get("1h", 0),
+            "rainfall_3h": data.get("rain", {}).get("3h", 0),
+            "sunrise": data.get("sys", {}).get("sunrise", 0),
+            "sunset": data.get("sys", {}).get("sunset", 0),
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+        _weather_cache[cache_key] = result
+        return result
+
+    except requests.exceptions.Timeout:
+        logger.error("OpenWeatherMap API request timed out")
+        result = _fallback_weather(state, district, reason="timeout")
+    except requests.exceptions.ConnectionError:
+        logger.error("OpenWeatherMap API connection error")
+        result = _fallback_weather(state, district, reason="connection_error")
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 429:
+            logger.error("OpenWeatherMap API rate limit exceeded")
+            result = _fallback_weather(state, district, reason="rate_limit")
+        elif e.response.status_code == 401:
+            logger.error("OpenWeatherMap API authentication failed")
+            result = _fallback_weather(state, district, reason="auth_failed")
         else:
-            result = {
-                "source": "openweathermap",
-                "location": {
-                    "state": state,
-                    "district": district,
-                    "resolved_name": location.get("name", district),
-                    "resolved_state": location.get("state", state),
-                    "lat": lat,
-                    "lon": lon,
-                },
-                "temperature": round(data.get("main", {}).get("temp", 0), 1),
-                "feels_like": round(data.get("main", {}).get("feels_like", 0), 1),
-                "humidity": data.get("main", {}).get("humidity", 0),
-                "pressure": data.get("main", {}).get("pressure", 0),
-                "wind_speed": data.get("wind", {}).get("speed", 0),
-                "wind_deg": data.get("wind", {}).get("deg", 0),
-                "description": data.get("weather", [{}])[0].get("description", "Unknown"),
-                "condition": data.get("weather", [{}])[0].get("main", "Unknown"),
-                "cloud_coverage": data.get("clouds", {}).get("all", 0),
-                "rainfall_1h": data.get("rain", {}).get("1h", 0),
-                "rainfall_3h": data.get("rain", {}).get("3h", 0),
-                "sunrise": data.get("sys", {}).get("sunrise", 0),
-                "sunset": data.get("sys", {}).get("sunset", 0),
-                "timestamp": datetime.utcnow().isoformat(),
-            }
-
-            _weather_cache[cache_key] = result
-            return result
-
+            logger.error("OpenWeatherMap API HTTP error: %s", e)
+            result = _fallback_weather(state, district, reason=f"http_error_{e.response.status_code}")
     except Exception as e:
         logger.error("Unexpected error fetching weather: %s", e)
         result = _fallback_weather(state, district, reason="unexpected_error")

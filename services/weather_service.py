@@ -21,8 +21,8 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
+import requests
 from cachetools import TTLCache
-from utils.api_resilience import cached_get_json
 
 logger = logging.getLogger(__name__)
 
@@ -116,11 +116,13 @@ def geocode_location(
             return _geocode_cache[cache_key]
 
         try:
-            data = cached_get_json(
+            response = requests.get(
                 f"{OPENWEATHER_GEO_URL}/direct",
                 params={"q": query, "limit": 1, "appid": api_key},
                 timeout=10,
             )
+            response.raise_for_status()
+            data = response.json()
             if data and len(data) > 0:
                 result = {
                     "lat": data[0].get("lat"),
@@ -168,7 +170,7 @@ def fetch_7day_forecast(
         return _weather_cache[cache_key]
 
     try:
-        data = cached_get_json(
+        response = requests.get(
             f"{config['base_url']}/onecall",
             params={
                 "lat": lat,
@@ -179,9 +181,8 @@ def fetch_7day_forecast(
             },
             timeout=20,
         )
-        if data is None:
-            logger.error("OpenWeather One Call API returned no data")
-            return None
+        response.raise_for_status()
+        data = response.json()
 
         daily_raw = data.get("daily", []) or []
         if not daily_raw:
@@ -244,6 +245,20 @@ def fetch_7day_forecast(
         _weather_cache[cache_key] = result
         return result
 
+    except requests.exceptions.Timeout:
+        logger.error("OpenWeather One Call API request timed out")
+        return None
+    except requests.exceptions.ConnectionError:
+        logger.error("OpenWeather One Call API connection error")
+        return None
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 401:
+            logger.error("OpenWeatherMap API authentication failed")
+        elif e.response.status_code == 429:
+            logger.error("OpenWeatherMap API rate limit exceeded")
+        else:
+            logger.error("OpenWeatherMap API HTTP error: %s", e)
+        return None
     except Exception as e:
         logger.error("Unexpected error fetching weather: %s", e)
         return None

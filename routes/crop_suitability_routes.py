@@ -28,6 +28,7 @@ Endpoints:
 import logging
 import os
 import pytz
+import requests
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from collections import defaultdict
@@ -43,7 +44,6 @@ from services.weather_aggregation_service import (
 )
 from services.weather_service import fetch_7day_forecast, geocode_location
 from services.weather_suitability_service import analyse_suitability
-from utils.api_resilience import cached_get_json
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +69,13 @@ def _geocode_village_openmeteo(state: str, district: str, village: str) -> Optio
 
     for query in queries:
         try:
-            data = cached_get_json(
+            response = requests.get(
                 OPEN_METEO_GEOCODING_URL,
                 params={"name": query, "count": 1, "language": "en", "format": "json"},
                 timeout=10,
             )
-            if data is None:
-                continue
+            response.raise_for_status()
+            data = response.json()
             results = data.get("results", [])
             if results:
                 r = results[0]
@@ -117,12 +117,9 @@ def _fetch_openmeteo_forecast(lat: float, lon: float) -> Optional[Dict[str, Any]
         "forecast_days": 7,
     }
     try:
-        data = cached_get_json(
-            OPEN_METEO_FORECAST_URL,
-            params=params,
-            timeout=20,
-        )
-        return data
+        response = requests.get(OPEN_METEO_FORECAST_URL, params=params, timeout=20)
+        response.raise_for_status()
+        return response.json()
     except Exception as e:
         logger.error("Open-Meteo Forecast request failed: %s", e)
         return None
