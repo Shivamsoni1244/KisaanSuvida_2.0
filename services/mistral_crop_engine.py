@@ -80,12 +80,20 @@ def _call_mistral_api(
         )
         latency_ms = (time.time() - start_time) * 1000
 
+        # Log HTTP response status code
+        logger.info(
+            "Mistral API HTTP response: status=%d, model=%s, latency_ms=%.1f",
+            response.status_code,
+            model,
+            latency_ms,
+        )
+
         response.raise_for_status()
         data = response.json()
 
         content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
         if not content:
-            logger.error("Mistral API returned empty content")
+            logger.error("Mistral API returned empty content (status=%d)", response.status_code)
             record_api_call(
                 provider="mistral",
                 model=model,
@@ -101,6 +109,11 @@ def _call_mistral_api(
         try:
             result = json.loads(content)
         except json.JSONDecodeError:
+            logger.error(
+                "Failed to parse Mistral response as JSON (status=%d, body=%s)",
+                response.status_code,
+                content[:500],
+            )
             json_match = re.search(r"```json\s*(.*?)\s*```", content, re.DOTALL)
             if json_match:
                 result = json.loads(json_match.group(1))
@@ -109,7 +122,6 @@ def _call_mistral_api(
                 if json_match:
                     result = json.loads(json_match.group(0))
                 else:
-                    logger.error("Failed to parse Mistral response as JSON")
                     record_api_call(
                         provider="mistral",
                         model=model,
@@ -132,7 +144,11 @@ def _call_mistral_api(
         return result
 
     except requests.exceptions.Timeout:
-        logger.error("Mistral API request timed out")
+        logger.error(
+            "Mistral API request timed out after 30s (model=%s, base_url=%s)",
+            model,
+            base_url,
+        )
         record_api_call(
             provider="mistral",
             model=model,
@@ -143,8 +159,13 @@ def _call_mistral_api(
             error="Timeout",
         )
         return None
-    except requests.exceptions.ConnectionError:
-        logger.error("Mistral API connection error")
+    except requests.exceptions.ConnectionError as e:
+        logger.error(
+            "Mistral API connection error (model=%s, base_url=%s): %s",
+            model,
+            base_url,
+            str(e),
+        )
         record_api_call(
             provider="mistral",
             model=model,
@@ -156,24 +177,60 @@ def _call_mistral_api(
         )
         return None
     except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            logger.error("Mistral API authentication failed")
-        elif e.response.status_code == 429:
-            logger.error("Mistral API rate limit exceeded")
+        status_code = e.response.status_code if e.response is not None else "unknown"
+        response_body = ""
+        if e.response is not None:
+            try:
+                response_body = e.response.text[:1000]
+            except Exception:
+                response_body = "<unable to read response body>"
+
+        # Distinguish error types with specific log messages
+        if status_code == 401:
+            logger.error(
+                "Mistral API authentication failed (401 Unauthorized) - check MISTRAL_API_KEY. Response body: %s",
+                response_body,
+            )
+        elif status_code == 429:
+            logger.error(
+                "Mistral API rate limit exceeded (429 Too Many Requests). Response body: %s",
+                response_body,
+            )
+        elif isinstance(status_code, int) and 400 <= status_code < 500:
+            logger.error(
+                "Mistral API invalid request (4xx status=%d). Response body: %s",
+                status_code,
+                response_body,
+            )
+        elif isinstance(status_code, int) and 500 <= status_code < 600:
+            logger.error(
+                "Mistral API server error (5xx status=%d). Response body: %s",
+                status_code,
+                response_body,
+            )
         else:
-            logger.error("Mistral API HTTP error: %s", e)
+            logger.error(
+                "Mistral API HTTP error (status=%s). Response body: %s",
+                status_code,
+                response_body,
+            )
+
         record_api_call(
             provider="mistral",
             model=model,
             input_text=prompt,
-            output_text="",
+            output_text=response_body,
             latency_ms=0,
             success=False,
             error=str(e),
         )
         return None
     except Exception as e:
-        logger.error("Unexpected error calling Mistral API: %s", e)
+        logger.error(
+            "Unexpected error calling Mistral API (model=%s): %s",
+            model,
+            str(e),
+        )
         record_api_call(
             provider="mistral",
             model=model,
@@ -397,6 +454,14 @@ def recommend_crops(
     model = config["model"]
     base_url = config["base_url"]
 
+    # Log configuration status (never log the actual API key value)
+    logger.info(
+        "Mistral config loaded: api_key_present=%s, model=%s, base_url=%s",
+        bool(api_key) and api_key != "your_mistral_api_key_here",
+        model,
+        base_url,
+    )
+
     cache_key = (
         f"recommend:{farm_context.get('state', '')}:{farm_context.get('district', '')}"
         f":{farm_context.get('season', '')}:{farm_context.get('soil_type', '')}"
@@ -411,9 +476,15 @@ def recommend_crops(
         prompt = _build_recommend_crops_prompt(farm_context, weather, language)
         ai_response = _call_mistral_api(prompt, api_key, model, base_url)
         result = _validate_and_normalize_recommendation(ai_response)
+        # Ensure Mistral error details are surfaced, not silently hidden as "Not available"
+        if result.get("status") == "error" and ai_response is None:
+            result["mistral_error_details"] = result.get("error", "Unknown Mistral error")
     else:
-        logger.warning("Mistral API key not configured - recommendation not available")
+        logger.warning(
+            "Mistral API key not configured or is placeholder - recommendation not available"
+        )
         result = _validate_and_normalize_recommendation(None)
+        result["mistral_error_details"] = "API key not configured"
 
     _recommendation_cache[cache_key] = result
     return result
