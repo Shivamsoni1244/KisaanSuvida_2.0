@@ -1,0 +1,161 @@
+category,crop_name,season,total_duration_days,establishment_duration_days,vegetative_duration_days,flowering_duration_days,fruiting_grain_filling_duration_days,maturity_harvesting_duration_days
+Cereals and millets,Rice,Kharif/Rabi,120,25,40,30,15,10
+Cereals and millets,Wheat,Rabi,110,20,35,30,15,10
+Cereals and millets,Maize,Kharif/Rabi/Zaid,90,20,30,25,10,5
+Cereals and millets,Sorghum (Jowar),Kharif/Rabi,95,18,35,25,12,5
+Cereals and millets,Pearl millet (Bajra),Kharif,75,15,25,20,10,5
+Cereals and millets,Finger millet (Ragi),Kharif,105,20,35,25,15,10
+Cereals and millets,Foxtail millet,Kharif,85,15,30,20,10,10
+Cereals and millets,Proso millet,Kharif,70,12,25,18,10,5
+Cereals and millets,Kodo millet,Kharif,90,15,30,25,15,5
+Cereals and millets,Little millet,Kharif,80,12,28,20,10,10
+Cereals and millets,Barnyard millet,Kharif,75,12,25,18,10,10
+Cereals and millets,Barley,Rabi,100,18,35,25,15,7
+Cereals and millets,Oats,Rabi,90,15,30,25,15,5
+Cereals and millets,Buckwheat,Rabi/Zaid,75,12,25,20,10,8
+Cereals and millets,Amaranth (grain),Kharif/Zaid,85,15,30,25,10,5
+Cereals and millets,Quinoa,Rabi,95,18,30,25,15,7
+Cereals and millets,Rye,Rabi,105,18,35,30,15,7
+Cereals and millets,Brown top millet,Kharif,75,12,25,20,10,8
+Pulses,Chickpea (Chana),Rabi,95,15,30,25,15,10
+Pulses,Pigeon pea (Arhar/Tur),Kharif,160,25,50,45,25,15
+Pulses,Mung bean (Green gram),Kharif/Zaid,65,12,25,15,8,5
+Pulses,Urad bean (Black gram),Kharif/Zaid,70,12,28,18,10,5
+Pulses,Lentil (Masoor),Rabi,90,15,30,25,12,8
+Pulses,Field pea,Rabi,85,12,28,20,12,5
+Pulses,Cowpea (Lobia),Kharif/Zaid,70,12,25,18,10,5
+Pulses,Horse gram,Kharif/Rabi,85,15,30,25,10,5
+Pulses,Moth bean,Kharif,75,12,25,20,10,8
+Pulses,Grass pea (Khesari),Rabi,90,15,30,25,12,8
+Pulses,Kidney bean (Rajma),Kharif,95,18,35,25,12,5
+Pulses,Lima bean,Kharif,85,15,30,25,10,5
+Pulses,Broad bean,Rabi,85,15,30,20,12,8
+Pulses,French bean,Kharif/Rabi,75,15,25,20,10,5
+Pulses,Cluster bean (Guar),Kharif,80,12,30,20,10,8
+Pulses,Rice bean,Kharif,85,15,30,20,10,10
+Pulses,Hyacinth bean,Kharif/Rabi,90,15,30,25,15,10
+Pulses,Winged bean,Kharif,90,15,30,25,15,10
+Pulses,Adzuki bean,Kharif,80,12,28,20,12,8
+Pulses,Velvet bean,Kharif,90,15,30,25,15,10
+Oilseeds,Soybean,Kharif,95,18,35,25,12,5
+Oilseeds,Groundnut,Kharif/Rabi/Zaid,100,15,35,25,15,10
+Oilseeds,Indian mustard,Rabi,105,15,35,30,15,10
+Oilseeds,Rapeseed,Rabi,100,15,30,30,15,10
+Oilseeds,Sesame,Kharif/Rabi/Zaid,75,12,25,20,10,8
+Oilseeds,Sunflower,Kharif/Rabi/Zaid,85,15,30,25,10,5
+Oilseeds,Safflower,Rabi,105,15,35,25,15,10
+Oilseeds,Linseed (Flaxseed),Rabi,105,15,35,30,15,10
+Oilseeds,Castor,Kharif,120,20,40,30,20,10
+Oilseeds,Niger seed,Kharif,90,15,30,25,15,10
+Oilseeds,Coconut,Kharif/Rabi/Zaid,365,30,90,90,90,65
+Oilseeds,Oil palm,Kharif/Rabi/Zaid,365,30,90,90,90,65
+Oilseeds,Karanja,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Oilseeds,Jatropha,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Vegetables,Tomato,Kharif/Rabi/Zaid,140,25,45,35,25,20
+Vegetables,Potato,Rabi,90,20,30,25,10,15
+Vegetables,Onion,Kharif/Rabi,120,20,40,35,15,10
+Vegetables,Garlic,Rabi,120,20,40,35,15,10
+Vegetables,Brinjal (Eggplant),Kharif/Rabi/Zaid,150,25,50,40,25,30
+Vegetables,Green chilli,Kharif/Rabi/Zaid,120,20,40,30,20,10
+Vegetables,Capsicum,Kharif/Rabi/Zaid,130,20,45,35,25,20
+Vegetables,Cabbage,Rabi,90,20,30,20,15,15
+Vegetables,Cauliflower,Rabi/Kharif,95,20,35,25,20,15
+Vegetables,Broccoli,Rabi,90,20,30,25,15,15
+Vegetables,Okra (Bhindi),Kharif/Zaid,60,15,20,15,10,10
+Vegetables,Cucumber,Kharif/Zaid,60,12,20,15,8,10
+Vegetables,Bottle gourd,Kharif/Zaid,70,15,25,20,15,15
+Vegetables,Bitter gourd,Kharif/Zaid,75,15,25,20,15,15
+Vegetables,Ridge gourd,Kharif/Zaid,70,15,25,20,15,15
+Vegetables,Sponge gourd,Kharif/Zaid,70,15,25,20,15,15
+Vegetables,Pumpkin,Kharif/Zaid,85,15,30,25,20,15
+Vegetables,Ash gourd,Kharif/Zaid,80,15,25,25,15,15
+Vegetables,Watermelon,Rabi/Zaid,70,12,25,18,10,15
+Vegetables,Muskmelon,Rabi/Zaid,65,12,22,15,10,10
+Vegetables,Radish,Rabi/Kharif,50,10,20,10,10,10
+Vegetables,Carrot,Rabi,90,15,30,25,15,15
+Vegetables,Beetroot,Rabi/Zaid,80,15,25,20,15,15
+Vegetables,Turnip,Rabi,60,10,20,15,10,10
+Vegetables,Spinach,Rabi/Zaid,45,10,15,10,10,10
+Vegetables,Amaranth greens,Kharif/Zaid,40,10,15,10,5,10
+Vegetables,Fenugreek greens,Rabi,50,10,18,12,10,10
+Vegetables,Lettuce,Rabi,60,10,20,15,15,15
+Vegetables,Garden pea,Rabi,80,12,28,20,12,10
+Vegetables,Drumstick (Moringa),Kharif/Rabi/Zaid,300,30,90,90,90,90
+Fruits,Mango,Kharif/Rabi/Zaid,365,45,120,120,90,90
+Fruits,Guava,Kharif/Rabi/Zaid,365,30,90,90,90,90
+Fruits,Papaya,Kharif/Rabi/Zaid,300,30,90,90,90,90
+Fruits,Pomegranate,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Sweet orange,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Mandarin,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Lemon,Kharif/Rabi/Zaid,365,30,90,90,90,90
+Fruits,Grapes,Kharif/Rabi/Zaid,300,30,90,90,90,90
+Fruits,Apple,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Litchi,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Sapota (Chikoo),Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Amla,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Jackfruit,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Pineapple,Kharif/Rabi/Zaid,300,30,90,90,90,90
+Fruits,Custard apple,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Ber,Kharif/Rabi/Zaid,365,30,90,90,90,90
+Fruits,Peach,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Plum,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Pear,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Turmeric,Kharif,240,30,80,70,40,40
+Spices and condiments,Ginger,Kharif,210,25,70,60,35,40
+Spices and condiments,Coriander,Rabi,85,12,30,20,15,10
+Spices and condiments,Cumin,Rabi,90,12,30,25,15,10
+Spices and condiments,Fennel,Rabi,95,15,30,25,15,10
+Spices and condiments,Fenugreek (seed),Rabi,75,10,25,20,10,10
+Spices and condiments,Ajwain,Rabi,80,10,28,22,12,10
+Spices and condiments,Black pepper,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Small cardamom,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Clove,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Dry chilli,Kharif/Rabi,85,12,30,20,15,10
+Spices and condiments,Saffron,Rabi,150,20,50,40,30,20
+Spices and condiments,Cinnamon,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Garlic (commercial spice),Rabi,120,20,40,35,15,10
+"Fibre, commercial and plantation crops",Cotton,Kharif,160,25,50,45,25,15
+"Fibre, commercial and plantation crops",Sugarcane,Kharif/Rabi/Zaid,365,45,120,120,90,90
+"Fibre, commercial and plantation crops",Jute,Kharif,100,15,35,25,15,10
+"Fibre, commercial and plantation crops",Tobacco,Rabi,110,20,35,30,15,10
+"Fibre, commercial and plantation crops",Mesta,Kharif,95,15,30,25,15,10
+"Fibre, commercial and plantation crops",Tea,Kharif/Rabi/Zaid,365,30,90,90,90,90
+"Fibre, commercial and plantation crops",Coffee,Kharif/Rabi/Zaid,365,30,90,90,90,90
+"Fibre, commercial and plantation crops",Arecanut,Kharif/Rabi/Zaid,365,30,90,90,90,90
+"Fibre, commercial and plantation crops",Betel vine,Kharif/Rabi/Zaid,365,30,90,90,90,90
+"Fibre, commercial and plantation crops",Rubber,Kharif/Rabi/Zaid,365,30,100,100,90,90
+"Fibre, commercial and plantation crops",Cocoa,Kharif/Rabi/Zaid,365,30,100,100,90,90
+"Fibre, commercial and plantation crops",Cashew,Kharif/Rabi/Zaid,365,30,100,100,90,90
+"Fibre, commercial and plantation crops",Bamboo (commercial),Kharif/Rabi/Zaid,365,30,100,100,90,90
+"Fibre, commercial and plantation crops",Stevia,Kharif/Rabi/Zaid,90,15,30,25,15,10
+Fodder and green-manure crops,Berseem,Rabi,105,15,35,30,15,10
+Fodder and green-manure crops,Lucerne (Alfalfa),Kharif/Rabi/Zaid,300,25,80,80,70,45
+Fodder and green-manure crops,Fodder sorghum,Kharif/Zaid,75,12,25,20,10,8
+Fodder and green-manure crops,Fodder maize,Kharif/Zaid,65,12,22,18,8,10
+Fodder and green-manure crops,Fodder cowpea,Kharif/Zaid,70,12,25,20,10,8
+Fodder and green-manure crops,Guinea grass,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Fodder and green-manure crops,Para grass,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Fodder and green-manure crops,Oat fodder,Rabi,75,10,25,20,10,10
+Fodder and green-manure crops,Stylo,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Fodder and green-manure crops,Dhaincha (Green manure),Kharif,60,10,20,15,10,15
+Fodder and green-manure crops,Sunhemp (Green manure),Kharif/Zaid,70,10,25,20,10,15
+Fodder and green-manure crops,Fodder pearl millet,Kharif/Zaid,65,12,22,18,8,10
+Fodder and green-manure crops,Anjan grass,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Fodder and green-manure crops,Marvel grass,Kharif/Rabi/Zaid,300,25,80,80,70,45
+Vegetables,Sweet potato,Kharif/Rabi,100,15,35,25,15,15
+Vegetables,Cassava (Tapioca),Kharif/Rabi/Zaid,240,30,80,70,40,40
+Vegetables,Colocasia (Arbi),Kharif,120,20,40,35,15,15
+Vegetables,Elephant foot yam (Suran),Kharif,240,30,80,70,40,40
+Vegetables,Greater yam,Kharif,270,30,90,90,90,60
+Vegetables,Snake gourd,Kharif/Zaid,75,12,25,20,15,15
+Vegetables,Chow chow (Chayote),Kharif/Rabi/Zaid,180,20,60,60,40,40
+Vegetables,Knol-khol (Kohlrabi),Rabi,60,10,20,15,10,15
+Vegetables,Brussels sprouts,Rabi,90,15,30,25,15,15
+Vegetables,Asparagus,Kharif/Rabi/Zaid,365,30,90,90,90,90
+Fruits,Dragon fruit,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Passion fruit,Kharif/Rabi/Zaid,300,30,90,90,90,90
+Fruits,Fig,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Fruits,Date palm,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Nutmeg,Kharif/Rabi/Zaid,365,30,100,100,90,90
+Spices and condiments,Vanilla,Kharif/Rabi/Zaid,365,30,100,100,90,90
+"Fibre, commercial and plantation crops",Sisal,Kharif/Rabi/Zaid,365,30,100,100,90,90

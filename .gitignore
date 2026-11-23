@@ -71,8 +71,11 @@ Thumbs.db
 instance/
 .webassets-cache
 
-# Temp data
-*.csv
 
 # pytest cache
 .pytest_cache/
+
+
+.venv/
+venv/
+__pycache__/

@@ -1,0 +1,161 @@
+category,crop_name,low_temp,max_temp,best_low_temp,best_high_temp,ph_min,ph_max
+Cereals and millets,Rice,10,36,25,32,4.5,9
+Cereals and millets,Wheat,5,27,15,25,5.5,8.5
+Cereals and millets,Maize,10,47,21,30,4.5,8.5
+Cereals and millets,Sorghum (Jowar),8,40,25,32,5,8
+Cereals and millets,Pearl millet (Bajra),12,40,25,35,4.5,8.3
+Cereals and millets,Finger millet (Ragi),8,35,20,30,5.5,8.2
+Cereals and millets,Foxtail millet,5,35,20,30,5.5,8.3
+Cereals and millets,Proso millet,15,45,20,30,5.2,8.2
+Cereals and millets,Kodo millet,5,33,20,30,4.3,8
+Cereals and millets,Little millet,15,45,20,30,5,7
+Cereals and millets,Barnyard millet,10,35,20,30,4.8,7.2
+Cereals and millets,Barley,2,40,12,20,6,8
+Cereals and millets,Oats,5,30,15,22,4.5,7.5
+Cereals and millets,Buckwheat,7,40,15,22,4.4,7.5
+Cereals and millets,Amaranth (grain),7,40,20,30,4.3,8.5
+Cereals and millets,Quinoa,2,35,15,22,4.5,9.5
+Cereals and millets,Rye,3,31,12,20,4.5,8.2
+Cereals and millets,Brown top millet,9,32,22,30,6.5,8
+Pulses,Chickpea (Chana),7,35,20,25,4.7,9.5
+Pulses,Pigeon pea (Arhar/Tur),10,45,25,30,4.5,8.4
+Pulses,Mung bean (Green gram),8,40,25,32,4.3,8.3
+Pulses,Urad bean (Black gram),8,40,25,32,4.5,7.5
+Pulses,Lentil (Masoor),5,32,18,24,4.5,8.2
+Pulses,Field pea,4,30,15,22,4.5,8.3
+Pulses,Cowpea (Lobia),15,40,25,32,4,8.8
+Pulses,Horse gram,17,35,25,32,5,8
+Pulses,Moth bean,13,45,25,35,5,8
+Pulses,Grass pea (Khesari),4,32,15,22,4.5,8.3
+Pulses,Kidney bean (Rajma),7,32,18,25,4,9
+Pulses,Lima bean,13,34,20,30,4.5,8.4
+Pulses,Broad bean,5,32,12,20,4.5,8.6
+Pulses,French bean,7,32,18,25,4,9
+Pulses,Cluster bean (Guar),10,45,25,35,5.5,8.5
+Pulses,Rice bean,10,40,20,30,5.5,8
+Pulses,Hyacinth bean,3,38,20,30,4.5,8
+Pulses,Winged bean,14,40,22,30,4.3,8.5
+Pulses,Adzuki bean,5,36,18,25,5,7.5
+Pulses,Velvet bean,10,34,22,30,4,8
+Oilseeds,Soybean,10,38,20,30,4.5,8.4
+Oilseeds,Groundnut,10,45,22,30,4.5,8.5
+Oilseeds,Indian mustard,7,40,18,25,5,8
+Oilseeds,Rapeseed,5,41,15,22,5.5,8
+Oilseeds,Sesame,10,40,25,35,4.5,8
+Oilseeds,Sunflower,5,45,20,30,5.5,8
+Oilseeds,Safflower,5,45,18,28,5,8
+Oilseeds,Linseed (Flaxseed),5,30,15,22,5.5,7
+Oilseeds,Castor,15,39,25,35,4.5,8
+Oilseeds,Niger seed,11,34,20,28,5,7.5
+Oilseeds,Coconut,14,38,27,32,4.3,8.7
+Oilseeds,Oil palm,12,38,24,32,3.2,8
+Oilseeds,Karanja,10,50,25,32,6,9
+Oilseeds,Jatropha,7,36,20,30,5,8
+Vegetables,Tomato,7,35,18,27,5,7.5
+Vegetables,Potato,7,30,15,20,4.2,8.5
+Vegetables,Onion,4,30,13,22,4.3,8.3
+Vegetables,Garlic,7,35,12,20,5,8.5
+Vegetables,Brinjal (Eggplant),9,40,22,30,4.3,8.5
+Vegetables,Green chilli,8,35,20,30,4.5,7
+Vegetables,Capsicum,8,35,18,25,4.5,7
+Vegetables,Cabbage,7,32,15,20,5,8.3
+Vegetables,Cauliflower,5,30,15,22,5.5,8.5
+Vegetables,Broccoli,3,35,15,22,5.5,8.5
+Vegetables,Okra (Bhindi),12,35,24,32,4.5,8.7
+Vegetables,Cucumber,6,38,20,30,4.5,8.7
+Vegetables,Bottle gourd,12,38,22,32,4.5,7.5
+Vegetables,Bitter gourd,15,38,24,32,4.5,8
+Vegetables,Ridge gourd,15,38,24,32,4.5,7.5
+Vegetables,Sponge gourd,10,38,22,32,4.3,8.3
+Vegetables,Pumpkin,9,38,20,30,5,8.5
+Vegetables,Ash gourd,12,37,22,32,5,7.5
+Vegetables,Watermelon,15,40,22,30,5.5,7.5
+Vegetables,Muskmelon,23,35,25,32,5,8.7
+Vegetables,Radish,10,37,15,22,4.3,8.3
+Vegetables,Carrot,3,30,15,22,4.2,8.7
+Vegetables,Beetroot,4,35,15,22,5.5,7.5
+Vegetables,Turnip,10,30,12,20,5,7
+Vegetables,Spinach,2,27,10,20,5.3,8.3
+Vegetables,Amaranth greens,8,45,22,32,4.3,8
+Vegetables,Fenugreek greens,5,32,15,22,5.3,8.2
+Vegetables,Lettuce,5,30,15,20,4.2,7.5
+Vegetables,Garden pea,4,30,15,22,4.5,8.3
+Vegetables,Drumstick (Moringa),7,48,25,35,5,8.5
+Fruits,Mango,8,48,24,30,4.3,8.5
+Fruits,Guava,10,45,23,30,4,8.5
+Fruits,Papaya,12,44,22,30,4.5,8
+Fruits,Pomegranate,8,40,20,30,5.8,8.5
+Fruits,Sweet orange,13,38,20,30,4,8.3
+Fruits,Mandarin,12,38,18,28,5.5,8.3
+Fruits,Lemon,12,36,20,30,5.5,8
+Fruits,Grapes,10,38,15,25,4.5,8.5
+Fruits,Apple,8,33,15,24,4.5,8
+Fruits,Litchi,15,40,20,30,5,8.5
+Fruits,Sapota (Chikoo),11,42,22,32,5.5,8.5
+Fruits,Amla,14,35,20,30,5,8.5
+Fruits,Jackfruit,16,34,24,32,4.3,8
+Fruits,Pineapple,10,36,22,30,3.5,9
+Fruits,Custard apple,11,41,20,30,4.3,8.5
+Fruits,Ber,7,50,20,32,5,8.5
+Fruits,Peach,7,35,15,24,4.5,7.5
+Fruits,Plum,6,36,15,24,4.5,7.4
+Fruits,Pear,10,37,15,24,4.5,8.3
+Spices and condiments,Turmeric,18,32,20,30,5.5,7.5
+Spices and condiments,Ginger,13,35,22,28,4.3,7.5
+Spices and condiments,Coriander,4,32,15,22,4,8
+Spices and condiments,Cumin,9,30,15,25,4.5,8.3
+Spices and condiments,Fennel,6,32,15,24,4.8,8.2
+Spices and condiments,Fenugreek (seed),5,32,15,22,5.3,8.2
+Spices and condiments,Ajwain,10,30,15,25,6,8
+Spices and condiments,Black pepper,10,40,23,32,5,7.5
+Spices and condiments,Small cardamom,10,35,18,25,4.8,7
+Spices and condiments,Clove,20,38,22,30,4.5,7
+Spices and condiments,Dry chilli,8,35,20,30,4.5,7
+Spices and condiments,Saffron,4,23,15,20,5.5,7.8
+Spices and condiments,Cinnamon,18,36,20,30,5,7
+Spices and condiments,Garlic (commercial spice),7,35,12,20,5,8.5
+"Fibre, commercial and plantation crops",Cotton,15,42,21,32,5,9.5
+"Fibre, commercial and plantation crops",Sugarcane,15,41,25,32,4.5,9
+"Fibre, commercial and plantation crops",Jute,13,45,24,32,5,8.6
+"Fibre, commercial and plantation crops",Tobacco,7,35,20,30,4.5,7.5
+"Fibre, commercial and plantation crops",Mesta,10,35,22,30,4.3,8.2
+"Fibre, commercial and plantation crops",Tea,8,35,18,25,4,6
+"Fibre, commercial and plantation crops",Coffee,12,36,18,25,4,8
+"Fibre, commercial and plantation crops",Arecanut,7,39,22,32,4.5,6.8
+"Fibre, commercial and plantation crops",Betel vine,17,31,22,30,4.3,6.8
+"Fibre, commercial and plantation crops",Rubber,10,45,25,32,3.5,8
+"Fibre, commercial and plantation crops",Cocoa,10,38,21,30,4,8
+"Fibre, commercial and plantation crops",Cashew,5,46,24,32,3.8,8.7
+"Fibre, commercial and plantation crops",Bamboo (commercial),9,35,20,30,4.5,7.5
+"Fibre, commercial and plantation crops",Stevia,15,43,20,30,4,7.5
+Fodder and green-manure crops,Berseem,3,35,18,25,4.9,7.5
+Fodder and green-manure crops,Lucerne (Alfalfa),5,45,18,25,4.3,8.7
+Fodder and green-manure crops,Fodder sorghum,8,40,25,32,5,8
+Fodder and green-manure crops,Fodder maize,10,47,21,30,4.5,8.5
+Fodder and green-manure crops,Fodder cowpea,15,40,25,32,4,8.8
+Fodder and green-manure crops,Guinea grass,6,35,22,32,3.5,8.4
+Fodder and green-manure crops,Para grass,15,46,25,35,4.3,7.7
+Fodder and green-manure crops,Oat fodder,5,30,15,22,4.5,7.5
+Fodder and green-manure crops,Stylo,15,34,22,30,4,8.3
+Fodder and green-manure crops,Dhaincha (Green manure),10,34,25,32,4.3,9.9
+Fodder and green-manure crops,Sunhemp (Green manure),4,40,25,32,5,8.4
+Fodder and green-manure crops,Fodder pearl millet,12,40,25,35,4.5,8.3
+Fodder and green-manure crops,Anjan grass,5,42,22,32,5.5,8.5
+Fodder and green-manure crops,Marvel grass,7,40,20,30,5.5,8.5
+Vegetables,Sweet potato,10,38,22,30,4,8.7
+Vegetables,Cassava (Tapioca),10,35,25,32,4,9
+Vegetables,Colocasia (Arbi),10,35,22,30,4.3,8.2
+Vegetables,Elephant foot yam (Suran),25,40,25,32,5,7.5
+Vegetables,Greater yam,14,40,24,32,4.8,8.5
+Vegetables,Snake gourd,14,38,24,32,6,8
+Vegetables,Chow chow (Chayote),12,40,18,25,4.3,8
+Vegetables,Knol-khol (Kohlrabi),5,25,12,20,5.5,8.5
+Vegetables,Brussels sprouts,7,25,12,20,4.5,7.8
+Vegetables,Asparagus,6,38,18,25,4.5,8.2
+Fruits,Dragon fruit,12,34,20,30,5,7.5
+Fruits,Passion fruit,18,34,20,28,5.5,8.5
+Fruits,Fig,4,38,18,28,4.3,8.6
+Fruits,Date palm,10,52,25,35,6,8.5
+Spices and condiments,Nutmeg,12,38,22,30,5.5,7.5
+Spices and condiments,Vanilla,10,33,20,28,4.3,8
+"Fibre, commercial and plantation crops",Sisal,10,45,22,30,5.5,8
