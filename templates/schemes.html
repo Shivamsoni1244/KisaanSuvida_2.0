@@ -109,4 +109,85 @@
     sendWidgetChip('Which schemes can help me?');
   }
 </script>
+
+{% block extra_css %}
+<style>
+  /* Schemes page mobile overrides — desktop styles untouched */
+  @media (max-width: 768px) {
+    div[style*="grid-template-columns: repeat(3, 1fr); gap: 22px"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 16px !important;
+    }
+    .ks-card[style*="min-height: 280px"] {
+      min-height: auto !important;
+    }
+    .filter-tabs {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .filter-tab {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+    .ks-card-dark[style*="justify-content: space-between"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .ks-card-dark div[style*="max-width: 600px"] {
+      max-width: 100% !important;
+    }
+    /* Smaller inline fonts */
+    p[style*="font-size: 13px; color: var(--color-text-light); line-height: 1.4"],
+    p[style*="font-size: 13px; color: var(--color-text-light); line-height: 1.4; "] {
+      font-size: 12px !important;
+    }
+    a[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main);"],
+    a[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 0.75rem !important;
+    }
+    .secondary-desc[style*="font-weight: 500; margin-bottom: 14px"],
+    .secondary-desc[style*="font-weight: 500; margin-bottom: 14px; "] {
+      font-size: 13px !important;
+    }
+    .secondary-desc[style*="color: #d1ded6;"],
+    .secondary-desc[style*="color: #d1ded6; "] {
+      font-size: 12.5px !important;
+    }
+    .card-caption[style*="color: var(--color-primary-dark); margin-bottom: 10px"],
+    .card-caption[style*="color: var(--color-primary-dark); margin-bottom: 10px; "] {
+      font-size: 12px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    div[style*="grid-template-columns: repeat(3, 1fr); gap: 22px"] {
+      grid-template-columns: 1fr !important;
+    }
+    .page-title {
+      font-size: 24px !important;
+    }
+    p[style*="font-size: 13px; color: var(--color-text-light); line-height: 1.4"],
+    p[style*="font-size: 13px; color: var(--color-text-light); line-height: 1.4; "] {
+      font-size: 11.5px !important;
+    }
+    a[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main);"],
+    a[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 0.72rem !important;
+    }
+    .secondary-desc[style*="font-weight: 500; margin-bottom: 14px"],
+    .secondary-desc[style*="font-weight: 500; margin-bottom: 14px; "] {
+      font-size: 12.5px !important;
+    }
+    .secondary-desc[style*="color: #d1ded6;"],
+    .secondary-desc[style*="color: #d1ded6; "] {
+      font-size: 12px !important;
+    }
+    .card-caption[style*="color: var(--color-primary-dark); margin-bottom: 10px"],
+    .card-caption[style*="color: var(--color-primary-dark); margin-bottom: 10px; "] {
+      font-size: 11.5px !important;
+    }
+  }
+</style>
+{% endblock %}
 {% endblock %}

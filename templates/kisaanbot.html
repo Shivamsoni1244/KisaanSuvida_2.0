@@ -284,4 +284,103 @@
     recognition.start();
   }
 </script>
+
+{% block extra_css %}
+<style>
+  /* KisaanBot page mobile overrides — desktop styles untouched */
+  @media (max-width: 768px) {
+    .layout-split {
+      grid-template-columns: 1fr !important;
+      gap: 18px !important;
+    }
+    .ks-card[style*="height: 680px"] {
+      height: auto !important;
+      min-height: 400px;
+    }
+    #fullChatMessages {
+      padding: 16px !important;
+      gap: 12px !important;
+    }
+    .msg-bubble {
+      font-size: 0.85rem !important;
+      max-width: 100% !important;
+    }
+    #fullChatChips {
+      padding: 8px 16px !important;
+      gap: 6px !important;
+    }
+    .ks-bot-chip {
+      font-size: 0.8rem !important;
+      padding: 6px 10px !important;
+      white-space: normal !important;
+    }
+    div[style*="padding: 16px 20px; background-color: #ffffff; border-top"] {
+      padding: 12px 16px !important;
+      gap: 10px !important;
+    }
+    #fullChatInput {
+      font-size: 0.85rem !important;
+      padding: 10px 14px !important;
+      flex: 1;
+    }
+    .filter-tabs .filter-tab {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+    /* Smaller inline fonts */
+    span[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main);"],
+    span[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 13px !important;
+    }
+    h3[style*="font-size: 1.15rem"],
+    h3[style*="font-size: 1.15rem;"] {
+      font-size: 1rem !important;
+    }
+    p[style*="font-size: 0.84rem"],
+    p[style*="font-size: 0.84rem;"] {
+      font-size: 0.75rem !important;
+    }
+    div[style*="font-size: 0.72rem; font-weight: 700; text-transform: uppercase"],
+    div[style*="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; "] {
+      font-size: 0.65rem !important;
+    }
+    div[style*="font-size: 0.74rem; color: var(--color-text-light);"],
+    div[style*="font-size: 0.74rem; color: var(--color-text-light); "] {
+      font-size: 0.68rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 24px !important;
+    }
+    .msg-bubble {
+      font-size: 0.8rem !important;
+    }
+    #fullChatInput {
+      font-size: 0.8rem !important;
+    }
+    span[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main);"],
+    span[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 12.5px !important;
+    }
+    h3[style*="font-size: 1.15rem"],
+    h3[style*="font-size: 1.15rem;"] {
+      font-size: 0.95rem !important;
+    }
+    p[style*="font-size: 0.84rem"],
+    p[style*="font-size: 0.84rem;"] {
+      font-size: 0.72rem !important;
+    }
+    div[style*="font-size: 0.72rem; font-weight: 700; text-transform: uppercase"],
+    div[style*="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; "] {
+      font-size: 0.62rem !important;
+    }
+    div[style*="font-size: 0.74rem; color: var(--color-text-light);"],
+    div[style*="font-size: 0.74rem; color: var(--color-text-light); "] {
+      font-size: 0.65rem !important;
+    }
+  }
+</style>
+{% endblock %}
 {% endblock %}

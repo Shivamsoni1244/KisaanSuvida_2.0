@@ -228,4 +228,98 @@
     document.getElementById('historyModal').style.display = 'none';
   }
 </script>
+
+{% block extra_css %}
+<style>
+  /* History page mobile overrides — desktop styles untouched */
+  @media (max-width: 768px) {
+    .metric-row {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    .metric-value {
+      font-size: 26px;
+    }
+    div[style*="justify-content: space-between; align-items: center; margin-bottom: 22px"] {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 14px;
+    }
+    .filter-tabs {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .filter-tab {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+    #historySearch {
+      min-width: auto !important;
+      width: 100%;
+      font-size: 13px;
+    }
+    .ks-table {
+      font-size: 13px;
+    }
+    .ks-table th,
+    .ks-table td {
+      padding: 8px 10px;
+    }
+    .ks-table th,
+    .ks-table td {
+      padding: 8px 10px;
+    }
+    div[style*="justify-content: space-between; align-items: center; margin-top: 22px"] {
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    /* Smaller inline fonts */
+    input#historySearch[style*="font-size: 0.84rem"],
+    input#historySearch[style*="font-size: 0.84rem;"] {
+      font-size: 12px !important;
+    }
+    span[style*="font-size: 0.8rem; color: var(--color-text-primary-dark);"],
+    span[style*="font-size: 0.8rem; color: var(--color-text-primary-dark); "] {
+      font-size: 0.75rem !important;
+    }
+    div[style*="font-size: 0.82rem; color: var(--color-text-muted);"],
+    div[style*="font-size: 0.82rem; color: var(--color-text-muted); "] {
+      font-size: 0.76rem !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 24px !important;
+    }
+    .btn[style*="padding: 5px 12px"] {
+      padding: 4px 10px !important;
+      font-size: 0.72rem !important;
+      width: 100%;
+    }
+    input#historySearch[style*="font-size: 0.84rem"],
+    input#historySearch[style*="font-size: 0.84rem;"] {
+      font-size: 11.5px !important;
+    }
+    span[style*="font-size: 0.8rem; color: var(--color-text-primary-dark);"],
+    span[style*="font-size: 0.8rem; color: var(--color-text-primary-dark); "] {
+      font-size: 0.72rem !important;
+    }
+    div[style*="font-size: 0.82rem; color: var(--color-text-muted);"],
+    div[style*="font-size: 0.82rem; color: var(--color-text-muted); "] {
+      font-size: 0.72rem !important;
+    }
+    button[onclick="closeHistoryModal()"][style*="font-size: 1.25rem"],
+    button[onclick="closeHistoryModal()"][style*="font-size: 1.25rem; "] {
+      font-size: 1rem !important;
+    }
+    div#modalContent[style*="font-size: 14px"],
+    div#modalContent[style*="font-size: 14px; "] {
+      font-size: 13px !important;
+    }
+  }
+</style>
+{% endblock %}
 {% endblock %}

@@ -183,4 +183,72 @@
 </div>
 
 {# Legacy script removed #}
+
+{% block extra_css %}
+<style>
+  /* Profile page mobile overrides — desktop styles untouched */
+  @media (max-width: 768px) {
+    .layout-split {
+      grid-template-columns: 1fr !important;
+      gap: 18px !important;
+    }
+    .form-row,
+    .form-row-3 {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    select[style*="max-width: 280px"] {
+      max-width: 100% !important;
+      width: 100% !important;
+    }
+    div[style*="display: flex; align-items: center; justify-content: space-between; margin-top: 28px"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    /* Smaller inline fonts */
+    div[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px;"],
+    div[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px; "] {
+      font-size: 13px !important;
+    }
+    p.secondary-desc[style*="font-size: 13px"],
+    p.secondary-desc[style*="font-size: 13px;"] {
+      font-size: 12px !important;
+    }
+    span.secondary-desc[style*="font-size: 13px"],
+    span.secondary-desc[style*="font-size: 13px;"] {
+      font-size: 12px !important;
+    }
+    a[style*="font-size: 14px; font-weight: 600; color: var(--color-text-main);"],
+    a[style*="font-size: 14px; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 13px !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 24px !important;
+    }
+    .form-control {
+      font-size: 16px;
+    }
+    div[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px;"],
+    div[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px; "] {
+      font-size: 12.5px !important;
+    }
+    p.secondary-desc[style*="font-size: 13px"],
+    p.secondary-desc[style*="font-size: 13px;"] {
+      font-size: 11.5px !important;
+    }
+    span.secondary-desc[style*="font-size: 13px"],
+    span.secondary-desc[style*="font-size: 13px;"] {
+      font-size: 11.5px !important;
+    }
+    a[style*="font-size: 14px; font-weight: 600; color: var(--color-text-main);"],
+    a[style*="font-size: 14px; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 12.5px !important;
+    }
+  }
+</style>
+{% endblock %}
 {% endblock %}

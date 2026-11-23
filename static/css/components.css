@@ -578,3 +578,80 @@
     max-width: 100%;
   }
 }
+
+/* Mobile forecast cards: prevent overflow on narrow screens */
+@media (max-width: 768px) {
+  .forecast-week-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .forecast-day-card {
+    min-width: 0;
+    padding: 12px 8px;
+  }
+
+  .forecast-temp {
+    font-size: 16px;
+  }
+
+  .forecast-day-name,
+  .forecast-day-date {
+    font-size: 12px;
+  }
+
+  .forecast-meta {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .forecast-week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .action-card {
+    min-height: auto;
+    padding: 18px;
+  }
+
+  .metric-card {
+    padding: 16px 18px;
+  }
+
+  .status-badge {
+    font-size: 11px;
+    padding: 2px 7px;
+  }
+}
+
+/* Filter tabs: wrap and shrink on mobile so no tab gets cut off */
+@media (max-width: 768px) {
+  .filter-tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .filter-tab {
+    font-size: 12px;
+    padding: 5px 10px;
+    white-space: nowrap;
+    min-width: 0;
+  }
+}
+
+/* History table header: smaller, wrapped headers on mobile */
+@media (max-width: 480px) {
+  .ks-table {
+    font-size: 12px;
+  }
+
+  .ks-table th {
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .ks-table td {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}

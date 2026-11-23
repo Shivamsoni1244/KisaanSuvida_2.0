@@ -323,4 +323,168 @@
   {% endif %}
 
 </div>
+
+{% block extra_css %}
+<style>
+  /* Crop suitability mobile overrides — desktop styles untouched */
+  @media (max-width: 768px) {
+    .layout-split {
+      grid-template-columns: 1fr !important;
+      gap: 18px !important;
+    }
+    div[style*="grid-template-columns: repeat(4, 1fr); gap: 16px"] {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    .metric-card {
+      padding: 16px 14px;
+    }
+    .metric-value {
+      font-size: 26px;
+    }
+    .forecast-week-grid {
+      grid-template-columns: repeat(4, 1fr) !important;
+      gap: 8px !important;
+    }
+    .forecast-day-card {
+      padding: 10px 6px !important;
+      min-height: auto;
+    }
+    .forecast-temp {
+      font-size: 16px !important;
+    }
+    .forecast-day-name,
+    .forecast-day-date {
+      font-size: 12px !important;
+    }
+    .forecast-meta {
+      font-size: 11px !important;
+    }
+    div[style*="grid-template-columns: repeat(3, 1fr); gap: 18px"] {
+      grid-template-columns: 1fr !important;
+      gap: 14px !important;
+    }
+    div[style*="grid-template-columns: repeat(3, 1fr); gap: 10px"] {
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+    }
+    .ks-card-sage[style*="padding: 16px"] svg {
+      width: 100% !important;
+      max-width: 260px !important;
+    }
+    .weather-advisory-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    .weather-advisory-banner svg {
+      width: 20px !important;
+      height: 20px !important;
+    }
+    div[style*="justify-content: space-between; align-items: center; margin-top: 20px"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    /* Smaller inline fonts */
+    div[style*="font-size: 0.76rem; font-weight: 700; text-transform: uppercase"],
+    div[style*="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; "] {
+      font-size: 0.7rem !important;
+    }
+    div[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main);"],
+    div[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 0.76rem !important;
+    }
+    div[style*="font-size: 0.68rem; color: var(--color-text-light);"],
+    div[style*="font-size: 0.68rem; color: var(--color-text-light); "] {
+      font-size: 0.65rem !important;
+    }
+    span[style*="font-size: 0.76rem; color: var(--color-text-light);"],
+    span[style*="font-size: 0.76rem; color: var(--color-text-light); "] {
+      font-size: 0.7rem !important;
+    }
+    strong[style*="font-size: 0.88rem; color: var(--color-text-main);"],
+    strong[style*="font-size: 0.88rem; color: var(--color-text-main); "] {
+      font-size: 0.82rem !important;
+    }
+    p[style*="font-size: 0.78rem; color: var(--color-text-muted);"],
+    p[style*="font-size: 0.78rem; color: var(--color-text-muted); "] {
+      font-size: 0.74rem !important;
+    }
+    div[style*="font-size: 0.75rem; font-weight: 700; text-transform: uppercase"],
+    div[style*="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; "] {
+      font-size: 0.7rem !important;
+    }
+    div[style*="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark);"],
+    div[style*="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark); "] {
+      font-size: 1.1rem !important;
+    }
+    div[style*="font-size: 0.7rem; color: var(--color-text-light);"],
+    div[style*="font-size: 0.7rem; color: var(--color-text-light); "] {
+      font-size: 0.66rem !important;
+    }
+    h3.hero-heading[style*="font-size: 24px"],
+    h3.hero-heading[style*="font-size: 24px;"] {
+      font-size: 20px !important;
+      line-height: 1.25 !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 24px !important;
+    }
+    .forecast-week-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    .forecast-day-card {
+      padding: 10px 6px !important;
+    }
+    .form-control {
+      font-size: 16px;
+    }
+    div[style*="font-size: 0.76rem; font-weight: 700; text-transform: uppercase"],
+    div[style*="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; "] {
+      font-size: 0.68rem !important;
+    }
+    div[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main);"],
+    div[style*="font-size: 0.82rem; font-weight: 600; color: var(--color-text-main); "] {
+      font-size: 0.74rem !important;
+    }
+    div[style*="font-size: 0.68rem; color: var(--color-text-light);"],
+    div[style*="font-size: 0.68rem; color: var(--color-text-light); "] {
+      font-size: 0.62rem !important;
+    }
+    span[style*="font-size: 0.76rem; color: var(--color-text-light);"],
+    span[style*="font-size: 0.76rem; color: var(--color-text-light); "] {
+      font-size: 0.68rem !important;
+    }
+    strong[style*="font-size: 0.88rem; color: var(--color-text-main);"],
+    strong[style*="font-size: 0.88rem; color: var(--color-text-main); "] {
+      font-size: 0.8rem !important;
+    }
+    p[style*="font-size: 0.78rem; color: var(--color-text-muted);"],
+    p[style*="font-size: 0.78rem; color: var(--color-text-muted); "] {
+      font-size: 0.72rem !important;
+    }
+    div[style*="font-size: 0.75rem; font-weight: 700; text-transform: uppercase"],
+    div[style*="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; "] {
+      font-size: 0.68rem !important;
+    }
+    div[style*="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark);"],
+    div[style*="font-size: 1.25rem; font-weight: 700; color: var(--color-primary-dark); "] {
+      font-size: 1.05rem !important;
+    }
+    div[style*="font-size: 0.7rem; color: var(--color-text-light);"],
+    div[style*="font-size: 0.7rem; color: var(--color-text-light); "] {
+      font-size: 0.64rem !important;
+    }
+    h3.hero-heading[style*="font-size: 24px"],
+    h3.hero-heading[style*="font-size: 24px;"] {
+      font-size: 19px !important;
+    }
+  }
+</style>
+{% endblock %}
 {% endblock %}

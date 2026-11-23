@@ -16,7 +16,7 @@
     
     <!-- Left Column: Upload, Camera, Samples & Scanning -->
     <div class="ks-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+      <div class="disease-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
         <h2 class="section-heading">
           Scan affected crop leaf
         </h2>
@@ -396,4 +396,56 @@
     sendWidgetChip(currentDiagnosisPrompt);
   }
 </script>
+
+{% block extra_css %}
+<style>
+  /* Disease detection mobile overrides — desktop styles untouched */
+  @media (max-width: 768px) {
+    .layout-split {
+      grid-template-columns: 1fr !important;
+      gap: 18px !important;
+    }
+    #dropZone {
+      padding: 20px 16px !important;
+    }
+    #leafPreviewImg {
+      max-height: 200px !important;
+    }
+    .ks-card[style*="border-left: 4px solid #16a34a"] {
+      min-height: auto;
+    }
+    .disease-header-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    div[style*="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    div[style*="text-align: right;"] {
+      text-align: left !important;
+      align-self: flex-start;
+    }
+    #confidenceBadge {
+      font-size: 18px !important;
+    }
+    div[style*="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;"] {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 26px !important;
+    }
+    .form-control {
+      font-size: 16px;
+    }
+  }
+</style>
+{% endblock %}
 {% endblock %}

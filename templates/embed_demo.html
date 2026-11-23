@@ -62,6 +62,44 @@
       margin-bottom: 24px;
       box-shadow: var(--shadow-sm);
     }
+
+    /* Embed demo mobile overrides — desktop styles untouched */
+    @media (max-width: 768px) {
+      .ext-header {
+        padding: 14px 16px;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .ext-header > div {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .ext-container {
+        padding: 0 16px;
+        margin: 20px auto;
+      }
+      .ext-card {
+        padding: 20px;
+      }
+      .code-box {
+        font-size: 0.8rem;
+        padding: 14px 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .ext-header {
+        padding: 12px 14px;
+      }
+      h1 {
+        font-size: 1.5rem !important;
+      }
+      h2 {
+        font-size: 1.1rem !important;
+      }
+    }
   </style>
 </head>
 <body>

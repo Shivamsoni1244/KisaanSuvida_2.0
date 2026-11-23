@@ -13,6 +13,141 @@
   
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+
+  <style>
+    /* Home page mobile overrides — desktop styles untouched */
+    @media (max-width: 768px) {
+      header.app-header > div {
+        padding: 0 16px;
+        max-width: none;
+      }
+      header.app-header nav {
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      header.app-header nav a,
+      header.app-header nav .btn {
+        font-size: 13px;
+        padding: 6px 12px;
+      }
+      main.page-container {
+        padding-top: 16px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .hero-card[style*="padding: 40px"] {
+        padding: 24px !important;
+      }
+      .hero-card[style*="padding: 40px"] svg {
+        width: 80px !important;
+        height: 80px !important;
+      }
+      div[style*="grid-template-columns: 1fr 1fr; gap: 40px"] {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+      }
+      .getting-started-grid,
+      div[style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;"] {
+        grid-template-columns: 1fr !important;
+        gap: 18px !important;
+      }
+      div[style="background-color: var(--color-primary-dark); color: #ffffff; border-radius: var(--radius-lg); padding: 36px;"] {
+        padding: 24px !important;
+      }
+      footer.app-footer-note {
+        padding: 24px 16px !important;
+        max-width: none !important;
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+      }
+      /* Smaller inline fonts on tablet/mobile */
+      h1.page-title[style*="font-size: 42px"],
+      h1.page-title[style*="font-size: 42px;"] {
+        font-size: 30px !important;
+        line-height: 1.2 !important;
+      }
+      .page-eyebrow[style*="font-size: 15px"],
+      .page-eyebrow[style*="font-size: 15px;"] {
+        font-size: 13px !important;
+      }
+      .page-subtitle[style*="font-size: 17px"],
+      .page-subtitle[style*="font-size: 17px;"] {
+        font-size: 15px !important;
+      }
+      .btn[style*="font-size: 16px"],
+      .btn[style*="font-size: 16px;"] {
+        font-size: 14px !important;
+        padding: 12px 20px !important;
+      }
+      h3[style*="font-size: 24px"],
+      h3[style*="font-size: 24px;"] {
+        font-size: 20px !important;
+      }
+      ol[style*="font-size: 15px"],
+      ul[style*="font-size: 15px"],
+      ol[style*="font-size: 15px;"],
+      ul[style*="font-size: 15px;"] {
+        font-size: 14px !important;
+      }
+      .brand-name[style*="font-size: 18px"],
+      .brand-name[style*="font-size: 18px;"] {
+        font-size: 16px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header.app-header > div {
+        padding: 0 12px;
+      }
+      header.app-header nav {
+        gap: 10px;
+      }
+      header.app-header nav a {
+        display: none;
+      }
+      header.app-header nav .btn {
+        font-size: 13px;
+        padding: 6px 12px;
+      }
+      .page-title {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+      }
+      h1.page-title[style*="font-size: 42px"],
+      h1.page-title[style*="font-size: 42px;"] {
+        font-size: 26px !important;
+      }
+      .page-eyebrow[style*="font-size: 15px"],
+      .page-eyebrow[style*="font-size: 15px;"] {
+        font-size: 12px !important;
+      }
+      .page-subtitle[style*="font-size: 17px"],
+      .page-subtitle[style*="font-size: 17px;"] {
+        font-size: 14px !important;
+      }
+      .btn[style*="font-size: 16px"],
+      .btn[style*="font-size: 16px;"] {
+        font-size: 13px !important;
+        padding: 11px 18px !important;
+      }
+      h3[style*="font-size: 24px"],
+      h3[style*="font-size: 24px;"] {
+        font-size: 19px !important;
+      }
+      ol[style*="font-size: 15px"],
+      ul[style*="font-size: 15px"],
+      ol[style*="font-size: 15px;"],
+      ul[style*="font-size: 15px;"] {
+        font-size: 13px !important;
+      }
+      .brand-name[style*="font-size: 18px"],
+      .brand-name[style*="font-size: 18px;"] {
+        font-size: 15px !important;
+      }
+    }
+  </style>
 </head>
 <body>
 

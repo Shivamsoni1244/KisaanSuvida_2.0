@@ -46,6 +46,12 @@
   <div class="result-card result-card-section">
     <h3 class="card-heading">Why this crop</h3>
     <p class="card-text">{{ result.top_crop.explanation }}</p>
+    <!-- Mobile-only download button at bottom of card -->
+    <div class="result-actions-mobile">
+      <a href="{{ url_for('crop.recommendation_result_download', result_id=result_id) }}" class="result-btn-download">
+        <span>Download detailed report</span>
+      </a>
+    </div>
   </div>
 
   <!-- How to grow card (clickable) -->

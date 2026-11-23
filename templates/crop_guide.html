@@ -632,6 +632,133 @@
       align-items: flex-start;
       gap: 8px;
     }
+
+    /* Export button: no longer overlaps title on phone */
+    .guide-btn-export {
+      position: static !important;
+      margin-top: 14px;
+      width: 100%;
+      justify-content: center;
+      font-size: 12.5px;
+      padding: 9px 14px;
+    }
+
+    /* Smaller cards for phone */
+    .guide-header {
+      padding: 16px;
+    }
+
+    .guide-title {
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .guide-card-dark {
+      padding: 16px;
+      border-radius: 12px;
+    }
+
+    .guide-card-header-dark {
+      padding: 16px 18px;
+    }
+
+    .guide-card-content-dark {
+      padding: 16px 18px;
+    }
+
+    .guide-card-expert {
+      padding: 18px 20px;
+      border-radius: 12px;
+    }
+
+    .guide-section {
+      margin-bottom: 24px;
+    }
+
+    .guide-section-grid {
+      gap: 20px;
+    }
+
+    .guide-sub-section, .guide-subsection {
+      gap: 12px;
+    }
+
+    .guide-sub-text {
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .guide-sub-title {
+      font-size: 17px;
+    }
+
+    .guide-chip {
+      padding: 10px 14px;
+    }
+
+    .guide-chip-value {
+      font-size: 15px;
+    }
+
+    .guide-info-chips {
+      gap: 10px;
+    }
+
+    .guide-location-row {
+      gap: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .guide-header {
+      padding: 14px;
+    }
+    .guide-title {
+      font-size: 26px !important;
+      line-height: 1.2 !important;
+    }
+    .guide-section-title {
+      font-size: 20px !important;
+    }
+    .guide-sub-title {
+      font-size: 16px !important;
+    }
+    .guide-sub-text {
+      font-size: 14px !important;
+      line-height: 1.6 !important;
+    }
+    .guide-chip-value {
+      font-size: 14px !important;
+    }
+    .guide-location-row {
+      font-size: 13px !important;
+      gap: 6px !important;
+      margin-bottom: 12px !important;
+    }
+    .guide-section {
+      margin-bottom: 20px !important;
+    }
+    .guide-section-grid {
+      gap: 16px !important;
+    }
+    .guide-card-dark {
+      padding: 14px !important;
+    }
+    .guide-card-header-dark {
+      padding: 14px 16px !important;
+    }
+    .guide-card-content-dark {
+      padding: 14px 16px !important;
+    }
+    .guide-card-expert {
+      padding: 16px 18px !important;
+    }
+    .guide-btn-export {
+      font-size: 12px !important;
+      padding: 8px 12px !important;
+    }
   }
 </style>
 {% endblock %}
