@@ -26,6 +26,7 @@ Endpoints:
 """
 
 import logging
+import json
 import os
 import pytz
 import requests
@@ -36,6 +37,8 @@ from collections import defaultdict
 from flask import Blueprint, current_app, jsonify, render_template, request, session
 
 from auth.decorators import login_required
+from data.db import get_db
+from mysql.connector import Error
 from services.crop_data_service import get_categories, get_crop_by_name, get_crops_by_category, search_crops
 from services.crop_duration_service import calculate_growth_progress, get_crop_duration
 from services.weather_aggregation_service import (
@@ -228,6 +231,79 @@ def _normalize_openmeteo_daily(data: Dict[str, Any]) -> List[Dict[str, Any]]:
         })
 
     return normalized
+
+
+def _save_suitability_history(user_id: int, response_data: Dict[str, Any]) -> None:
+    """Save suitability analysis to user's history in MySQL."""
+    try:
+        crop_info = response_data.get("crop", {})
+        location_info = response_data.get("location", {})
+        overall = response_data.get("overall", {})
+        ph_analysis = response_data.get("ph_analysis", {})
+        soil_ph = response_data.get("soil_ph")
+
+        details = {
+            "crop_name": crop_info.get("name"),
+            "category": crop_info.get("category"),
+            "location": location_info.get("name"),
+            "state": location_info.get("state"),
+            "district": location_info.get("district"),
+            "season": response_data.get("sowing_date", ""),
+            "soil_type": "",  # Not directly available in response
+            "irrigation": "",  # Not directly available in response
+            "overall_score": overall.get("score"),
+            "status": overall.get("status"),
+            "label": overall.get("label"),
+            "ph_analysis": ph_analysis,
+            "weather_analysis": response_data.get("weather_analysis"),
+        }
+
+        conn = None
+        cur = None
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute(
+                """INSERT INTO crop_suitability_history
+                   (user_id, crop_id, state, district, season, soil_type, soil_ph,
+                    n_value, p_value, k_value, irrigation, overall_score,
+                    activity_type, tehsil, village, details, analysis_date)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())""",
+                (
+                    user_id,
+                    None,
+                    location_info.get("state", ""),
+                    location_info.get("district", ""),
+                    response_data.get("sowing_date", ""),
+                    details.get("soil_type", ""),
+                    float(soil_ph) if soil_ph is not None else None,
+                    None, None, None,
+                    details.get("irrigation", ""),
+                    overall.get("score"),
+                    "analysis",
+                    location_info.get("tehsil", ""),
+                    location_info.get("village", ""),
+                    json.dumps(details),
+                ),
+            )
+            conn.commit()
+        except Error as e:
+            logger.error("MySQL error saving suitability history: %s", e)
+        except Exception as e:
+            logger.error("Unexpected error saving suitability history: %s", e)
+        finally:
+            if cur:
+                try:
+                    cur.close()
+                except Exception:
+                    pass
+            if conn:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+    except Exception as e:
+        logger.error("Failed to save suitability history: %s", e)
 
 
 @crop_suitability_bp.route("/", methods=["GET", "POST"])
@@ -486,6 +562,11 @@ def suitability_analysis():
         },
         "daily_summary": daily_summary,
     }
+
+    # Save suitability analysis to user's history
+    user_id = session.get("user_id")
+    if user_id:
+        _save_suitability_history(user_id, response_data)
 
     return jsonify(response_data)
 

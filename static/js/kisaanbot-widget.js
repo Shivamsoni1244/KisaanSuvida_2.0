@@ -1,10 +1,10 @@
 /**
  * static/js/kisaanbot-widget.js - Standalone & Embeddable KisaanBot AI Assistant
  * Compatible with in-app floating usage and external website embed scripts.
+ * Suggestions are loaded dynamically from the backend — no hardcoded crop names.
  */
 
 (function () {
-  // Read script configuration attributes
   const currentScript = document.currentScript || (function () {
     const scripts = document.getElementsByTagName('script');
     return scripts[scripts.length - 1];
@@ -13,13 +13,14 @@
   const apiUrl = (currentScript && currentScript.getAttribute('data-api-url')) || '/api/kisaanbot/chat';
   let widgetLanguage = (currentScript && currentScript.getAttribute('data-language')) || 'en';
 
-  // Inject DOM elements if not already present on page (for external embeds)
+  // ------------------------------------------------------------------
+  # Ensure widget DOM (for external embeds)
+  // ------------------------------------------------------------------
   function ensureWidgetDOM() {
     if (document.getElementById('ksBotLauncher')) {
-      return; // Already present in DOM
+      return; // Already present in DOM (injected by base.html)
     }
 
-    // Floating launcher button
     const launcher = document.createElement('div');
     launcher.id = 'ksBotLauncher';
     launcher.className = 'ks-bot-launcher';
@@ -35,7 +36,6 @@
       <div class="ks-bot-tooltip">Ask KisaanBot AI</div>
     `;
 
-    // Chat Window
     const win = document.createElement('div');
     win.id = 'ksBotWindow';
     win.className = 'ks-bot-window';
@@ -58,19 +58,12 @@
         </div>
       </div>
       <div class="ks-bot-messages" id="widgetMessages">
-        <div class="msg-wrapper bot">
-          <div class="msg-bubble">
-            Namaste! I am KisaanBot, your agricultural AI assistant. How can I help your farm today?
-          </div>
+        <div class="msg-wrapper bot" id="widgetWelcomeMessage">
+          <div class="msg-bubble">Namaste! I am KisaanBot, your assistant for Kisaan Suvidha.</div>
           <span class="msg-time">Just now</span>
         </div>
       </div>
-      <div class="ks-bot-chips" id="widgetChips">
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Why was rice recommended for my farm?')">Why rice?</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('How much water does rice need?')">Water needs</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('What does my soil pH mean?')">Soil pH</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Which schemes can help me?')">Govt Schemes</button>
-      </div>
+      <div class="ks-bot-chips" id="widgetChips"></div>
       <div class="ks-bot-input-bar">
         <input type="text" class="ks-bot-input" id="widgetInput" placeholder="Ask about crops, soil, pests..." onkeydown="handleWidgetKeyDown(event)">
         <button class="ks-bot-icon-btn" id="widgetMicBtn" onclick="toggleSpeechRecognition()" title="Voice input">
@@ -86,48 +79,61 @@
     document.body.appendChild(win);
   }
 
-  // Toggle Chat Window
+  // ------------------------------------------------------------------
+  # Toggle chat window + load suggestions on open
+  // ------------------------------------------------------------------
   window.toggleKisaanBot = function () {
     const win = document.getElementById('ksBotWindow');
-    if (win) {
-      win.classList.toggle('active');
-      if (win.classList.contains('active')) {
-        const inp = document.getElementById('widgetInput');
-        if (inp) inp.focus();
-      }
+    if (!win) return;
+    win.classList.toggle('active');
+    if (win.classList.contains('active')) {
+      const inp = document.getElementById('widgetInput');
+      if (inp) inp.focus();
+      window.initWidgetSuggestions && window.initWidgetSuggestions();
     }
   };
 
-  // Change language in floating assistant
+  // ------------------------------------------------------------------
+  # Change language and reload suggestions
+  // ------------------------------------------------------------------
   window.changeWidgetLanguage = function (lang) {
     widgetLanguage = lang;
+    // Reload suggestions in the new language
+    loadWidgetSuggestions(lang);
+  };
+
+  // ------------------------------------------------------------------
+  # Load dynamic suggestions from backend
+  // ------------------------------------------------------------------
+  async function loadWidgetSuggestions(lang) {
     const chipsContainer = document.getElementById('widgetChips');
     if (!chipsContainer) return;
 
-    if (lang === 'hi') {
-      chipsContainer.innerHTML = `
-        <button class="ks-bot-chip" onclick="sendWidgetChip('धान के लिए पानी की कितनी आवश्यकता है?')">पानी की आवश्यकता</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('मेरी मिट्टी का pH क्या दर्शाता है?')">मिट्टी का pH</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('कौन सी सरकारी योजनाएं मेरे लिए हैं?')">सरकारी योजनाएं</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('झुलसा रोग से धान को कैसे बचाएं?')">रोग उपचार</button>
-      `;
-    } else if (lang === 'hinglish') {
-      chipsContainer.innerHTML = `
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Rice ke liye kitna pani chahiye?')">Water needs</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Mera soil pH kaisa hai?')">Soil pH</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Konsi schemes mere kaam ki hain?')">Govt Schemes</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Paddy mein blast disease ka spray batao')">Spray Dawai</button>
-      `;
-    } else {
-      chipsContainer.innerHTML = `
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Why was rice recommended for my farm?')">Why rice?</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('How much water does rice need?')">Water needs</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('What does my soil pH mean?')">Soil pH</button>
-        <button class="ks-bot-chip" onclick="sendWidgetChip('Which schemes can help me?')">Govt Schemes</button>
-      `;
+    try {
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: '', language: lang })
+      });
+      const data = await res.json();
+      if (data.success && data.suggestions) {
+        chipsContainer.innerHTML = '';
+        data.suggestions.slice(0, 5).forEach((s) => {
+          const btn = document.createElement('button');
+          btn.className = 'ks-bot-chip';
+          btn.textContent = s;
+          btn.onclick = () => sendWidgetChip(s);
+          chipsContainer.appendChild(btn);
+        });
+      }
+    } catch (err) {
+      console.error('Widget suggestions load failed:', err);
     }
-  };
+  }
 
+  // ------------------------------------------------------------------
+  # Message handlers
+  // ------------------------------------------------------------------
   window.handleWidgetKeyDown = function (event) {
     if (event.key === 'Enter') {
       sendWidgetMessage();
@@ -150,7 +156,6 @@
     const messages = document.getElementById('widgetMessages');
     if (!messages) return;
 
-    // Append user bubble
     const userDiv = document.createElement('div');
     userDiv.className = 'msg-wrapper user';
     userDiv.innerHTML = `
@@ -161,7 +166,6 @@
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
 
-    // Loading status
     const botLoading = document.createElement('div');
     botLoading.className = 'msg-wrapper bot';
     botLoading.id = 'widgetLoadingBubble';
@@ -171,7 +175,6 @@
     messages.appendChild(botLoading);
     messages.scrollTop = messages.scrollHeight;
 
-    // Request to Flask backend
     fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -191,6 +194,21 @@
           `;
           messages.appendChild(botDiv);
           messages.scrollTop = messages.scrollHeight;
+
+          // Update suggestions after response
+          if (data.suggestions) {
+            const chipsContainer = document.getElementById('widgetChips');
+            if (chipsContainer) {
+              chipsContainer.innerHTML = '';
+              data.suggestions.slice(0, 5).forEach((s) => {
+                const btn = document.createElement('button');
+                btn.className = 'ks-bot-chip';
+                btn.textContent = s;
+                btn.onclick = () => sendWidgetChip(s);
+                chipsContainer.appendChild(btn);
+              });
+            }
+          }
         }
       })
       .catch(err => {
@@ -200,7 +218,9 @@
       });
   };
 
-  // Web Speech API Voice Recognition
+  // ------------------------------------------------------------------
+  # Voice recognition
+  // ------------------------------------------------------------------
   window.toggleSpeechRecognition = function () {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert('Speech recognition is not supported in this browser. Please type your message.');
@@ -232,6 +252,9 @@
     recognition.start();
   };
 
+  // ------------------------------------------------------------------
+  # Utilities
+  // ------------------------------------------------------------------
   function formatBotMarkdown(text) {
     return text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -246,7 +269,9 @@
     }[tag] || tag));
   }
 
-  // Ensure DOM is ready and initialized
+  // ------------------------------------------------------------------
+  # Initialise
+  // ------------------------------------------------------------------
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', ensureWidgetDOM);
   } else {
@@ -271,4 +296,5 @@
       sendWidgetMessage();
     }
   };
+
 })();

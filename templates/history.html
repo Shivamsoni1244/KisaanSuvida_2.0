@@ -28,8 +28,13 @@
 
     <div class="metric-card">
       <div class="metric-label">Most Recent Crop</div>
-      <div class="metric-value">Rice</div>
-      <div class="metric-sub">Ludhiana, Punjab</div>
+      {% if records %}
+      <div class="metric-value">{{ records[0].crop }}</div>
+      <div class="metric-sub">{{ records[0].location }}</div>
+      {% else %}
+      <div class="metric-value">—</div>
+      <div class="metric-sub">No recent activity</div>
+      {% endif %}
     </div>
   </div>
 
@@ -122,7 +127,7 @@
 
     <!-- Pagination & Status -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--color-border-subtle); font-size: 0.82rem; color: var(--color-text-muted);">
-      <span id="historyCount">Showing {{ records | length }} of 13 records</span>
+      <span id="historyCount">Showing {{ records | length }} of {{ records | length }} records</span>
       
       <div style="display: flex; gap: 6px;">
         <button class="filter-tab active" style="padding: 4px 10px;">1</button>
@@ -185,7 +190,7 @@
         r.style.display = 'none';
       }
     });
-    document.getElementById('historyCount').textContent = `Showing ${visibleCount} of 13 records`;
+    document.getElementById('historyCount').textContent = `Showing ${visibleCount} of ${rows.length} records`;
   }
 
   function searchHistory(query) {

@@ -1,12 +1,24 @@
 """
-routes/bot_routes.py - KisaanBot conversational AI assistant endpoints
+routes/bot_routes.py - KisaanBot conversational AI assistant endpoints.
 Protected: requires authentication for page access and chat API.
+
+The chatbot uses:
+- ChromaDB for application knowledge (RAG)
+- MySQL for authenticated farmer's personal history
+- Flask session for conversation memory
+- Groq LLM for response generation
+
+No hardcoded crop names — all crop names come from actual farmer records.
 """
 
 from flask import Blueprint, render_template, request, jsonify, session
-from services.kisaanbot_engine import process_kisaanbot_query, get_suggestions
 
-from auth.decorators import login_required, verified_required, get_current_user
+from services.kisaanbot_engine import (
+    process_kisaanbot_query,
+    get_initial_suggestions_for_user,
+)
+
+from auth.decorators import login_required, get_current_user_id
 
 bot_bp = Blueprint("bot", __name__)
 
@@ -14,14 +26,21 @@ bot_bp = Blueprint("bot", __name__)
 @bot_bp.route("/kisaanbot")
 @login_required
 def kisaanbot_page():
+    """Dedicated KisaanBot page."""
     user_profile = session.get("user_profile", {})
-    initial_suggestions = get_suggestions("why_rice", "en")
+    language = user_profile.get("preferred_language", "en")
+    user_id = session.get("user_id")
+
+    initial_suggestions = get_initial_suggestions_for_user(
+        language=language,
+        user_id=user_id,
+    )
 
     return render_template(
         "kisaanbot.html",
         user=user_profile,
         initial_suggestions=initial_suggestions,
-        active_page="kisaanbot"
+        active_page="kisaanbot",
     )
 
 
@@ -45,23 +64,15 @@ def api_chat():
     message = data.get("message", "").strip()
     language = data.get("language", "en")
 
+    user_id = get_current_user_id()
     user_profile = session.get("user_profile", {})
-    farm_context = {
-        "farmer_name": user_profile.get("name", "Farmer"),
-        "state": user_profile.get("state", ""),
-        "district": user_profile.get("district", ""),
-        "soil_type": user_profile.get("soil_type", ""),
-        "ph": 6.5,
-        "farm_size": f"{user_profile.get('farm_size', '4.5')} acres",
-        "irrigation": user_profile.get("irrigation", ""),
-        "current_crop": "Rice (Paddy)",
-        "season": "Kharif"
-    }
 
-    if not message:
-        result = process_kisaanbot_query("help", language=language, farm_context=farm_context)
-    else:
-        result = process_kisaanbot_query(message, language=language, farm_context=farm_context)
+    result = process_kisaanbot_query(
+        query=message,
+        language=language,
+        user_id=user_id,
+        session_obj=session,
+    )
 
     response = jsonify({
         "success": True,
@@ -69,7 +80,6 @@ def api_chat():
         "language": result["language"],
         "intent": result["intent"],
         "suggestions": result["suggestions"],
-        "context": farm_context
     })
 
     # Enable CORS for embeddable external widgets

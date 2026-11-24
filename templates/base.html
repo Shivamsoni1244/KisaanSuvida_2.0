@@ -258,10 +258,10 @@
   </div>
 
   <!-- =========================================================================
-       GLOBAL FLOATING KISAANBOT AI ASSISTANT WIDGET
-       Accessible from anywhere in the application
-       ========================================================================= -->
-  {% if is_authenticated %}
+     GLOBAL FLOATING KISAANBOT AI ASSISTANT WIDGET
+     Accessible from anywhere in the application
+     ========================================================================= -->
+  {% if is_authenticated and active_page != 'kisaanbot' %}
   <div class="ks-bot-launcher" id="ksBotLauncher" onclick="toggleKisaanBot()" title="Ask KisaanBot">
     <div class="ks-bot-launcher-pulse"></div>
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -294,20 +294,17 @@
 
     <!-- Scrollable Message Body -->
     <div class="ks-bot-messages" id="widgetMessages">
-      <div class="msg-wrapper bot">
+      <div class="msg-wrapper bot" id="widgetWelcomeMessage">
         <div class="msg-bubble">
-          Namaste {{ current_user.name if current_user.name else 'farmer' }}! I am KisaanBot, your agricultural assistant. How can I help your farm today?
+          Namaste {{ current_user.name if current_user.name else 'farmer' }}! I am KisaanBot, your assistant for Kisaan Suvidha.
         </div>
         <span class="msg-time">Just now</span>
       </div>
     </div>
 
-    <!-- Interactive Prompt Suggestion Chips -->
+    <!-- Interactive Prompt Suggestion Chips (populated dynamically) -->
     <div class="ks-bot-chips" id="widgetChips">
-      <button class="ks-bot-chip" onclick="sendWidgetChip('Why was rice recommended for my farm?')">Why rice?</button>
-      <button class="ks-bot-chip" onclick="sendWidgetChip('How much water does rice need?')">Water needs</button>
-      <button class="ks-bot-chip" onclick="sendWidgetChip('What does my soil pH mean?')">Soil pH</button>
-      <button class="ks-bot-chip" onclick="sendWidgetChip('Which schemes can help me?')">Govt Schemes</button>
+      <!-- Chips injected by JavaScript from API -->
     </div>
 
     <!-- Chat Input Bar -->
@@ -373,6 +370,38 @@
         modal.style.display = 'none';
       }
     });
+
+    // Widget initialisation: load dynamic suggestions on page load and when opened
+    window.initWidgetSuggestions = async function () {
+      const chipsContainer = document.getElementById('widgetChips');
+      if (!chipsContainer) return;
+
+      try {
+        const res = await fetch('/api/kisaanbot/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: '', language: 'en' })
+        });
+        const data = await res.json();
+        if (data.success && data.suggestions) {
+          chipsContainer.innerHTML = '';
+          data.suggestions.slice(0, 5).forEach((s) => {
+            const btn = document.createElement('button');
+            btn.className = 'ks-bot-chip';
+            btn.textContent = s;
+            btn.onclick = () => sendWidgetChip(s);
+            chipsContainer.appendChild(btn);
+          });
+        }
+      } catch (err) {
+        console.error('Widget suggestions load failed:', err);
+      }
+    };
+
+    // Auto-load suggestions when widget DOM is ready
+    if (document.getElementById('widgetChips')) {
+      window.initWidgetSuggestions();
+    }
   </script>
 </body>
 </html>

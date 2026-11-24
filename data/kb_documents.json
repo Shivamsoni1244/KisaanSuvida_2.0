@@ -1,0 +1,130 @@
+{
+  "documents": [
+    {
+      "id": "app_overview",
+      "title": "Kisaan Suvidha Application Overview",
+      "category": "overview",
+      "content": "Kisaan Suvidha is a web application for farmers that provides AI-powered crop recommendations, crop suitability analysis, plant disease detection, cultivation guides, government schemes information, and a personalised assistant called KisaanBot. Farmers can register, log in, complete their farm profile, get crop recommendations based on soil and weather data, check crop suitability, detect plant diseases using leaf images, and access cultivation guides. All farmer activities are saved to their personal history."
+    },
+    {
+      "id": "modules_list",
+      "title": "Available Modules in Kisaan Suvidha",
+      "category": "modules",
+      "content": "Kisaan Suvidha has the following modules: 1) Crop Recommendation - get AI-based crop suggestions based on farm inputs. 2) Crop Suitability Analysis - check how suitable a crop is for your soil and weather. 3) Plant Disease Detection - upload a leaf image to detect diseases. 4) Cultivation Guides - access detailed growing guides for crops. 5) Government Schemes - view PM-KISAN, PMFBY, KCC and other schemes. 6) History - view your previous recommendations and analyses. 7) KisaanBot - personalised AI assistant. 8) Profile - manage your farm profile and account settings."
+    },
+    {
+      "id": "crop_recommendation_workflow",
+      "title": "Crop Recommendation Workflow",
+      "category": "recommendation",
+      "content": "To get a crop recommendation, go to the Crop Recommendation module, fill in your farm details (state, district, season, soil type, NPK values, soil pH, irrigation method), and submit. The system uses AI to recommend the best crop for your farm along with alternative crops. The result includes the top recommended crop, suitability score, alternatives, and an explanation. The recommendation is saved to your history automatically."
+    },
+    {
+      "id": "recommendation_inputs_outputs",
+      "title": "Crop Recommendation Inputs and Outputs",
+      "category": "recommendation",
+      "content": "Crop recommendation inputs: state, district, season (Kharif/Rabi/Zaid), soil type, nitrogen (N), phosphorus (P), potassium (K), soil pH, and irrigation method. Outputs: top recommended crop with suitability score, soil/seasonal/regional compatibility scores, alternative crops, explanation of why the crop was recommended, key factors, weather context, and cultivation summary. All results are saved to your personal history."
+    },
+    {
+      "id": "crop_suitability_workflow",
+      "title": "Crop Suitability Analysis Workflow",
+      "category": "suitability",
+      "content": "Crop suitability analysis checks how well a specific crop matches your farm conditions. Go to the Crop Suitability Analysis module, select a crop, choose your location (state, district, tehsil, village), enter soil pH, and submit. The system analyses weather data and soil parameters to give an overall suitability score with daily assessments. The analysis is saved to your history with the overall score."
+    },
+    {
+      "id": "soil_weather_parameters",
+      "title": "Soil and Weather Parameters",
+      "category": "suitability",
+      "content": "Important parameters used in recommendations and suitability analysis: soil type (Alluvial, Black, Red, Clayey, Sandy loam, Laterite), soil pH, nitrogen (N), phosphorus (P), potassium (K), irrigation method (Canal, Borewell, Drip, Rainfed), season (Kharif, Rabi, Zaid), temperature, humidity, rainfall, and wind speed. These parameters determine crop compatibility and suitability scores."
+    },
+    {
+      "id": "disease_detection_workflow",
+      "title": "Plant Disease Detection Workflow",
+      "category": "disease",
+      "content": "Plant disease detection lets you upload a photo of a diseased leaf to get an AI diagnosis. Go to the Disease Detection module, upload a clear image of the affected leaf, optionally select the crop hint, and submit. The system identifies the disease and suggests treatment. Previous disease detection results can be viewed if the history functionality is available for that module."
+    },
+    {
+      "id": "cultivation_guide_functionality",
+      "title": "Cultivation Guide Functionality",
+      "category": "cultivation",
+      "content": "Cultivation guides provide detailed growing information for crops including climate requirements, land preparation, seed selection, sowing time and method, fertilizer management, irrigation requirements, pest and disease management, growth stages, harvesting signs and methods, and post-harvest handling. Guides can be generated for recommended crops and accessed from the crop guide page."
+    },
+    {
+      "id": "history_saved_records",
+      "title": "History and Saved Records",
+      "category": "history",
+      "content": "Kisaan Suvidha saves your activities to your personal history: crop recommendations with details and scores, crop suitability analyses with overall scores, and other saved records. You can view your history from the History page. KisaanBot can access your latest recommendation, previous recommendations, suitability analyses, and saved cultivation guides to answer personalised questions."
+    },
+    {
+      "id": "ui_navigation",
+      "title": "Application Navigation and Usage",
+      "category": "navigation",
+      "content": "The Kisaan Suvidha sidebar contains navigation links: Dashboard, Crop Recommendation, Suitability Analysis, Disease Detection, KisaanBot, History, Government Schemes, and Customer Support. The top header shows your location and language switcher. The floating KisaanBot widget is available from every page for authenticated users. Use the sidebar to navigate between modules."
+    },
+    {
+      "id": "account_functionality",
+      "title": "Account and Profile Functionality",
+      "category": "account",
+      "content": "Farmers can register with mobile number and OTP verification, log in, and complete their profile with name, farm size, soil type, irrigation method, state, district, and preferred language. The profile page lets you update these details. Your profile information is used to personalise recommendations and KisaanBot responses. You can log out from the sidebar."
+    },
+    {
+      "id": "kisaanbot_functionality",
+      "title": "KisaanBot Functionality",
+      "category": "kisaanbot",
+      "content": "KisaanBot is your personal AI assistant for Kisaan Suvidha. It answers questions about application features, explains your crop recommendations and suitability scores, helps with navigation, and accesses your saved history. KisaanBot only answers questions related to the Kisaan Suvidha application. It supports English, Hindi, and Hinglish. It remembers your conversation context including the last discussed crop and activity."
+    },
+    {
+      "id": "faq",
+      "title": "Frequently Asked Questions",
+      "category": "faq",
+      "content": "Q: How do I get a crop recommendation? A: Use the Crop Recommendation module and submit your farm details. Q: How do I check crop suitability? A: Use the Crop Suitability Analysis module. Q: How do I detect plant diseases? A: Upload a leaf image in the Disease Detection module. Q: Where are my previous results? A: Check the History page or ask KisaanBot. Q: Can KisaanBot answer non-app questions? A: No, KisaanBot only answers questions about the Kisaan Suvidha application."
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting and Common Errors",
+      "category": "troubleshooting",
+      "content": "Common issues: If crop recommendation fails, check your internet connection and try again. If disease detection image upload fails, ensure the image is under 16 MB and is a clear photo of a leaf. If you cannot log in, verify your mobile number and OTP. If KisaanBot does not respond, check your internet connection. If a feature shows 'Not available', it may be under development or require API configuration. Contact customer support for persistent issues."
+    },
+    {
+      "id": "feature_availability",
+      "title": "Feature Availability and Development Status",
+      "category": "availability",
+      "content": "All core features are available: Crop Recommendation, Crop Suitability Analysis, Plant Disease Detection, Cultivation Guides, Government Schemes, History, and KisaanBot. Voice input depends on browser support. PDF download is available for recommendation reports. Some advanced features may show as 'under development' if backend services are not configured."
+    },
+    {
+      "id": "navigation_recommendation",
+      "title": "How to Navigate to Crop Recommendation",
+      "category": "navigation",
+      "content": "Click on 'Crop recommendation' in the left sidebar to open the Crop Recommendation module. Fill in the farm input form and submit to get an AI-powered crop recommendation. The result page shows your recommended crop, alternatives, and details. You can also download the report as PDF."
+    },
+    {
+      "id": "navigation_suitability",
+      "title": "How to Navigate to Crop Suitability",
+      "category": "navigation",
+      "content": "Click on 'Suitability analysis' in the left sidebar to open the Crop Suitability Analysis module. Select a crop, choose your location, enter soil pH, and submit to get a suitability score with weather-based daily assessments."
+    },
+    {
+      "id": "navigation_disease",
+      "title": "How to Navigate to Disease Detection",
+      "category": "navigation",
+      "content": "Click on 'Disease detection' in the left sidebar to open the Plant Disease Detection module. Upload a leaf image to get an AI diagnosis of plant diseases."
+    },
+    {
+      "id": "navigation_cultivation",
+      "title": "How to Navigate to Cultivation Guides",
+      "category": "navigation",
+      "content": "Access cultivation guides from the Crop Recommendation result page or the crop guide page. Guides show detailed growing information for your recommended crop including irrigation, fertilizer, and harvest stages."
+    },
+    {
+      "id": "navigation_history",
+      "title": "How to Navigate to History",
+      "category": "navigation",
+      "content": "Click on 'History' in the left sidebar to view your previous crop recommendations and suitability analyses. KisaanBot can also answer questions about your saved history."
+    },
+    {
+      "id": "navigation_account",
+      "title": "How to Navigate to Account and Profile",
+      "category": "account",
+      "content": "Click on 'Profile settings' in the sidebar footer to update your farm profile including name, farm size, soil type, irrigation, location, and preferred language. Your profile is used across the application for personalisation."
+    },
+  ]
+}

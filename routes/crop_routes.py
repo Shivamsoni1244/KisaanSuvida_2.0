@@ -16,6 +16,7 @@ an error state is returned.
 """
 
 import logging
+import json
 from datetime import datetime
 from typing import Dict
 import uuid
@@ -23,6 +24,9 @@ import uuid
 import pytz
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, make_response
 from fpdf import FPDF
+
+from data.db import get_db
+from mysql.connector import Error
 
 from services.mistral_crop_engine import (
     recommend_crops,
@@ -1132,7 +1136,7 @@ def api_crop_suitability():
 
 
 def _save_recommendation_history(user: Dict, result: Dict) -> None:
-    """Save recommendation to user's history in the session."""
+    """Save recommendation to user's history in both session and MySQL."""
     try:
         history = session.get("recommendation_history", [])
 
@@ -1163,6 +1167,59 @@ def _save_recommendation_history(user: Dict, result: Dict) -> None:
 
         session["recommendation_history"] = history
         session.modified = True
+
+        # Also persist to MySQL database for cross-session history
+        user_id = user.get("id")
+        if user_id:
+            top_crop = result.get("top_crop", {}) or {}
+            farm_ctx = result.get("farm_context", {}) or {}
+            details_json = json.dumps(history_entry.get("details", {}))
+            conn = None
+            cur = None
+            try:
+                conn = get_db()
+                cur = conn.cursor()
+                cur.execute(
+                    """INSERT INTO crop_suitability_history
+                       (user_id, crop_id, state, district, season, soil_type, soil_ph,
+                        n_value, p_value, k_value, irrigation, overall_score,
+                        activity_type, tehsil, village, details, analysis_date)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())""",
+                    (
+                        user_id,
+                        None,
+                        farm_ctx.get("state", ""),
+                        farm_ctx.get("district", ""),
+                        farm_ctx.get("season", ""),
+                        farm_ctx.get("soil_type", ""),
+                        farm_ctx.get("ph"),
+                        farm_ctx.get("n"),
+                        farm_ctx.get("p"),
+                        farm_ctx.get("k"),
+                        farm_ctx.get("irrigation", ""),
+                        top_crop.get("suitability_score"),
+                        "recommendation",
+                        "",
+                        "",
+                        details_json,
+                    ),
+                )
+                conn.commit()
+            except Error as e:
+                logger.error("MySQL error saving recommendation history: %s", e)
+            except Exception as e:
+                logger.error("Unexpected error saving recommendation history to MySQL: %s", e)
+            finally:
+                if cur:
+                    try:
+                        cur.close()
+                    except Exception:
+                        pass
+                if conn:
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
 
     except Exception as e:
         logger.error("Failed to save recommendation history: %s", e)

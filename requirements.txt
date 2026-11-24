@@ -10,3 +10,5 @@ cachetools==5.3.3
 pytz==2024.1
 gunicorn
 fpdf2
+chromadb==0.5.13
+sentence-transformers==2.5.1

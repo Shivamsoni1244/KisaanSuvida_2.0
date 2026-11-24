@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="kisaanbot-page">
-  
+
   <!-- Page Header -->
   <div class="page-header-box">
     <div class="page-eyebrow">A Little Guidance, Anytime</div>
@@ -13,16 +13,16 @@
   </div>
 
   <div class="layout-split">
-    
+
     <!-- Left Main Chat Area -->
     <div class="ks-card" style="display: flex; flex-direction: column; height: 680px; padding: 0; overflow: hidden;">
-      
+
       <!-- Chat Sub-header with Language Pills -->
       <div style="padding: 16px 22px; border-bottom: 1px solid var(--color-border-subtle); display: flex; justify-content: space-between; align-items: center; background-color: #ffffff;">
         <div>
           <span style="font-size: 15px; font-weight: 600; color: var(--color-text-main);">Your farming assistant</span>
         </div>
-        
+
         <!-- Language Switcher Pills -->
         <div class="filter-tabs" style="margin-bottom: 0;">
           <button type="button" class="filter-tab active" id="botTabEn" onclick="switchBotPageLang('en')">English</button>
@@ -31,62 +31,39 @@
         </div>
       </div>
 
-      <!-- Messages Stream (Matching Screen 9) -->
+      <!-- Messages Stream -->
       <div id="fullChatMessages" style="flex: 1; padding: 24px; overflow-y: auto; background-color: #f8faf8; display: flex; flex-direction: column; gap: 18px;">
-        
+
         <!-- Time Marker -->
         <div style="text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-light);">
-          Today • 10:32 AM
+          Today • <span id="currentTime">10:32 AM</span>
         </div>
 
-        <!-- Initial User Message -->
-        <div class="msg-wrapper user">
-          <div class="msg-bubble" style="font-size: 0.92rem;">
-            Why was rice recommended for my farm?
-          </div>
-          <span class="msg-time">10:32 AM</span>
-        </div>
-
-        <!-- Initial KisaanBot Reply -->
-        <div class="msg-wrapper bot">
+        <!-- Welcome bot message (rendered on load) -->
+        <div class="msg-wrapper bot" id="welcomeBotMessage" style="display: none;">
           <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-primary-dark); margin-bottom: 4px;">
             KISAANBOT
           </div>
-          <div class="msg-bubble" id="primaryBotBubble" style="font-size: 0.9rem; line-height: 1.55;">
-            <strong>Rice is a strong match for your farm because:</strong><br><br>
-            1. Your alluvial soil and pH of 6.5 are suitable.<br><br>
-            2. Kharif warmth and monsoon rain favour paddy.<br><br>
-            3. Your canal irrigation can support its water needs.<br><br>
-            <em>Before sowing, check the variety and water plan with your local agricultural officer.</em>
+          <div class="msg-bubble" id="welcomeBotBubble" style="font-size: 0.9rem; line-height: 1.55;">
+            Namaste! Welcome to KisaanBot.
           </div>
-          <span class="msg-time">10:32 AM</span>
+          <span class="msg-time">Just now</span>
         </div>
 
       </div>
 
-      <!-- Suggestion Chips Row -->
+      <!-- Dynamic Suggestion Chips Row -->
       <div id="fullChatChips" style="padding: 10px 20px; background-color: #ffffff; border-top: 1px solid var(--color-border-subtle); display: flex; gap: 8px; overflow-x: auto; white-space: nowrap;">
-        <button type="button" class="ks-bot-chip" onclick="handlePromptClick('How much water does rice need?')">
-          How much water does rice need?
-        </button>
-        <button type="button" class="ks-bot-chip" onclick="handlePromptClick('What does my soil pH mean?')">
-          What does my soil pH mean?
-        </button>
-        <button type="button" class="ks-bot-chip" onclick="handlePromptClick('Which schemes can help me?')">
-          Which schemes can help me?
-        </button>
-        <button type="button" class="ks-bot-chip" onclick="handlePromptClick('Hinglish mein samjhao →')">
-          Hinglish mein samjhao →
-        </button>
+        <!-- Chips injected by JavaScript from initial_suggestions -->
       </div>
 
       <!-- Input Bar -->
       <div style="padding: 16px 20px; background-color: #ffffff; border-top: 1px solid var(--color-border-subtle); display: flex; align-items: center; gap: 12px;">
-        <input 
-          type="text" 
-          id="fullChatInput" 
-          class="ks-bot-input" 
-          placeholder="Ask about crops, soil, weather or schemes…" 
+        <input
+          type="text"
+          id="fullChatInput"
+          class="ks-bot-input"
+          placeholder="Ask about crops, soil, weather or schemes…"
           style="padding: 12px 18px; font-size: 0.92rem;"
           onkeydown="if(event.key === 'Enter') sendFullChatMessage()"
         >
@@ -102,23 +79,25 @@
 
     <!-- Right Column: Farm Context & Helpers -->
     <div style="display: flex; flex-direction: column; gap: 20px;">
-      
-      <!-- Your Farm Context Card -->
+
+      <!-- Your Farm Context Card (dynamic from profile) -->
       <div class="ks-card-sage">
         <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-primary-dark); margin-bottom: 6px;">
-          Your Farm Context
+          Your Farm Profile
         </div>
-        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;">
-          Rice recommendation
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--color-text-main); margin-bottom: 6px;" id="farmContextTitle">
+          Farm Profile
         </h3>
-        <p style="font-size: 0.84rem; color: var(--color-text-muted); line-height: 1.45; margin-bottom: 14px;">
-          {{ current_user.district }}, {{ current_user.state }}<br>
-          Kharif • {{ current_user.soil_type }} soil<br>
-          pH 6.5 • {{ current_user.irrigation }}
+        <p style="font-size: 0.84rem; color: var(--color-text-muted); line-height: 1.45; margin-bottom: 14px;" id="farmContextDetails">
+          {{ user.district }}, {{ user.state }}<br>
+          Soil: {{ user.soil_type or 'Not set' }}<br>
+          Irrigation: {{ user.irrigation or 'Not set' }}
         </p>
+        {% if user %}
         <a href="{{ url_for('crop.recommendation') }}" style="font-size: 0.84rem; font-weight: 600; color: var(--color-primary-dark); text-decoration: underline;">
-          View recommendation →
+          Get crop recommendation →
         </a>
+        {% endif %}
       </div>
 
       <!-- Not sure where to start Card -->
@@ -126,19 +105,8 @@
         <h4 class="card-heading" style="margin-bottom: 12px;">
           Not sure where to start?
         </h4>
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <button type="button" class="filter-tab" style="text-align: left; border-radius: var(--radius-sm);" onclick="handlePromptClick('How much water does rice need?')">
-            How much water does rice need?
-          </button>
-          <button type="button" class="filter-tab" style="text-align: left; border-radius: var(--radius-sm);" onclick="handlePromptClick('What does my soil pH mean?')">
-            What does my soil pH mean?
-          </button>
-          <button type="button" class="filter-tab" style="text-align: left; border-radius: var(--radius-sm);" onclick="handlePromptClick('Which schemes can help me?')">
-            Which schemes can help me?
-          </button>
-          <button type="button" class="filter-tab" style="text-align: left; border-radius: var(--radius-sm);" onclick="handlePromptClick('Hinglish mein samjhao →')">
-            Hinglish mein samjhao →
-          </button>
+        <div id="startChips" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Chips injected by JavaScript -->
         </div>
       </div>
 
@@ -154,12 +122,15 @@
 </div>
 
 <script>
-  let botPageLanguage = 'en';
+  let botPageLanguage = '{{ language }}' || 'en';
+
+  // Initial suggestions passed from the backend
+  const initialSuggestions = {{ initial_suggestions | tojson | safe }};
 
   function switchBotPageLang(lang) {
     botPageLanguage = lang;
     document.querySelectorAll('#botTabEn, #botTabHi, #botTabHinglish').forEach(b => b.classList.remove('active'));
-    
+
     if (lang === 'hi') {
       document.getElementById('botTabHi').classList.add('active');
     } else if (lang === 'hinglish') {
@@ -168,16 +139,50 @@
       document.getElementById('botTabEn').classList.add('active');
     }
 
-    // Refresh context in chosen language
+    // Refresh suggestions in chosen language
     fetch('{{ url_for("bot.api_chat") }}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'Why was rice recommended for my farm?', language: botPageLanguage })
+      body: JSON.stringify({ message: '', language: botPageLanguage })
     })
     .then(r => r.json())
     .then(data => {
       if (data.success) {
-        document.getElementById('primaryBotBubble').innerHTML = formatBotMarkdown(data.reply);
+        renderSuggestions(data.suggestions);
+        const bubble = document.getElementById('welcomeBotBubble');
+        if (bubble) bubble.innerHTML = formatBotMarkdown(data.reply);
+        const welcome = document.getElementById('welcomeBotMessage');
+        if (welcome) welcome.style.display = 'block';
+      }
+    });
+  }
+
+  function renderSuggestions(suggestions) {
+    const container = document.getElementById('fullChatChips');
+    const startContainer = document.getElementById('startChips');
+    if (!container) return;
+
+    container.innerHTML = '';
+    startContainer.innerHTML = '';
+
+    (suggestions || []).forEach((s, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ks-bot-chip';
+      btn.textContent = s;
+      btn.onclick = () => handlePromptClick(s);
+      container.appendChild(btn);
+
+      // Also add to "Not sure where to start" (first 4)
+      if (idx < 4) {
+        const btn2 = document.createElement('button');
+        btn2.type = 'button';
+        btn2.className = 'filter-tab';
+        btn2.style.textAlign = 'left';
+        btn2.style.borderRadius = 'var(--radius-sm)';
+        btn2.textContent = s;
+        btn2.onclick = () => handlePromptClick(s);
+        startContainer.appendChild(btn2);
       }
     });
   }
@@ -237,9 +242,26 @@
         `;
         stream.appendChild(botDiv);
         stream.scrollTop = stream.scrollHeight;
+
+        // Update suggestions with new ones from backend
+        renderSuggestions(data.suggestions);
       }
     });
   }
+
+  // Initialise on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    renderSuggestions(initialSuggestions || []);
+    const welcome = document.getElementById('welcomeBotMessage');
+    if (welcome) {
+      welcome.style.display = 'block';
+      document.getElementById('welcomeBotBubble').innerHTML = "Namaste! Welcome to KisaanBot. I can help you understand and use Kisaan Suvidha, explore your previous recommendations, check your analysis results and access your cultivation guides.";
+    }
+    // Update time
+    const now = new Date();
+    const timeEl = document.getElementById('currentTime');
+    if (timeEl) timeEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  });
 
   function formatBotMarkdown(text) {
     return text
@@ -327,7 +349,6 @@
       font-size: 12px;
       padding: 5px 10px;
     }
-    /* Smaller inline fonts */
     span[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main);"],
     span[style*="font-size: 15px; font-weight: 600; color: var(--color-text-main); "] {
       font-size: 13px !important;
