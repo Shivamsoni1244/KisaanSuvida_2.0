@@ -382,7 +382,7 @@ def get_disease_advisory(
     base_url = config["base_url"]
 
     na = "Not available"
-    advisory_error = None
+    advisory_error = ""
 
     if api_key and api_key.strip() and api_key not in ("your_gemini_api_key_here", ""):
         prompt = _build_disease_advisory_prompt(
@@ -410,6 +410,7 @@ def get_disease_advisory(
     # ---- Try Groq fallback ----
     groq_key = os.getenv("GROQ_API_KEY_3") or os.getenv("GROQ_API_KEY_2") or os.getenv("GROQ_API_KEY")
     groq_model = os.getenv("GROQ_MODEL_3") or os.getenv("GROQ_MODEL_2") or os.getenv("GROQ_MODEL")
+    groq_base_url = os.getenv("GROQ_BASE_URL_3") or os.getenv("GROQ_BASE_URL_2") or os.getenv("GROQ_BASE_URL")
     if groq_key and groq_model:
         try:
             prompt = _build_disease_advisory_prompt(
@@ -421,7 +422,7 @@ def get_disease_advisory(
                 symptoms=symptoms,
                 location=location,
             )
-            groq_response = _call_groq_api(prompt, groq_key, groq_model)
+            groq_response = _call_groq_api(prompt, groq_key, groq_model, groq_base_url)
             advisory = groq_response if groq_response else None
             if advisory:
                 advisory["source"] = "groq"
