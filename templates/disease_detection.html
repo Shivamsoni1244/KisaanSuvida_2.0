@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="disease-page">
-  
+
   <!-- Page Header matching Kisaan Suvidha UI style -->
   <div class="page-header-box">
     <div class="page-eyebrow">AI Crop Health Diagnostics</div>
@@ -13,7 +13,7 @@
   </div>
 
   <div class="layout-split">
-    
+
     <!-- Left Column: Upload, Camera, Samples & Scanning -->
     <div class="ks-card">
       <div class="disease-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
@@ -38,38 +38,20 @@
         </select>
       </div>
 
-      <!-- Quick Interactive Sample Test Images -->
-      <div style="margin-bottom: 16px;">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-light); margin-bottom: 8px;">
-          Or test with sample cases
-        </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-          {% for s in samples %}
-            <button 
-              type="button" 
-              class="filter-tab {% if s.id == 'rice_blast' %}active{% endif %}" 
-              onclick="selectSampleCase('{{ s.id }}', this)"
-            >
-              {{ s.name }}
-            </button>
-          {% endfor %}
-        </div>
-      </div>
-
       <!-- Drag & Drop / Upload Area -->
-      <div 
-        id="dropZone" 
+      <div
+        id="dropZone"
         style="border: 2px dashed var(--color-sage-border); background-color: var(--color-sage-bg); border-radius: var(--radius-md); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;"
         onclick="document.getElementById('leafFileInput').click()"
         ondragover="handleDragOver(event)"
         ondragleave="handleDragLeave(event)"
         ondrop="handleFileDrop(event)"
       >
-        <input 
-          type="file" 
-          id="leafFileInput" 
-          accept="image/*" 
-          style="display: none;" 
+        <input
+          type="file"
+          id="leafFileInput"
+          accept="image/*"
+          style="display: none;"
           onchange="handleFileSelect(event)"
         >
 
@@ -114,29 +96,21 @@
     </div>
 
     <!-- Right Column: Diagnostic Result Card -->
-    <div id="diagnosticResultCard" class="ks-card" style="border-left: 4px solid #16a34a;">
-      
+    <div id="diagnosticResultCard" class="ks-card" style="border-left: 4px solid #16a34a; display: none;">
+
       <!-- Top Header & Confidence -->
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
         <div>
           <div class="card-caption" style="margin-bottom: 4px;">
             Diagnostic Analysis
           </div>
-          <h2 id="diseaseTitle" class="section-heading" style="margin-bottom: 2px;">
-            {{ initial_diagnosis.disease_name }}
-          </h2>
-          <div id="scientificName" class="secondary-desc" style="font-style: italic;">
-            {{ initial_diagnosis.scientific_name }} • {{ initial_diagnosis.pathogen_type }}
-          </div>
+          <h2 id="diseaseTitle" class="section-heading" style="margin-bottom: 2px;">—</h2>
+          <div id="scientificName" class="secondary-desc" style="font-style: italic;">—</div>
         </div>
 
         <div style="text-align: right;">
-          <div id="confidenceBadge" style="font-size: 20px; font-weight: 700; color: #15803d;">
-            {{ initial_diagnosis.default_confidence }}%
-          </div>
-          <div style="font-size: 12px; color: var(--color-text-light); font-weight: 600;">
-            Confidence Score
-          </div>
+          <div id="confidenceBadge" style="font-size: 20px; font-weight: 700; color: #15803d;">—%</div>
+          <div style="font-size: 12px; color: var(--color-text-light); font-weight: 600;">Confidence Score</div>
         </div>
       </div>
 
@@ -144,63 +118,73 @@
       <div style="margin-bottom: 16px;">
         <span id="severityBadge" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-full); background-color: #fef3c7; color: #b45309;">
           <span class="status-dot" style="background-color: #b45309;"></span>
-          <span id="severityText">{{ initial_diagnosis.severity }}</span>
+          <span id="severityText">—</span>
         </span>
       </div>
 
       <!-- Disease Description -->
-      <p id="diseaseDesc" class="secondary-desc" style="margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--color-border-subtle);">
-        {{ initial_diagnosis.description }}
-      </p>
+      <p id="diseaseDesc" class="secondary-desc" style="margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--color-border-subtle);">—</p>
 
-      <!-- Key Identified Symptoms -->
-      <div style="margin-bottom: 20px;">
-        <div class="card-caption" style="margin-bottom: 8px;">
-          Identified Symptoms
-        </div>
-        <ul id="symptomsList" style="list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; color: var(--color-text-main);">
-          {% for sym in initial_diagnosis.symptoms %}
-            <li style="display: flex; align-items: flex-start; gap: 8px;">
-              <span style="color: #16a34a; font-weight: 700; line-height: 1.2;">✓</span>
-              <span>{{ sym }}</span>
-            </li>
-          {% endfor %}
-        </ul>
+      <!-- Advisory Source Badge -->
+      <div id="advisorySourceBadge" style="margin-bottom: 12px; display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; border-radius: var(--radius-full); background-color: #e0e7ff; color: #3730a3;">
+        Advisory Source: —
       </div>
 
-      <!-- Chemical Treatment Box -->
-      <div class="ks-card-sage" style="margin-bottom: 16px; padding: 14px 18px; border-left: 3px solid var(--color-primary-dark);">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--color-primary-dark); margin-bottom: 4px;">
-          Recommended Chemical / Fungicide Treatment
+      <!-- AI Disease Advisory -->
+      <div id="advisorySection" style="margin-top: 10px;">
+        <div style="font-size: 1.05rem; font-weight: 700; text-transform: lowercase; letter-spacing: 0.06em; color: var(--color-text-light); margin-bottom: 8px;">
+          AI Disease Advisory
         </div>
-        <ul id="chemicalList" style="font-size: 0.82rem; color: var(--color-text-main); padding-left: 18px; line-height: 1.45; display: flex; flex-direction: column; gap: 4px;">
-          {% for chem in initial_diagnosis.chemical_treatment %}
-            <li>{{ chem }}</li>
-          {% endfor %}
-        </ul>
-      </div>
 
-      <!-- Organic & Cultural Solutions -->
-      <div style="background-color: #ffffff; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 20px;">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #15803d; margin-bottom: 4px;">
-          Organic / Biological & Cultural Control
+        <div id="advisoryLoader" style="display: none; margin-bottom: 10px; text-align: center;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--color-text-main);">
+            <div style="width: 14px; height: 14px; border: 2px solid var(--color-border-subtle); border-top-color: var(--color-primary-dark); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            <span>Generating advisory…</span>
+          </div>
         </div>
-        <ul id="organicList" style="font-size: 0.82rem; color: var(--color-text-muted); padding-left: 18px; line-height: 1.45; display: flex; flex-direction: column; gap: 4px;">
-          {% for org in initial_diagnosis.organic_treatment %}
-            <li>{{ org }}</li>
-          {% endfor %}
-        </ul>
-      </div>
 
-      <!-- Ask KisaanBot Action -->
-      <div style="background-color: var(--color-primary-dark); color: #ffffff; border-radius: var(--radius-sm); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <div style="font-size: 0.88rem; font-weight: 700;">Need spray dosage advice?</div>
-          <div style="font-size: 0.76rem; color: #d1ded6;">Ask KisaanBot in Hindi, English or Hinglish</div>
+        <div id="advisoryContent" style="display: none;">
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Disease Overview</div>
+            <p id="advOverview" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.6; margin: 0;">—</p>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Common Visible Symptoms</div>
+            <ul id="advSymptoms" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Causes &amp; Spread</div>
+            <p id="advCauses" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.6; margin: 0;">—</p>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Immediate Actions</div>
+            <ul id="advActions" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Treatment Options</div>
+            <ul id="advTreatment" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: #15803d; margin-bottom: 4px;">Organic Management</div>
+            <ul id="advOrganic" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Prevention Methods</div>
+            <ul id="advPrevention" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          </div>
+
+          <div style="font-size: 0.78rem; color: var(--color-text-muted); font-style: italic;" id="advDisclaimer">—</div>
         </div>
-        <button type="button" class="btn" style="background-color: #ffffff; color: var(--color-primary-dark); padding: 8px 14px; font-size: 0.8rem;" onclick="openBotWithPrompt()">
-          Ask KisaanBot →
-        </button>
+
+        <div id="advisoryUnavailable" style="display: none; padding: 12px 16px; background: #fef3c7; border-radius: var(--radius-sm); font-size: 0.82rem; color: #92400e;">
+          Advisory generation is temporarily unavailable. The CNN disease identification above remains valid. Please consult your local KVK or agricultural officer for treatment guidance.
+        </div>
       </div>
 
     </div>
@@ -214,191 +198,10 @@
     0% { top: 5%; }
     100% { top: 90%; }
   }
-</style>
-
-<script>
-  let currentSampleId = 'rice_blast';
-  let selectedFile = null;
-  let currentDiagnosisPrompt = "{{ initial_diagnosis.kisaanbot_prompt }}";
-
-  // Pre-configured realistic sample leaf photos rendered via SVG data URIs
-  const sampleImages = {
-    'rice_blast': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%232b5329"/><path d="M 50 200 C 120 120, 280 100, 350 40 C 310 120, 220 220, 50 200 Z" fill="%23438a3e"/><ellipse cx="180" cy="130" rx="36" ry="14" fill="%23785135" stroke="%233e2714" stroke-width="2"/><ellipse cx="180" cy="130" rx="20" ry="8" fill="%23d6d3d1"/><ellipse cx="250" cy="90" rx="28" ry="10" fill="%23785135"/><ellipse cx="250" cy="90" rx="14" ry="5" fill="%23d6d3d1"/><text x="200" y="240" fill="%23ffffff" font-size="14" font-family="sans-serif" text-anchor="middle">Rice Blast — Spindle Lesions</text></svg>',
-    'tomato_late_blight': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%23385732"/><path d="M 100 180 Q 200 40 320 180 Q 200 220 100 180 Z" fill="%234f772d"/><circle cx="170" cy="140" r="32" fill="%23292524" opacity="0.85"/><circle cx="240" cy="120" r="24" fill="%2344403c" opacity="0.85"/><circle cx="170" cy="140" r="14" fill="%23f1f5f9" opacity="0.4"/><text x="200" y="240" fill="%23ffffff" font-size="14" font-family="sans-serif" text-anchor="middle">Tomato Late Blight — Dark Patches</text></svg>',
-    'wheat_stripe_rust': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%23364f33"/><rect x="60" y="50" width="280" height="150" fill="%23588157" rx="8"/><line x1="90" y1="60" x2="90" y2="190" stroke="%23eab308" stroke-width="6" stroke-dasharray="8 4"/><line x1="140" y1="60" x2="140" y2="190" stroke="%23eab308" stroke-width="7" stroke-dasharray="10 5"/><line x1="190" y1="60" x2="190" y2="190" stroke="%23ca8a04" stroke-width="6" stroke-dasharray="6 3"/><line x1="240" y1="60" x2="240" y2="190" stroke="%23eab308" stroke-width="7" stroke-dasharray="12 4"/><text x="200" y="240" fill="%23ffffff" font-size="14" font-family="sans-serif" text-anchor="middle">Wheat Stripe Rust — Yellow Stripes</text></svg>',
-    'cotton_leaf_curl': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%232d4a22"/><path d="M 80 200 C 140 60, 260 70, 330 180 C 270 230, 140 240, 80 200 Z" fill="%23606c38"/><path d="M 120 180 Q 200 120 280 170" fill="none" stroke="%23a3e635" stroke-width="5"/><circle cx="210" cy="140" r="16" fill="%2384a98c"/><text x="200" y="240" fill="%23ffffff" font-size="14" font-family="sans-serif" text-anchor="middle">Cotton Leaf Curl — Upward Curling</text></svg>',
-    'healthy_crop': 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260"><rect width="400" height="260" fill="%231e3d1a"/><path d="M 60 210 C 120 70, 280 60, 340 180 C 270 240, 140 250, 60 210 Z" fill="%232d6a4f"/><line x1="60" y1="210" x2="340" y2="180" stroke="%2352b788" stroke-width="3"/><text x="200" y="240" fill="%23ffffff" font-size="14" font-family="sans-serif" text-anchor="middle">Healthy Paddy Leaf — Clear Chlorophyll</text></svg>'
-  };
-
-  // Initialize preview with first sample
-  window.addEventListener('DOMContentLoaded', () => {
-    showPreview(sampleImages['rice_blast']);
-  });
-
-  function selectSampleCase(id, btn) {
-    currentSampleId = id;
-    selectedFile = null;
-    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // Update crop hint
-    const cropSel = document.getElementById('cropSelector');
-    if (id === 'rice_blast' || id === 'healthy_crop') cropSel.value = 'Rice (Paddy)';
-    else if (id === 'tomato_late_blight') cropSel.value = 'Tomato';
-    else if (id === 'wheat_stripe_rust') cropSel.value = 'Wheat';
-    else if (id === 'cotton_leaf_curl') cropSel.value = 'Cotton';
-
-    showPreview(sampleImages[id]);
-    runDiagnosis();
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
-  function showPreview(src) {
-    const preview = document.getElementById('leafPreviewImg');
-    const container = document.getElementById('previewContainer');
-    const placeholder = document.getElementById('dropPlaceholder');
-    preview.src = src;
-    container.style.display = 'block';
-    placeholder.style.display = 'none';
-  }
-
-  function handleFileSelect(e) {
-    if (e.target.files && e.target.files[0]) {
-      selectedFile = e.target.files[0];
-      currentSampleId = null;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        showPreview(evt.target.result);
-      };
-      reader.readAsDataURL(selectedFile);
-    }
-  }
-
-  function handleDragOver(e) {
-    e.preventDefault();
-    document.getElementById('dropZone').style.borderColor = '#153a25';
-  }
-
-  function handleDragLeave(e) {
-    e.preventDefault();
-    document.getElementById('dropZone').style.borderColor = 'var(--color-sage-border)';
-  }
-
-  function handleFileDrop(e) {
-    e.preventDefault();
-    document.getElementById('dropZone').style.borderColor = 'var(--color-sage-border)';
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      selectedFile = e.dataTransfer.files[0];
-      currentSampleId = null;
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        showPreview(evt.target.result);
-      };
-      reader.readAsDataURL(selectedFile);
-    }
-  }
-
-  function runDiagnosis() {
-    const btn = document.getElementById('diagnoseBtn');
-    const btnText = document.getElementById('diagnoseBtnText');
-    const laser = document.getElementById('scanLaser');
-
-    btnText.textContent = 'Scanning Leaf with AI...';
-    btn.disabled = true;
-    laser.style.display = 'block';
-
-    const formData = new FormData();
-    if (currentSampleId) {
-      formData.append('sample_id', currentSampleId);
-    }
-    if (selectedFile) {
-      formData.append('leaf_image', selectedFile);
-    }
-    formData.append('crop', document.getElementById('cropSelector').value);
-
-    fetch('{{ url_for("disease.api_diagnose") }}', {
-      method: 'POST',
-      body: formData
-    })
-    .then(r => r.json())
-    .then(data => {
-      setTimeout(() => {
-        laser.style.display = 'none';
-        btnText.textContent = 'Diagnose Leaf with AI';
-        btn.disabled = false;
-        
-        if (data.success) {
-          renderDiagnosis(data.diagnosis);
-        }
-      }, 700);
-    })
-    .catch(err => {
-      laser.style.display = 'none';
-      btnText.textContent = 'Diagnose Leaf with AI';
-      btn.disabled = false;
-      alert('Diagnosis request failed. Please check network.');
-    });
-  }
-
-  function renderDiagnosis(d) {
-    document.getElementById('diseaseTitle').textContent = d.disease_name;
-    document.getElementById('scientificName').textContent = `${d.scientific_name} • ${d.pathogen_type}`;
-    document.getElementById('confidenceBadge').textContent = `${d.default_confidence}%`;
-    document.getElementById('severityText').textContent = d.severity;
-    document.getElementById('diseaseDesc').textContent = d.description;
-    currentDiagnosisPrompt = d.kisaanbot_prompt;
-
-    // Severity styling
-    const sevBadge = document.getElementById('severityBadge');
-    if (d.severity_badge === 'healthy') {
-      sevBadge.style.backgroundColor = '#dcfce7';
-      sevBadge.style.color = '#15803d';
-    } else if (d.severity_badge === 'urgent') {
-      sevBadge.style.backgroundColor = '#fee2e2';
-      sevBadge.style.color = '#dc2626';
-    } else {
-      sevBadge.style.backgroundColor = '#fef3c7';
-      sevBadge.style.color = '#b45309';
-    }
-
-    // Symptoms
-    const symList = document.getElementById('symptomsList');
-    symList.innerHTML = '';
-    d.symptoms.forEach(s => {
-      const li = document.createElement('li');
-      li.style.display = 'flex';
-      li.style.alignItems = 'flex-start';
-      li.style.gap = '8px';
-      li.innerHTML = `<span style="color: #16a34a; font-weight: 700; line-height: 1.2;">✓</span><span>${s}</span>`;
-      symList.appendChild(li);
-    });
-
-    // Chemical
-    const chemList = document.getElementById('chemicalList');
-    chemList.innerHTML = '';
-    d.chemical_treatment.forEach(c => {
-      const li = document.createElement('li');
-      li.textContent = c;
-      chemList.appendChild(li);
-    });
-
-    // Organic
-    const orgList = document.getElementById('organicList');
-    orgList.innerHTML = '';
-    d.organic_treatment.forEach(o => {
-      const li = document.createElement('li');
-      li.textContent = o;
-      orgList.appendChild(li);
-    });
-  }
-
-  function openBotWithPrompt() {
-    toggleKisaanBot();
-    sendWidgetChip(currentDiagnosisPrompt);
-  }
-</script>
-
-{% block extra_css %}
-<style>
   /* Disease detection mobile overrides — desktop styles untouched */
   @media (max-width: 768px) {
     .layout-split {
@@ -431,11 +234,6 @@
     #confidenceBadge {
       font-size: 18px !important;
     }
-    div[style*="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;"] {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
   }
 
   @media (max-width: 480px) {
@@ -445,6 +243,205 @@
     .form-control {
       font-size: 16px;
     }
+  }
+</style>
+
+<script>
+  let selectedFile = null;
+  let currentDiagnosisPrompt = "";
+
+  function showInfoBanner(text, type = 'error') {
+    const banner = document.getElementById('diseaseInfoBanner');
+    if (!banner) return;
+    banner.style.display = 'block';
+    banner.textContent = text;
+    banner.style.backgroundColor = type === 'error' ? '#fee2e2' : '#dcfce7';
+    banner.style.color = type === 'error' ? '#991b1b' : '#16653d';
+  }
+
+  function hideInfoBanner() {
+    const banner = document.getElementById('diseaseInfoBanner');
+    if (banner) banner.style.display = 'none';
+  }
+
+  function handleFileSelect(e) {
+    if (e.target.files && e.target.files[0]) {
+      selectedFile = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        showPreview(evt.target.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+    hideInfoBanner();
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').style.borderColor = '#153a25';
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').style.borderColor = 'var(--color-sage-border)';
+  }
+
+  function handleFileDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropZone').style.borderColor = 'var(--color-sage-border)';
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      selectedFile = e.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        showPreview(evt.target.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+    hideInfoBanner();
+  }
+
+  function showPreview(src) {
+    const preview = document.getElementById('leafPreviewImg');
+    const container = document.getElementById('previewContainer');
+    const placeholder = document.getElementById('dropPlaceholder');
+    preview.src = src;
+    container.style.display = 'block';
+    placeholder.style.display = 'none';
+  }
+
+  function runDiagnosis() {
+    const btn = document.getElementById('diagnoseBtn');
+    const btnText = document.getElementById('diagnoseBtnText');
+    const laser = document.getElementById('scanLaser');
+
+    btnText.textContent = 'Scanning Leaf with AI...';
+    btn.disabled = true;
+    laser.style.display = 'block';
+
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append('leaf_image', selectedFile);
+    }
+    formData.append('language', 'en');
+
+    fetch('{{ url_for("disease.api_diagnose") }}', {
+      method: 'POST',
+      body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+      laser.style.display = 'none';
+      btnText.textContent = 'Diagnose Leaf with AI';
+      btn.disabled = false;
+
+      if (data.success) {
+        renderDiagnosis(data.prediction, data.advisory, data.advisory_error);
+      } else {
+        alert(data.error || 'Diagnosis failed. Please try again.');
+      }
+    })
+    .catch(err => {
+      laser.style.display = 'none';
+      btnText.textContent = 'Diagnose Leaf with AI';
+      btn.disabled = false;
+      alert('Diagnosis request failed. Please check network.');
+    });
+  }
+
+  function renderDiagnosis(prediction, advisory, advisoryError) {
+    // Show the result card
+    const card = document.getElementById('diagnosticResultCard');
+    card.style.display = 'block';
+
+    // Disease Identification
+    document.getElementById('diseaseTitle').textContent = prediction.disease_name || '—';
+    document.getElementById('scientificName').textContent = 'CNN Class: ' + (prediction.predicted_class || '—');
+    document.getElementById('confidenceBadge').textContent = (prediction.confidence_percentage != null ? prediction.confidence_percentage : '—') + '%';
+
+    // Severity based on confidence tier
+    const sevBadge = document.getElementById('severityBadge');
+    const sevText = document.getElementById('severityText');
+    const tier = prediction.confidence_tier || 'unknown';
+    if (tier === 'high') {
+      sevBadge.style.backgroundColor = '#dcfce7';
+      sevBadge.style.color = '#15803d';
+      sevText.textContent = 'High Confidence';
+    } else if (tier === 'moderate') {
+      sevBadge.style.backgroundColor = '#fef3c7';
+      sevBadge.style.color = '#92400e';
+      sevText.textContent = 'Moderate Confidence';
+    } else {
+      sevBadge.style.backgroundColor = '#fee2e2';
+      sevBadge.style.color = '#dc2626';
+      sevText.textContent = 'Low Confidence';
+    }
+
+    // Disease description
+    document.getElementById('diseaseDesc').textContent = prediction.status === 'healthy'
+      ? 'No disease detected. The leaf appears healthy.'
+      : (prediction.disease_name || '—') + ' has been identified with ' + (prediction.confidence_percentage != null ? prediction.confidence_percentage : '—') + '% confidence.';
+
+    // Advisory source badge
+    const sourceBadge = document.getElementById('advisorySourceBadge');
+    const source = advisory ? advisory.source : 'none';
+    sourceBadge.textContent = 'Advisory Source: ' + (source || 'Not available');
+    if (source === 'gemini') {
+      sourceBadge.style.backgroundColor = '#e0e7ff';
+      sourceBadge.style.color = '#3730a3';
+    } else if (source === 'groq') {
+      sourceBadge.style.backgroundColor = '#f0fdf4';
+      sourceBadge.style.color = '#16653d';
+    } else if (source === 'fallback') {
+      sourceBadge.style.backgroundColor = '#fef3c7';
+      sourceBadge.style.color = '#92400e';
+    } else {
+      sourceBadge.style.backgroundColor = '#f3f4f6';
+      sourceBadge.style.color = '#6b7280';
+    }
+
+    // Advisory content
+    const content = document.getElementById('advisoryContent');
+    const unavailable = document.getElementById('advisoryUnavailable');
+
+    if (advisoryError || !advisory) {
+      content.style.display = 'none';
+      unavailable.style.display = 'block';
+    } else {
+      unavailable.style.display = 'none';
+      content.style.display = 'block';
+
+      document.getElementById('advOverview').textContent = advisory.disease_overview || '—';
+
+      renderList('advSymptoms', advisory.symptoms);
+      document.getElementById('advCauses').textContent = advisory.causes_and_spread || '—';
+      renderList('advActions', advisory.immediate_actions);
+      renderList('advTreatment', advisory.treatment_options);
+      renderList('advOrganic', advisory.organic_management);
+      renderList('advPrevention', advisory.prevention_methods);
+      document.getElementById('advDisclaimer').textContent = advisory.disclaimer || 'Consult local agricultural experts before applying any treatment.';
+    }
+  }
+
+  function renderList(id, items) {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      el.innerHTML = '<li>Not available.</li>';
+      return;
+    }
+    items.forEach((it) => {
+      const li = document.createElement('li');
+      li.textContent = it;
+      el.appendChild(li);
+    });
+  }
+</script>
+
+{% block extra_css %}
+<style>
+  .disease-page .layout-split {
+    grid-template-columns: 1fr !important;
+    gap: 22px !important;
   }
 </style>
 {% endblock %}
