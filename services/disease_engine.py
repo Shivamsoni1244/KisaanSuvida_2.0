@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import threading
+import urllib.request
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -76,13 +77,25 @@ def load_class_names() -> List[str]:
 def load_disease_model():
     """
     Load the Keras model once using a lazy-loaded singleton.
+    Downloads the model from PLANT_DISEASE_MODEL_URL if it is missing locally.
     Never reloads the model for every prediction.
     """
     global _model
     with _model_lock:
         if _model is None:
+            model_url = os.getenv("PLANT_DISEASE_MODEL_URL")
             if not os.path.exists(MODEL_PATH):
-                raise FileNotFoundError(f"Disease model not found: {MODEL_PATH}")
+                if model_url:
+                    logger.info(
+                        "Disease model not found locally; downloading from %s",
+                        model_url,
+                    )
+                    _download_model(model_url)
+                else:
+                    raise FileNotFoundError(
+                        f"Disease model not found: {MODEL_PATH} "
+                        "and PLANT_DISEASE_MODEL_URL is not set."
+                    )
             _model = keras.models.load_model(MODEL_PATH)
             expected = (None, 224, 224, 3)
             if tuple(_model.input_shape) != expected:
@@ -93,6 +106,17 @@ def load_disease_model():
                 )
             logger.info("Disease CNN model loaded: %s", MODEL_PATH)
         return _model
+
+
+def _download_model(url: str) -> None:
+    """Download the disease model from a URL to MODEL_PATH."""
+    try:
+        os.makedirs(MODEL_DIR, exist_ok=True)
+        urllib.request.urlretrieve(url, MODEL_PATH)
+        logger.info("Disease model downloaded to: %s", MODEL_PATH)
+    except Exception as exc:
+        logger.error("Failed to download disease model from %s: %s", url, exc)
+        raise
 
 
 def unload_disease_model() -> None:
