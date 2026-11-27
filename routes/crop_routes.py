@@ -821,6 +821,8 @@ def _generate_combined_crop_report_pdf(result, guide, result_id) -> object:
     pdf_output = pdf.output(dest="S")
     if isinstance(pdf_output, str):
         pdf_output = pdf_output.encode("latin-1")
+    elif isinstance(pdf_output, bytearray):
+        pdf_output = bytes(pdf_output)
 
     response = make_response(pdf_output)
     response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'

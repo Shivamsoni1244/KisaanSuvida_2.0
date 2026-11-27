@@ -77,6 +77,35 @@ def process_kisaanbot_query(
     Returns:
         Dict with reply, language, intent, suggestions, context.
     """
+    try:
+        return _process_kisaanbot_query_internal(
+            query=query,
+            language=language,
+            farm_context=farm_context,
+            user_id=user_id,
+            session_obj=session_obj,
+        )
+    except Exception as exc:
+        logger.error("Unexpected error in process_kisaanbot_query: %s", exc)
+        lang = _normalise_language(language)
+        fallback = _fallback_reply("", lang, "general_app", {})
+        _store_conversation(session_obj, query, fallback)
+        return {
+            "reply": fallback,
+            "language": lang,
+            "intent": "general_app",
+            "suggestions": [],
+            "context": {},
+        }
+
+
+def _process_kisaanbot_query_internal(
+    query: str,
+    language: str = "en",
+    farm_context: Optional[Dict[str, Any]] = None,
+    user_id: Optional[int] = None,
+    session_obj: Any = None,
+) -> Dict[str, Any]:
     # Normalise language
     lang = _normalise_language(language)
 
