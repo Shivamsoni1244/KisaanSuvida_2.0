@@ -6,7 +6,9 @@ import os
 
 # Load .env from the project root (next to app.py), overriding existing env vars
 _load_dotenv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
-load_dotenv(_load_dotenv_path, override=True)
+if os.path.exists(_load_dotenv_path):
+    # Load .env only in local development; do not override existing environment variables
+    load_dotenv(_load_dotenv_path, override=False)
 
 import secrets
 from datetime import datetime
