@@ -5,7 +5,7 @@
 {% block content %}
 <div class="disease-page">
 
-  <!-- Page Header matching Kisaan Suvidha UI style -->
+  <!-- Page Header -->
   <div class="page-header-box">
     <div class="page-eyebrow">AI Crop Health Diagnostics</div>
     <h1 class="page-title page-title-serif">Crop disease detection</h1>
@@ -14,21 +14,17 @@
 
   <div class="layout-split">
 
-    <!-- Left Column: Upload, Camera, Samples & Scanning -->
-    <div class="ks-card">
-      <div class="disease-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
-        <h2 class="section-heading">
-          Scan affected crop leaf
-        </h2>
-        <span style="font-size: 11.5px; font-weight: 700; background-color: #dcfce7; color: #166534; padding: 3px 8px; border-radius: var(--radius-full);">
-          CNN / AI Model Ready
-        </span>
+    <!-- Left Column: Upload & Camera -->
+    <div class="ks-card ks-card-lg scan-card">
+      <div class="disease-header-row">
+        <div class="section-badge">Scan leaf</div>
+        <span class="model-pill">CNN model ready</span>
       </div>
 
       <!-- Crop Selector -->
-      <div class="form-group">
-        <label class="form-label" for="cropSelector">Select Crop</label>
-        <select id="cropSelector" class="form-control">
+      <div class="form-group" style="width: 70%; margin: 0 auto;">
+        <label class="form-label" for="cropSelector">Crop type</label>
+        <select id="cropSelector" class="form-control" style="width: 100%;">
           <option value="Rice (Paddy)" selected>Rice (Paddy)</option>
           <option value="Tomato">Tomato</option>
           <option value="Wheat">Wheat</option>
@@ -41,7 +37,7 @@
       <!-- Drag & Drop / Upload Area -->
       <div
         id="dropZone"
-        style="border: 2px dashed var(--color-sage-border); background-color: var(--color-sage-bg); border-radius: var(--radius-md); padding: 28px 20px; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;"
+        class="drop-zone"
         onclick="document.getElementById('leafFileInput').click()"
         ondragover="handleDragOver(event)"
         ondragleave="handleDragLeave(event)"
@@ -55,134 +51,119 @@
           onchange="handleFileSelect(event)"
         >
 
-        <!-- Preview or Empty Placeholder -->
-        <div id="dropPlaceholder">
-          <div style="width: 52px; height: 52px; border-radius: 50%; background-color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; color: var(--color-primary-dark); box-shadow: var(--shadow-sm);">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+        <div id="dropPlaceholder" class="drop-placeholder">
+          <div class="drop-icon">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
           </div>
-          <div style="font-size: 0.9rem; font-weight: 600; color: var(--color-text-main); margin-bottom: 4px;">
-            Click to upload or drag leaf image here
-          </div>
-          <div style="font-size: 0.75rem; color: var(--color-text-muted);">
-            Supports JPG, PNG, WEBP (Max 16 MB)
-          </div>
+          <div class="drop-title">Click to upload or drag leaf image</div>
+          <div class="drop-hint">Supports JPG, PNG, WEBP (Max 16 MB)</div>
         </div>
 
-        <!-- Live Image Preview with Scanning Line -->
-        <div id="previewContainer" style="display: none; position: relative;">
-          <img id="leafPreviewImg" src="" alt="Leaf preview" style="max-height: 240px; width: auto; max-width: 100%; border-radius: var(--radius-sm); object-fit: contain; box-shadow: var(--shadow-sm);">
-          <div id="scanLaser" style="display: none; position: absolute; left: 0; right: 0; height: 3px; background-color: #22c55e; box-shadow: 0 0 10px #22c55e; animation: laserScan 1.6s infinite alternate;"></div>
+        <!-- Live Image Preview -->
+        <div id="previewContainer" class="preview-container" style="display: none;">
+          <img id="leafPreviewImg" src="" alt="Leaf preview">
+          <div id="scanLoader" class="scan-line" style="display: none;"></div>
         </div>
       </div>
 
       <!-- Action Button -->
-      <button type="button" class="btn btn-primary btn-block" id="diagnoseBtn" onclick="runDiagnosis()" style="margin-top: 20px;">
-        <span id="diagnoseBtnText">Diagnose Leaf with AI</span>
+      <button type="button" class="btn btn-primary" id="diagnoseBtn" onclick="runDiagnosis()" style="width: 70%; display: block; margin: 16px auto 0 auto;">
+        <span id="diagnoseBtnText">Diagnose leaf with AI</span>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </button>
 
-      <!-- Photography Tips -->
-      <div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--color-border-subtle);">
-        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-light); margin-bottom: 8px;">
-          Best photography tips for farmers
-        </div>
-        <ul style="font-size: 0.78rem; color: var(--color-text-muted); padding-left: 18px; line-height: 1.5;">
-          <li>Focus on visible spots, lesions or discoloration in natural daylight.</li>
-          <li>Avoid blurry photos or deep shadows across the leaf blade.</li>
-          <li>Capture both upper leaf surface and underside if fungal fuzz is present.</li>
-        </ul>
-      </div>
-
     </div>
 
-    <!-- Right Column: Diagnostic Result Card -->
-    <div id="diagnosticResultCard" class="ks-card" style="border-left: 4px solid #16a34a; display: none;">
+    <!-- Right Column: Diagnostic Result -->
+    <div id="diagnosticResultCard" class="ks-card ks-card-lg result-card" style="display: none;">
 
-      <!-- Top Header & Confidence -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-        <div>
-          <div class="card-caption" style="margin-bottom: 4px;">
-            Diagnostic Analysis
-          </div>
-          <h2 id="diseaseTitle" class="section-heading" style="margin-bottom: 2px;">—</h2>
-          <div id="scientificName" class="secondary-desc" style="font-style: italic;">—</div>
-        </div>
-
-        <div style="text-align: right;">
-          <div id="confidenceBadge" style="font-size: 20px; font-weight: 700; color: #15803d;">—%</div>
-          <div style="font-size: 12px; color: var(--color-text-light); font-weight: 600;">Confidence Score</div>
+      <!-- Header + Confidence -->
+      <div class="result-header">
+        <div class="result-left">
+          <div class="result-caption">Diagnostic analysis</div>
+          <h2 id="diseaseTitle" class="result-disease">—</h2>
+          <div class="confidence-inline" id="confidenceBadge" style="display: none;"></div>
         </div>
       </div>
 
-      <!-- Severity Status Pill -->
-      <div style="margin-bottom: 16px;">
-        <span id="severityBadge" style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-full); background-color: #fef3c7; color: #b45309;">
-          <span class="status-dot" style="background-color: #b45309;"></span>
+      <!-- Severity Pill -->
+      <div class="severity-row">
+        <span class="status-pill" id="severityBadge">
+          <span class="status-dot"></span>
           <span id="severityText">—</span>
         </span>
       </div>
 
-      <!-- Disease Description -->
-      <p id="diseaseDesc" class="secondary-desc" style="margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--color-border-subtle);">—</p>
+      <!-- Description -->
+      <p id="diseaseDesc" class="result-desc">—</p>
 
-      <!-- Advisory Source Badge -->
-      <div id="advisorySourceBadge" style="margin-bottom: 12px; display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 10px; border-radius: var(--radius-full); background-color: #e0e7ff; color: #3730a3;">
-        Advisory Source: —
-      </div>
+      <!-- Advisory Source -->
+      <div id="advisorySourceBadge" class="source-badge">Advisory Source: —</div>
 
-      <!-- AI Disease Advisory -->
-      <div id="advisorySection" style="margin-top: 10px;">
-        <div style="font-size: 1.05rem; font-weight: 700; text-transform: lowercase; letter-spacing: 0.06em; color: var(--color-text-light); margin-bottom: 8px;">
-          AI Disease Advisory
-        </div>
-
-        <div id="advisoryLoader" style="display: none; margin-bottom: 10px; text-align: center;">
-          <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--color-text-main);">
-            <div style="width: 14px; height: 14px; border: 2px solid var(--color-border-subtle); border-top-color: var(--color-primary-dark); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+      <!-- AI Advisory Sections -->
+      <div id="advisorySection" class="advisory-section" style="margin-top: 10px;">
+        <div class="advisory-header">
+          <div class="advisory-title">AI disease advisory</div>
+          <div class="advisory-loader" id="advisoryLoader" style="display: none;">
+            <div class="loader-dot"></div><div class="loader-dot"></div><div class="loader-dot"></div>
             <span>Generating advisory…</span>
           </div>
         </div>
 
-        <div id="advisoryContent" style="display: none;">
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Disease Overview</div>
-            <p id="advOverview" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.6; margin: 0;">—</p>
+        <div id="advisoryContent" class="advisory-grid" style="display: none;">
+          <div class="adv-card adv-overview">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Disease overview</span>
+            </div>
+            <p id="advOverview" class="adv-body">—</p>
           </div>
 
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Common Visible Symptoms</div>
-            <ul id="advSymptoms" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          <div class="adv-card adv-symptoms">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Common visible symptoms</span>
+            </div>
+            <ul id="advSymptoms" class="adv-list"></ul>
           </div>
 
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Causes &amp; Spread</div>
-            <p id="advCauses" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.6; margin: 0;">—</p>
+          <div class="adv-card adv-causes">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Causes &amp; spread</span>
+            </div>
+            <p id="advCauses" class="adv-body">—</p>
           </div>
 
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Immediate Actions</div>
-            <ul id="advActions" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          <div class="adv-card adv-actions">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Immediate actions</span>
+            </div>
+            <ul id="advActions" class="adv-list"></ul>
           </div>
 
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Treatment Options</div>
-            <ul id="advTreatment" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          <div class="adv-card adv-treatment">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Treatment options</span>
+            </div>
+            <ul id="advTreatment" class="adv-list"></ul>
           </div>
 
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: #15803d; margin-bottom: 4px;">Organic Management</div>
-            <ul id="advOrganic" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          <div class="adv-card adv-organic">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Organic management</span>
+            </div>
+            <ul id="advOrganic" class="adv-list"></ul>
           </div>
 
-          <div style="margin-bottom: 12px;">
-            <div class="disease-adv-heading" style="font-size: 0.75rem; font-weight: 700; text-transform: lowercase; color: var(--color-primary-dark); margin-bottom: 4px;">Prevention Methods</div>
-            <ul id="advPrevention" style="font-size: 0.88rem; color: var(--color-text-main); padding-left: 20px; line-height: 1.6; margin: 0;"></ul>
+          <div class="adv-card adv-prevention">
+            <div class="adv-card-header">
+              <span class="adv-card-title">Prevention methods</span>
+            </div>
+            <ul id="advPrevention" class="adv-list"></ul>
           </div>
 
-          <div style="font-size: 0.78rem; color: var(--color-text-muted); font-style: italic;" id="advDisclaimer">—</div>
+          <div class="adv-disclaimer" id="advDisclaimer">—</div>
         </div>
 
-        <div id="advisoryUnavailable" style="display: none; padding: 12px 16px; background: #fef3c7; border-radius: var(--radius-sm); font-size: 0.82rem; color: #92400e;">
+        <div id="advisoryUnavailable" class="advisory-unavailable" style="display: none;">
           Advisory generation is temporarily unavailable. The CNN disease identification above remains valid. Please consult your local KVK or agricultural officer for treatment guidance.
         </div>
       </div>
@@ -194,54 +175,423 @@
 </div>
 
 <style>
-  @keyframes laserScan {
-    0% { top: 5%; }
-    100% { top: 90%; }
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  /* Disease page enhancements */
+  .ks-card-lg {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-sm);
   }
 
-  /* Disease detection mobile overrides — desktop styles untouched */
+  .scan-card {
+    min-height: 640px;
+  }
+
+  .result-card {
+    min-height: 640px;
+  }
+
+  .disease-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .section-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-primary-dark);
+    background-color: var(--color-sage-bg);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .model-pill {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #166534;
+    background-color: #dcfce7;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--color-sage-border);
+    background-color: var(--color-sage-bg);
+    border-radius: var(--radius-md);
+    padding: 39px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    width: 70%;
+    margin: 0 auto;
+  }
+
+  .drop-zone:hover {
+    border-color: var(--color-primary-dark);
+    background-color: #e3ede6;
+  }
+
+  .drop-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px auto;
+    color: var(--color-primary-dark);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .drop-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-text-main);
+    margin-bottom: 6px;
+  }
+
+  .drop-hint {
+    font-size: 0.76rem;
+    color: var(--color-text-muted);
+  }
+
+  .preview-container {
+    position: relative;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  #leafPreviewImg {
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: contain;
+    display: block;
+  }
+
+  .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #22c55e;
+    box-shadow: 0 0 14px #22c55e;
+    top: 0;
+    animation: laserScan 1.6s infinite alternate;
+  }
+
+  @keyframes laserScan {
+    0% { top: 0%; }
+    100% { top: 100%; }
+  }
+
+  .photo-tips {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .tips-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-light);
+    margin-bottom: 8px;
+  }
+
+  .tips-list {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    padding-left: 18px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .tips-list li {
+    margin-bottom: 5px;
+  }
+
+  /* Result header */
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .result-left {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .result-caption {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-light);
+    margin-bottom: 6px;
+  }
+
+  .result-disease {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--color-text-main);
+    margin: 0 0 4px 0;
+    letter-spacing: var(--ls-tight);
+  }
+
+  .result-class {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+
+  .confidence-inline {
+    margin-top: 8px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+  }
+
+  .confidence-circle {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 10px auto;
+  }
+
+  .confidence-ring {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+
+  .confidence-ring-bg {
+    fill: none;
+    stroke: #e5ece6;
+    stroke-width: 8;
+  }
+
+  .confidence-ring-fill {
+    fill: none;
+    stroke: var(--color-primary-dark);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s ease;
+  }
+
+  .confidence-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+  }
+
+  .confidence-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-light);
+    text-align: center;
+  }
+
+  .severity-row {
+    margin-bottom: 16px;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: var(--radius-full);
+    background-color: #fef3c7;
+    color: #b45309;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #b45309;
+  }
+
+  .result-desc {
+    font-size: 0.92rem;
+    color: var(--color-text-main);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .source-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    background-color: #e0e7ff;
+    color: #3730a3;
+    margin-bottom: 14px;
+  }
+
+  /* Advisory sections */
+  .advisory-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .advisory-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: 0.06em;
+    color: var(--color-text-light);
+  }
+
+  .advisory-loader {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--color-text-main);
+  }
+
+  .loader-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-primary-dark);
+    border-radius: 50%;
+    animation: loaderPulse 1.4s infinite ease-in-out both;
+  }
+  .loader-dot:nth-child(1) { animation-delay: -0.32s; }
+  .loader-dot:nth-child(2) { animation-delay: -0.16s; }
+
+  .advisory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 28px;
+  }
+
+  .adv-card {
+    background-color: #ffffff;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2px;
+  }
+
+  .adv-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-sage-border);
+  }
+
+  .adv-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .adv-icon {
+    font-size: 16px;
+  }
+
+  .adv-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: 0.04em;
+    color: var(--color-primary-dark);
+  }
+
+  .adv-body {
+    font-size: 0.88rem;
+    color: var(--color-text-main);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .adv-list {
+    font-size: 0.86rem;
+    color: var(--color-text-main);
+    padding-left: 20px;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .adv-list li {
+    margin-bottom: 6px;
+  }
+
+  .adv-disclaimer {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  .advisory-unavailable {
+    padding: 14px 18px;
+    background: #fef3c7;
+    border-radius: var(--radius-sm);
+    font-size: 0.84rem;
+    color: #92400e;
+  }
+
+  @keyframes loaderPulse {
+    0%, 80%, 100% { transform: scale(1); opacity: 1; }
+    40% { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  /* Mobile overrides */
   @media (max-width: 768px) {
     .layout-split {
       grid-template-columns: 1fr !important;
       gap: 18px !important;
     }
-    #dropZone {
-      padding: 20px 16px !important;
-    }
-    #leafPreviewImg {
-      max-height: 200px !important;
-    }
-    .ks-card[style*="border-left: 4px solid #16a34a"] {
-      min-height: auto;
-    }
-    .disease-header-row {
+    .result-header {
       flex-direction: column;
       align-items: flex-start;
-      gap: 8px;
     }
-    div[style*="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px"] {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    div[style*="text-align: right;"] {
-      text-align: left !important;
+    .confidence-inline {
+      text-align: left;
       align-self: flex-start;
     }
-    #confidenceBadge {
-      font-size: 18px !important;
+    .advisory-grid {
+      grid-template-columns: 1fr;
     }
-  }
-
-  @media (max-width: 480px) {
-    .page-title {
-      font-size: 26px !important;
-    }
-    .form-control {
-      font-size: 16px;
+    .ks-card-lg {
+      min-height: auto;
     }
   }
 </style>
@@ -312,11 +662,11 @@
   function runDiagnosis() {
     const btn = document.getElementById('diagnoseBtn');
     const btnText = document.getElementById('diagnoseBtnText');
-    const laser = document.getElementById('scanLaser');
+    const scanLoader = document.getElementById('scanLoader');
 
-    btnText.textContent = 'Scanning Leaf with AI...';
+    btnText.textContent = 'Scanning leaf with AI…';
     btn.disabled = true;
-    laser.style.display = 'block';
+    scanLoader.style.display = 'flex';
 
     const formData = new FormData();
     if (selectedFile) {
@@ -330,8 +680,8 @@
     })
     .then(r => r.json())
     .then(data => {
-      laser.style.display = 'none';
-      btnText.textContent = 'Diagnose Leaf with AI';
+      scanLoader.style.display = 'none';
+      btnText.textContent = 'Diagnose leaf with AI';
       btn.disabled = false;
 
       if (data.success) {
@@ -341,8 +691,8 @@
       }
     })
     .catch(err => {
-      laser.style.display = 'none';
-      btnText.textContent = 'Diagnose Leaf with AI';
+      scanLoader.style.display = 'none';
+      btnText.textContent = 'Diagnose leaf with AI';
       btn.disabled = false;
       alert('Diagnosis request failed. Please check network.');
     });
@@ -355,8 +705,9 @@
 
     // Disease Identification
     document.getElementById('diseaseTitle').textContent = prediction.disease_name || '—';
-    document.getElementById('scientificName').textContent = 'CNN Class: ' + (prediction.predicted_class || '—');
-    document.getElementById('confidenceBadge').textContent = (prediction.confidence_percentage != null ? prediction.confidence_percentage : '—') + '%';
+    const confBadge = document.getElementById('confidenceBadge');
+    confBadge.textContent = (prediction.confidence_percentage != null ? prediction.confidence_percentage : '—') + '%';
+    confBadge.style.display = 'block';
 
     // Severity based on confidence tier
     const sevBadge = document.getElementById('severityBadge');
@@ -366,14 +717,17 @@
       sevBadge.style.backgroundColor = '#dcfce7';
       sevBadge.style.color = '#15803d';
       sevText.textContent = 'High Confidence';
+      sevBadge.querySelector('.status-dot').style.backgroundColor = '#15803d';
     } else if (tier === 'moderate') {
       sevBadge.style.backgroundColor = '#fef3c7';
       sevBadge.style.color = '#92400e';
       sevText.textContent = 'Moderate Confidence';
+      sevBadge.querySelector('.status-dot').style.backgroundColor = '#92400e';
     } else {
       sevBadge.style.backgroundColor = '#fee2e2';
       sevBadge.style.color = '#dc2626';
       sevText.textContent = 'Low Confidence';
+      sevBadge.querySelector('.status-dot').style.backgroundColor = '#dc2626';
     }
 
     // Disease description
@@ -440,8 +794,18 @@
 {% block extra_css %}
 <style>
   .disease-page .layout-split {
-    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 22px !important;
+    grid-template-columns: none !important;
+  }
+  .disease-page .ks-card-lg {
+    width: 100% !important;
+    min-height: auto !important;
+  }
+  .disease-page .result-card {
+    width: 100% !important;
+    min-height: auto !important;
   }
 </style>
 {% endblock %}
