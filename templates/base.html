@@ -99,6 +99,16 @@
           </a>
         </li>
 
+        <!-- Mandi Prices -->
+        <li class="nav-item {% if active_page == 'mandi' %}active{% endif %}">
+          <a href="{{ url_for('mandi.mandi_dashboard') }}">
+            <span class="nav-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18V3H3zM3 9h18v2H3V9zM3 15h18v2H3v-2zM7 9h10v2H7V9zM7 15h10v2H7v-2z"></path></svg>
+            </span>
+            <span>Mandi prices</span>
+          </a>
+        </li>
+
         <!-- KisaanBot -->
         <li class="nav-item {% if active_page == 'kisaanbot' %}active{% endif %}">
           <a href="{{ url_for('bot.kisaanbot_page') }}">

@@ -21,7 +21,7 @@ import requests
 from cachetools import TTLCache
 
 from services.cost_tracker import record_api_call
-from services.groq_service import get_crop_guide_part1, get_crop_guide_part2
+from services.groq_service import get_crop_guide_part1, get_crop_guide_part2, recommend_crops_groq
 
 logger = logging.getLogger(__name__)
 
@@ -485,6 +485,22 @@ def recommend_crops(
         )
         result = _validate_and_normalize_recommendation(None)
         result["mistral_error_details"] = "API key not configured"
+
+    # ---- Groq fallback when Mistral fails ----
+    if result.get("status") == "error":
+        logger.warning(
+            "Mistral recommendation failed (%s) - falling back to Groq",
+            result.get("error", "unknown error"),
+        )
+        groq_result = recommend_crops_groq(farm_context, weather, language)
+        if groq_result.get("status") == "success":
+            logger.info("Groq fallback succeeded for crop recommendation")
+            return groq_result
+        else:
+            # Both failed; keep the Mistral error result so the caller sees it
+            result["groq_fallback_error"] = groq_result.get(
+                "error", "Groq fallback also failed"
+            )
 
     _recommendation_cache[cache_key] = result
     return result

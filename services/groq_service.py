@@ -1293,3 +1293,214 @@ def get_crop_guide_part2(
 
     _groq_cache_3[cache_key] = result
     return result
+
+
+# =============================================================================
+# GROQ CROP RECOMMENDATION FALLBACK (used when Mistral is unavailable)
+# =============================================================================
+
+_groq_recommend_cache = TTLCache(maxsize=100, ttl=3600)
+
+
+def _build_groq_recommend_crops_prompt(
+    farm_context: Dict[str, Any],
+    weather: Dict[str, Any],
+    language: str = "en",
+) -> str:
+    """
+    Build a prompt for Groq to recommend crops when Mistral is unavailable.
+    """
+    lang_instruction = (
+        "Respond in Hindi (हिन्दी)."
+        if language == "hi"
+        else "Respond in English."
+    )
+
+    weather_summary = {}
+    if weather and weather.get("source") == "openweathermap":
+        weather_summary = {
+            "temperature": weather.get("temperature", "Not available"),
+            "humidity": weather.get("humidity", "Not available"),
+            "condition": weather.get("description", "Not available"),
+            "rainfall": weather.get("rainfall_1h") or weather.get("rainfall_3h") or 0,
+        }
+
+    prompt = f"""You are an expert agricultural advisor for Indian farmers. Recommend exactly one primary crop and exactly two alternative crops based ONLY on the farmer's actual inputs and current weather.
+
+{lang_instruction}
+
+FARM CONTEXT:
+- State: {farm_context.get('state', 'Not specified')}
+- District: {farm_context.get('district', 'Not specified')}
+- Season: {farm_context.get('season', 'Not specified')}
+- Soil type: {farm_context.get('soil_type', 'Not specified')}
+- Nitrogen (N): {farm_context.get('n', 'Not specified')} kg/ha
+- Phosphorus (P): {farm_context.get('p', 'Not specified')} kg/ha
+- Potassium (K): {farm_context.get('k', 'Not specified')} kg/ha
+- Soil pH: {farm_context.get('ph', 'Not specified')}
+- Irrigation: {farm_context.get('irrigation', 'Not specified')}
+
+CURRENT WEATHER:
+- Temperature: {weather_summary.get('temperature', 'Not available')}°C
+- Humidity: {weather_summary.get('humidity', 'Not available')}%
+- Condition: {weather_summary.get('condition', 'Not available')}
+- Rainfall: {weather_summary.get('rainfall', 'Not available')} mm
+
+TASK:
+1. Select ONE primary crop that best fits this specific farm.
+2. Select TWO alternative crops worth considering.
+3. For the primary crop, estimate compatibility percentages (0-100) for Soil, Season, and Region based on the farm context, plus list any cultivation risks.
+
+Return ONLY valid JSON with this exact structure:
+{{
+  "status": "success",
+  "top_crop": {{
+    "name": "Crop name",
+    "soil_compatibility": 85,
+    "seasonal_compatibility": 90,
+    "regional_compatibility": 88,
+    "cultivation_risks": ["Risk 1", "Risk 2"],
+    "suitability_score": 87
+  }},
+  "alternatives": [
+    {{
+      "name": "Alternative crop 1",
+      "suitability_score": 80
+    }},
+    {{
+      "name": "Alternative crop 2",
+      "suitability_score": 75
+    }}
+  ]
+}}
+
+IMPORTANT:
+- Return ONLY valid JSON, no markdown code blocks, no additional text
+- Base everything on the farmer's actual inputs and Indian agricultural conditions
+- Do NOT default to any specific crop
+- All three crop names must be provided
+- The primary crop and alternatives should be different from each other
+- All scores are integers between 0 and 100
+"""
+
+    return prompt
+
+
+def recommend_crops_groq(
+    farm_context: Dict[str, Any],
+    weather: Dict[str, Any],
+    language: str = "en",
+) -> Dict[str, Any]:
+    """
+    Get crop recommendations from Groq as a fallback when Mistral is unavailable.
+
+    Returns the same structure as Mistral's recommend_crops() so the caller
+    can use it interchangeably.
+    """
+    config = _get_groq_config()
+    api_key = config["api_key"]
+    model = config["model"]
+    base_url = config["base_url"]
+
+    na = "Not available"
+
+    cache_key = (
+        f"groq_recommend:{farm_context.get('state', '')}:{farm_context.get('district', '')}"
+        f":{farm_context.get('season', '')}:{farm_context.get('soil_type', '')}"
+        f":{farm_context.get('n', '')}:{farm_context.get('p', '')}:{farm_context.get('k', '')}"
+        f":{farm_context.get('ph', '')}:{farm_context.get('irrigation', '')}:{language}"
+    )
+    if cache_key in _groq_recommend_cache:
+        logger.info("Returning cached Groq crop recommendation")
+        return _groq_recommend_cache[cache_key]
+
+    if api_key and api_key != "your_groq_api_key_here":
+        prompt = _build_groq_recommend_crops_prompt(farm_context, weather, language)
+        ai_response = _call_groq_api(prompt, api_key, model, base_url)
+    else:
+        logger.warning("Groq API key not configured - crop recommendation fallback not available")
+        ai_response = None
+
+    if ai_response is None:
+        result = {
+            "status": "error",
+            "error": "Groq fallback unavailable - crop recommendation could not be generated.",
+            "top_crop": {"name": None},
+            "alternatives": [{"name": None}, {"name": None}],
+            "source": "groq_fallback_unavailable",
+        }
+    else:
+        # Normalize the response similar to Mistral's validator
+        status = ai_response.get("status", "error")
+        top_crop = ai_response.get("top_crop", {}) or ai_response.get("top_cock", {}) or {}
+        alternatives = ai_response.get("alternatives", []) or []
+
+        top_name = top_crop.get("name") if isinstance(top_crop, dict) else None
+        alt_names = []
+        alt_scores = []
+        for alt in alternatives[:2]:
+            if isinstance(alt, dict):
+                alt_names.append(alt.get("name"))
+                alt_scores.append(int(alt.get("suitability_score", na)) if isinstance(alt.get("suitability_score"), (int, float)) else na)
+            else:
+                alt_names.append(None)
+                alt_scores.append(na)
+
+        while len(alt_names) < 2:
+            alt_names.append(None)
+            alt_scores.append(na)
+
+        if not top_name or not isinstance(top_name, str) or top_name.strip() == "":
+            result = {
+                "status": "error",
+                "error": "Groq did not return a valid primary crop name.",
+                "top_crop": {"name": None},
+                "alternatives": [{"name": None}, {"name": None}],
+                "source": "groq_fallback",
+            }
+        else:
+            valid_alternatives = []
+            for i, name in enumerate(alt_names):
+                if name and isinstance(name, str) and name.strip() != "":
+                    valid_alternatives.append({
+                        "name": name.strip(),
+                        "suitability_score": alt_scores[i] if i < len(alt_scores) else na,
+                    })
+                else:
+                    valid_alternatives.append({
+                        "name": None,
+                        "suitability_score": na,
+                    })
+
+            if any(alt["name"] is None for alt in valid_alternatives):
+                result = {
+                    "status": "error",
+                    "error": "Groq did not return two valid alternative crop names.",
+                    "top_crop": {
+                        "name": top_name.strip(),
+                        "soil_compatibility": int(top_crop.get("soil_compatibility", na)) if isinstance(top_crop.get("soil_compatibility"), (int, float)) else na,
+                        "seasonal_compatibility": int(top_crop.get("seasonal_compatibility", na)) if isinstance(top_crop.get("seasonal_compatibility"), (int, float)) else na,
+                        "regional_compatibility": int(top_crop.get("regional_compatibility", na)) if isinstance(top_crop.get("regional_compatibility"), (int, float)) else na,
+                        "cultivation_risks": top_crop.get("cultivation_risks", [na]) if isinstance(top_crop.get("cultivation_risks"), list) else [na],
+                        "suitability_score": int(top_crop.get("suitability_score", na)) if isinstance(top_crop.get("suitability_score"), (int, float)) else na,
+                    },
+                    "alternatives": valid_alternatives,
+                    "source": "groq_fallback",
+                }
+            else:
+                result = {
+                    "status": "success",
+                    "top_crop": {
+                        "name": top_name.strip(),
+                        "soil_compatibility": int(top_crop.get("soil_compatibility", na)) if isinstance(top_crop.get("soil_compatibility"), (int, float)) else na,
+                        "seasonal_compatibility": int(top_crop.get("seasonal_compatibility", na)) if isinstance(top_crop.get("seasonal_compatibility"), (int, float)) else na,
+                        "regional_compatibility": int(top_crop.get("regional_compatibility", na)) if isinstance(top_crop.get("regional_compatibility"), (int, float)) else na,
+                        "cultivation_risks": top_crop.get("cultivation_risks", [na]) if isinstance(top_crop.get("cultivation_risks"), list) else [na],
+                        "suitability_score": int(top_crop.get("suitability_score", na)) if isinstance(top_crop.get("suitability_score"), (int, float)) else na,
+                    },
+                    "alternatives": valid_alternatives,
+                    "source": "groq_fallback",
+                }
+
+    _groq_recommend_cache[cache_key] = result
+    return result

@@ -1,233 +1,310 @@
 """
 services/disease_engine.py - AI Crop Disease Detection Engine
-Botanical pathology engine offering diagnostic evaluation, symptoms, remedies,
-and clean hooks for PyTorch / TensorFlow / ONNX Deep Learning models.
+
+Real CNN (EfficientNetB0, TensorFlow/Keras) inference for plant leaf disease
+classification. Replaces the previous simulated/diagnosis-by-filename approach.
+
+The trained model (best_plant_disease_finetuned.keras) supports 38 classes.
+Class labels follow the format "Crop___Disease" (e.g. "Tomato___Early_blight",
+"Tomato___healthy") and are loaded from class_names.json. The output index
+maps exactly to the JSON ordering.
+
+CNN responsibilities:
+  - Identify crop + disease from a leaf image
+  - Return confidence score and top-3 predictions
+
+Gemini (services/disease_advisory_service.py) is responsible for advisory only
+and must NOT identify or override the CNN prediction.
 """
 
+import json
+import logging
 import os
-from typing import Dict, Any, Optional, List
+import threading
+from typing import Any, Dict, List, Optional, Tuple
 
-# Agricultural pathology database
-DISEASE_CATALOG = {
-    "rice_blast": {
-        "id": "rice_blast",
-        "crop": "Rice (Paddy)",
-        "disease_name": "Rice Blast",
-        "scientific_name": "Magnaporthe oryzae",
-        "pathogen_type": "Fungal Pathogen",
-        "default_confidence": 94.8,
-        "severity": "Moderate Severity",
-        "severity_badge": "action_required",
-        "description": "Rice blast is one of the most destructive diseases affecting rice crops worldwide. It causes spindle-shaped lesions with ash-grey centers and brownish-red borders on leaf blades and neck nodes.",
-        "symptoms": [
-            "Spindle-shaped (eye-shaped) lesions on leaf blades with pointed ends",
-            "Ash-grey or whitish center with distinct brown or reddish-brown margins",
-            "Lesions coalesce under high humidity leading to complete leaf blighting",
-            "Node and neck rot leading to empty panicles ('neck blast')"
-        ],
-        "chemical_treatment": [
-            "Spray Tricyclazole 75% WP @ 0.6 g/L or Isoprothiolane 40% EC @ 1.5 mL/L of water.",
-            "Apply Azoxystrobin 18.2% + Difenoconazole 11.4% SC @ 1 mL/L at the first appearance of leaf lesions.",
-            "Repeat spray after 10-12 days if damp cloudy conditions persist."
-        ],
-        "organic_treatment": [
-            "Foliar spray of Pseudomonas fluorescens @ 10 g/L or 2.5 kg/ha in 500 L water.",
-            "Spray cold-pressed Neem seed kernel extract (NSKE 5%) or 3000 ppm Neem oil @ 3 mL/L.",
-            "Apply fermented cow urine and sour buttermilk solution (1:10 dilution) as a natural antifungal biostimulant."
-        ],
-        "preventive_practices": [
-            "Avoid excessive split applications of Nitrogen fertilizer (especially urea overdose).",
-            "Maintain optimal plant spacing to avoid dense canopy humidity.",
-            "Adopt alternate wetting and drying (AWD) water management rather than continuous deep submergence.",
-            "Treat seed before sowing with Carbendazim 2g/kg or Trichoderma viride 10g/kg."
-        ],
-        "kisaanbot_prompt": "How can I prevent Rice Blast from spreading to the panicle neck on my 4.5 acre farm?"
-    },
-    "tomato_late_blight": {
-        "id": "tomato_late_blight",
-        "crop": "Tomato",
-        "disease_name": "Tomato Late Blight",
-        "scientific_name": "Phytophthora infestans",
-        "pathogen_type": "Oomycete Fungus",
-        "default_confidence": 92.4,
-        "severity": "High Severity",
-        "severity_badge": "urgent",
-        "description": "Late blight is a fast-spreading disease favored by cool, moist weather. It causes dark water-soaked patches on foliage and firm, greasy lesions on green fruit.",
-        "symptoms": [
-            "Irregular pale green to dark brown water-soaked lesions on older leaves",
-            "Delicate white fungal downy growth visible on leaf undersides in morning dew",
-            "Rapid browning and collapse of stems and foliage ('blight' appearance)",
-            "Dark brown, leathery blemishes on green tomato fruits"
-        ],
-        "chemical_treatment": [
-            "Spray Metalaxyl-M 4% + Mancozeb 64% WP @ 2.5 g/L immediately upon detection.",
-            "Alternate with Cymoxanil 8% + Mancozeb 64% WP @ 2 g/L after 7 days.",
-            "Apply Copper oxychloride 50% WP @ 3 g/L as a protective canopy shield."
-        ],
-        "organic_treatment": [
-            "Apply Trichoderma harzianum or Bacillus subtilis foliar spray @ 5 g/L.",
-            "Spray copper-based Bordeaux mixture (1%) as an approved organic fungicide.",
-            "Prune lower infected leaves using sterilized pruning shears and burn or bury infected debris."
-        ],
-        "preventive_practices": [
-            "Avoid overhead sprinkler irrigation; use drip irrigation to keep foliage dry.",
-            "Stake tomato plants and increase row spacing for adequate air circulation.",
-            "Rotate crops away from Solanaceae family (potato, tomato, eggplant) for at least 2 seasons."
-        ],
-        "kisaanbot_prompt": "What is the best fungicide schedule for late blight on tomatoes during cloudy monsoon days?"
-    },
-    "wheat_stripe_rust": {
-        "id": "wheat_stripe_rust",
-        "crop": "Wheat",
-        "disease_name": "Wheat Yellow / Stripe Rust",
-        "scientific_name": "Puccinia striiformis f. sp. tritici",
-        "pathogen_type": "Fungal Pathogen",
-        "default_confidence": 96.1,
-        "severity": "High Severity",
-        "severity_badge": "urgent",
-        "description": "Stripe rust is a major fungal threat in Northern wheat-growing regions like Punjab and Haryana. Bright yellow pustules erupt in linear stripes parallel to leaf veins.",
-        "symptoms": [
-            "Bright yellow powder-filled pustules (urediniospores) aligned in narrow linear stripes",
-            "Yellow dusty spores easily rub off onto fingers or clothing",
-            "Premature drying, yellowing and scorch of flag leaves",
-            "Shriveled grain formation and severe test-weight reduction"
-        ],
-        "chemical_treatment": [
-            "Spray Propiconazole 25% EC (Tilt) @ 1 mL/L or 200 mL in 200 L water per acre.",
-            "Alternatively, apply Tebuconazole 25.9% EC @ 1 mL/L.",
-            "Spray thoroughly covering the flag leaf and upper canopy foliage."
-        ],
-        "organic_treatment": [
-            "Foliar spray of 10% cow urine solution with freshly crushed garlic extract.",
-            "Soil drenching and foliar application of Bio-fertilizers enriched with Trichoderma.",
-            "Apply wood ash dusting in early morning dew."
-        ],
-        "preventive_practices": [
-            "Sow certified rust-resistant wheat varieties recommended by PAU (such as PBW-824, PBW-803, DBW-187).",
-            "Avoid late sowing (complete sowing by mid-November in Punjab).",
-            "Scout border rows and field corners weekly during January and February."
-        ],
-        "kisaanbot_prompt": "How many sprays of Tilt (Propiconazole) are needed for wheat yellow rust in Ludhiana?"
-    },
-    "cotton_leaf_curl": {
-        "id": "cotton_leaf_curl",
-        "crop": "Cotton",
-        "disease_name": "Cotton Leaf Curl Disease (CLCuD)",
-        "scientific_name": "Begomovirus / Whitefly vector",
-        "pathogen_type": "Viral Disease (Vector-Borne)",
-        "default_confidence": 91.5,
-        "severity": "High Severity",
-        "severity_badge": "urgent",
-        "description": "A devastating viral disease transmitted by the silverleaf whitefly (Bemisia tabaci). It causes upward leaf curling, vein thickening, and leaf enations (cup-like outgrowths).",
-        "symptoms": [
-            "Upward cupping and curling of leaf margins on younger leaves",
-            "Thickening of major and minor leaf veins visible on leaf undersides",
-            "Small leaf-like enations developing underneath the main veins",
-            "Stunted plant growth and severely reduced boll formation"
-        ],
-        "chemical_treatment": [
-            "Spray Diafenthiuron 50% WP @ 1.2 g/L or Pyriproxyfen 10% EC @ 2 mL/L to control whitefly vector.",
-            "Alternate with Afidopyropen 50 g/L DC @ 2 mL/L for quick whitefly knockdown.",
-            "Ensure spray nozzles direct mist to the underside of the leaf canopy where whiteflies harbor."
-        ],
-        "organic_treatment": [
-            "Install yellow sticky traps (15-20 traps per acre) at canopy height to capture whiteflies.",
-            "Spray Neem oil 10,000 ppm @ 2 mL/L or 5% NSKE (Neem Seed Kernel Extract).",
-            "Spray Verticillium lecanii (entomopathogenic fungus) @ 5 g/L during humid hours."
-        ],
-        "preventive_practices": [
-            "Eradicate alternative weed hosts (like Kanghi buti, Peeli buti, Congress grass) along field bunds.",
-            "Select CLCuD-tolerant Bt cotton hybrids approved for the Northern zone.",
-            "Avoid excessive vegetative growth caused by surplus urea."
-        ],
-        "kisaanbot_prompt": "What is the recommended spray threshold for whiteflies to stop leaf curl in cotton?"
-    },
-    "healthy_crop": {
-        "id": "healthy_crop",
-        "crop": "Rice / General",
-        "disease_name": "Healthy Crop Foliage",
-        "scientific_name": "No Pathogen Detected",
-        "pathogen_type": "Healthy Plant Tissue",
-        "default_confidence": 98.7,
-        "severity": "Normal / Healthy",
-        "severity_badge": "healthy",
-        "description": "The scanned leaf shows deep chlorophyll pigmentation, active stomatal integrity, and absence of necrotic lesions or pest puncture marks. The plant is thriving under optimal nourishment.",
-        "symptoms": [
-            "Vigorous green leaf blade with uniform coloration",
-            "Absence of fungal pustules, necrotic halos, or bacterial water-soaking",
-            "Strong turgor pressure and erect leaf architecture",
-            "Healthy vascular veins without discoloration or vein clearing"
-        ],
-        "chemical_treatment": [
-            "No chemical pesticide or fungicide intervention is required.",
-            "Continue standard scheduled macro and micronutrient management."
-        ],
-        "organic_treatment": [
-            "Periodic foliar spray of seaweed extract (2 mL/L) or Panchagavya (3%) to maintain immunity.",
-            "Maintain soil organic carbon with farmyard manure (FYM) or vermicompost."
-        ],
-        "preventive_practices": [
-            "Continue regular weekly field scouting across all farm corners.",
-            "Maintain clean irrigation channels and weed-free field borders.",
-            "Follow balanced NPK fertilization as per your soil health test."
-        ],
-        "kisaanbot_prompt": "My crop is healthy today. What preventive care should I take during monsoon humidity?"
-    }
-}
+import numpy as np
+from PIL import Image, UnidentifiedImageError
+
+from tensorflow import keras
+
+logger = logging.getLogger(__name__)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_DIR = os.path.join(BASE_DIR, "models", "plant_disease")
+MODEL_PATH = os.path.join(MODEL_DIR, "best_plant_disease_finetuned.keras")
+CLASS_NAMES_PATH = os.path.join(MODEL_DIR, "class_names.json")
+
+INPUT_SIZE = (224, 224)
+MAX_FILE_SIZE = 16 * 1024 * 1024  # 16 MB
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+
+# Confidence tiers (configurable)
+HIGH_CONFIDENCE_THRESHOLD = 0.70
+MODERATE_CONFIDENCE_THRESHOLD = 0.40
+
+# Module-level singletons (lazy-loaded, never reloaded per prediction)
+_model = None
+_model_lock = threading.Lock()
+_class_names = None
+_class_names_lock = threading.Lock()
 
 
-def diagnose_crop_image(
-    filename: Optional[str] = None,
-    crop_hint: Optional[str] = None,
-    sample_id: Optional[str] = None
-) -> Dict[str, Any]:
+# ---------------------------------------------------------------------------
+# Model / class-name loading
+# ---------------------------------------------------------------------------
+
+def load_class_names() -> List[str]:
+    """Load class names from JSON. Output index maps exactly to JSON ordering."""
+    global _class_names
+    with _class_names_lock:
+        if _class_names is None:
+            if not os.path.exists(CLASS_NAMES_PATH):
+                raise FileNotFoundError(
+                    f"Class names file not found: {CLASS_NAMES_PATH}"
+                )
+            with open(CLASS_NAMES_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if not isinstance(data, list) or len(data) == 0:
+                raise ValueError("Class names file must contain a non-empty list.")
+            _class_names = [str(c) for c in data]
+            logger.info("Loaded %d disease class names", len(_class_names))
+        return list(_class_names)
+
+
+def load_disease_model():
     """
-    Simulates ML/CNN inference on an uploaded or sample leaf image.
-    In production, this function connects to:
-      - PyTorch model (`torch.load('crop_resnet50.pt')`)
-      - ONNX runtime (`ort.InferenceSession('crop_disease.onnx')`)
-      - TensorFlow Lite model
+    Load the Keras model once using a lazy-loaded singleton.
+    Never reloads the model for every prediction.
     """
-    # 1. If explicit sample requested
-    if sample_id and sample_id in DISEASE_CATALOG:
-        return DISEASE_CATALOG[sample_id]
-        
-    # 2. Check filename keywords for realistic automatic matching
-    if filename:
-        name_lower = filename.lower()
-        if "blast" in name_lower or "paddy" in name_lower or "rice" in name_lower:
-            return DISEASE_CATALOG["rice_blast"]
-        elif "blight" in name_lower or "tomato" in name_lower:
-            return DISEASE_CATALOG["tomato_late_blight"]
-        elif "rust" in name_lower or "wheat" in name_lower:
-            return DISEASE_CATALOG["wheat_stripe_rust"]
-        elif "cotton" in name_lower or "curl" in name_lower:
-            return DISEASE_CATALOG["cotton_leaf_curl"]
-        elif "healthy" in name_lower:
-            return DISEASE_CATALOG["healthy_crop"]
-
-    # 3. Check crop hint
-    if crop_hint:
-        hint_lower = crop_hint.lower()
-        if "rice" in hint_lower or "paddy" in hint_lower:
-            return DISEASE_CATALOG["rice_blast"]
-        elif "tomato" in hint_lower:
-            return DISEASE_CATALOG["tomato_late_blight"]
-        elif "wheat" in hint_lower:
-            return DISEASE_CATALOG["wheat_stripe_rust"]
-        elif "cotton" in hint_lower:
-            return DISEASE_CATALOG["cotton_leaf_curl"]
-
-    # Default to Rice Blast (matches the primary crop in the design mockups)
-    return DISEASE_CATALOG["rice_blast"]
+    global _model
+    with _model_lock:
+        if _model is None:
+            if not os.path.exists(MODEL_PATH):
+                raise FileNotFoundError(f"Disease model not found: {MODEL_PATH}")
+            _model = keras.models.load_model(MODEL_PATH)
+            expected = (None, 224, 224, 3)
+            if tuple(_model.input_shape) != expected:
+                logger.warning(
+                    "Unexpected model input shape: %s (expected %s)",
+                    _model.input_shape,
+                    expected,
+                )
+            logger.info("Disease CNN model loaded: %s", MODEL_PATH)
+        return _model
 
 
-def get_all_samples() -> List[Dict[str, str]]:
-    """Return lightweight list of sample diseases for UI quick-testing."""
-    return [
-        {"id": "rice_blast", "name": "Rice Blast", "crop": "Rice (Paddy)"},
-        {"id": "tomato_late_blight", "name": "Tomato Late Blight", "crop": "Tomato"},
-        {"id": "wheat_stripe_rust", "name": "Wheat Yellow Rust", "crop": "Wheat"},
-        {"id": "cotton_leaf_curl", "name": "Cotton Leaf Curl", "crop": "Cotton"},
-        {"id": "healthy_crop", "name": "Healthy Paddy Leaf", "crop": "Rice (Healthy)"},
+def unload_disease_model() -> None:
+    """Reset singletons (test helper only)."""
+    global _model, _class_names
+    with _model_lock:
+        _model = None
+    with _class_names_lock:
+        _class_names = None
+
+
+# ---------------------------------------------------------------------------
+# Image validation & preprocessing
+# ---------------------------------------------------------------------------
+
+def allowed_file(filename: str) -> bool:
+    """Check file extension."""
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+    )
+
+
+def allowed_mime(mime_type: Optional[str]) -> bool:
+    """Check MIME type."""
+    return mime_type in ALLOWED_MIME_TYPES
+
+
+def preprocess_leaf_image(image_file) -> np.ndarray:
+    """
+    Accept an uploaded file-like object, validate it, and preprocess for the CNN.
+
+    Steps:
+      1. Validate image integrity (PIL verify + re-open)
+      2. Convert to RGB
+      3. Resize to 224 x 224
+      4. Convert to float32 numpy array in RAW [0, 255] range
+
+    IMPORTANT: The saved Keras model already contains internal Rescaling and
+    Normalization layers (rescaling -> normalization -> rescaling_1 inside
+    efficientnetb0). Therefore NO external normalization (no /255, no
+    EfficientNet preprocess_input) is applied here, to avoid double
+    normalization. Pixel values are passed through raw in [0, 255].
+
+    Returns:
+        np.ndarray of shape (1, 224, 224, 3), dtype float32.
+    """
+    image_file.seek(0)
+
+    try:
+        img = Image.open(image_file)
+    except UnidentifiedImageError:
+        raise ValueError(
+            "Unable to identify image file. It may be corrupted or an unsupported format."
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        raise ValueError(f"Failed to open image: {exc}")
+
+    # Verify integrity, then re-open (verify() can leave the file in an odd state)
+    try:
+        img.verify()
+    except Exception:
+        raise ValueError("Image integrity check failed (corrupted image).")
+
+    image_file.seek(0)
+    try:
+        img = Image.open(image_file)
+    except Exception as exc:
+        raise ValueError(f"Failed to re-open image after verification: {exc}")
+
+    # Convert to RGB
+    img = img.convert("RGB")
+
+    # Resize to model input size
+    img = img.resize(INPUT_SIZE, Image.Resampling.BILINEAR)
+
+    # Raw [0, 255] float32 array; model handles internal rescaling/normalization
+    arr = np.asarray(img, dtype=np.float32)
+    if arr.ndim != 3 or arr.shape[2] != 3:
+        raise ValueError("Image must be a 3-channel RGB image.")
+
+    arr = np.expand_dims(arr, axis=0)  # (1, 224, 224, 3)
+    return arr
+
+
+# ---------------------------------------------------------------------------
+# Inference
+# ---------------------------------------------------------------------------
+
+def predict_disease(image_array: np.ndarray) -> Dict[str, Any]:
+    """
+    Run CNN inference on a preprocessed image array.
+
+    The model's final layer is a Dense with softmax activation, so the output
+    is already normalized probabilities. softmax is NOT applied again.
+
+    Returns:
+        dict with predicted_class, crop_name, disease_name, status, confidence,
+        top_predictions, num_classes.
+    """
+    model = load_disease_model()
+    class_names = load_class_names()
+
+    predictions = model.predict(image_array, verbose=0)  # training=False
+    probabilities = predictions[0]  # shape (38,)
+
+    top_idx = int(np.argmax(probabilities))
+    top_confidence = float(probabilities[top_idx])
+
+    # Top-3 diagnostic predictions
+    top3_indices = np.argsort(probabilities)[::-1][:3]
+    top_predictions = [
+        {
+            "class": class_names[int(idx)],
+            "confidence": float(probabilities[int(idx)]),
+        }
+        for idx in top3_indices
     ]
+
+    predicted_class = class_names[top_idx]
+    crop_name, disease_name, status = _parse_class_label(predicted_class)
+
+    return {
+        "predicted_class": predicted_class,
+        "crop_name": crop_name,
+        "disease_name": disease_name,
+        "status": status,
+        "confidence": top_confidence,
+        "top_predictions": top_predictions,
+        "num_classes": len(class_names),
+    }
+
+
+def _parse_class_label(class_label: str) -> Tuple[str, str, str]:
+    """
+    Parse a 'Crop___Disease' label into (crop_name, disease_name, status).
+
+    Examples:
+        "Tomato___Early_blight"  -> ("Tomato", "Early Blight", "diseased")
+        "Tomato___healthy"       -> ("Tomato", "Healthy", "healthy")
+    """
+    if "___" in class_label:
+        crop_part, disease_part = class_label.split("___", 1)
+    else:
+        crop_part, disease_part = class_label, "healthy"
+
+    crop_name = crop_part.replace("_", " ").strip()
+
+    disease_part_clean = disease_part.strip()
+    is_healthy = disease_part_clean.lower() == "healthy"
+    status = "healthy" if is_healthy else "diseased"
+
+    if is_healthy:
+        disease_name = "Healthy"
+    else:
+        disease_name = " ".join(
+            w.capitalize() for w in disease_part_clean.replace("_", " ").split()
+        )
+
+    return crop_name, disease_name, status
+
+
+def get_prediction_details(prediction: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Attach confidence tier and a human-readable message to a prediction dict
+    without altering the underlying CNN result.
+
+    Tiers:
+        high     (>= 0.70)  -> show prediction with confidence
+        moderate (>= 0.40)  -> show prediction with a caution message
+        low      (< 0.40)   -> request another photo; not definitive
+    """
+    confidence = float(prediction.get("confidence", 0.0))
+
+    if confidence >= HIGH_CONFIDENCE_THRESHOLD:
+        tier = "high"
+        message = None
+    elif confidence >= MODERATE_CONFIDENCE_THRESHOLD:
+        tier = "moderate"
+        message = (
+            "Model confidence is moderate. "
+            "Consider retaking a clearer photo of the leaf for confirmation."
+        )
+    else:
+        tier = "low"
+        message = (
+            "Model confidence is low. Please upload a clearer, well-lit leaf "
+            "photograph; the result below is not definitive."
+        )
+
+    details = dict(prediction)
+    details["confidence_tier"] = tier
+    details["confidence_percentage"] = round(confidence * 100, 2)
+    details["confidence_message"] = message
+    return details
+
+
+def get_all_classes() -> List[Dict[str, str]]:
+    """
+    Return all 38 supported classes with parsed crop/disease info.
+    Used to populate the UI crop selector / sample list.
+    """
+    class_names = load_class_names()
+    classes = []
+    for label in class_names:
+        crop_name, disease_name, status = _parse_class_label(label)
+        classes.append(
+            {
+                "label": label,
+                "crop": crop_name,
+                "disease": disease_name,
+                "status": status,
+            }
+        )
+    return classes

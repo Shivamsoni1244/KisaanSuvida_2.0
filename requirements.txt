@@ -12,3 +12,8 @@ gunicorn
 fpdf2
 chromadb==0.5.13
 sentence-transformers==2.5.1
+apscheduler==3.10.4
+
+# TensorFlow / Keras for the plant disease CNN model (Keras 3 .keras format)
+tensorflow==2.20.0
+Pillow==13.0.0

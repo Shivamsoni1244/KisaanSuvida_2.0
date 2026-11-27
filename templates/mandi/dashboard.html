@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}Mandi Prices — Kisaan Suvidha{% endblock %}
+
+{% block extra_css %}
+<style>
+  .mandi-section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+  }
+  .mandi-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-caption);
+    color: var(--color-text-light);
+  }
+  .mandi-title {
+    font-family: var(--font-serif);
+    font-size: 44px;
+    font-weight: var(--weight-regular);
+    color: var(--color-text-main);
+    letter-spacing: var(--ls-tight);
+    margin: 0;
+  }
+  .mandi-desc {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    color: var(--color-text-muted);
+    margin: 0;
+    max-width: 640px;
+  }
+  .mandi-meta {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-light);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Filter bar */
+  .filter-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+    align-items: end;
+  }
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .filter-label {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-caption);
+    color: var(--color-text-light);
+  }
+  .filter-select {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-size: 17px;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    background-color: #ffffff;
+    color: var(--color-text-main);
+    outline: none;
+  }
+  .filter-select:focus {
+    border-color: var(--color-primary-dark);
+    box-shadow: 0 0 0 3px rgba(21, 58, 37, 0.1);
+  }
+  .filter-actions {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+  }
+  .btn-sm {
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+
+  /* Price cards */
+  .price-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .price-card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 170px;
+  }
+  .price-card-label {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-caption);
+    color: var(--color-text-light);
+  }
+  .price-card-value {
+    font-family: var(--font-sans);
+    font-size: 34px;
+    font-weight: var(--weight-bold);
+    color: var(--color-primary-dark);
+    line-height: 1.1;
+  }
+  .price-card-unit {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    color: var(--color-text-muted);
+  }
+  .price-card-date {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-main);
+    margin-top: auto;
+  }
+  .price-card-unavailable {
+    color: var(--color-text-muted);
+  }
+
+  /* Summary cards */
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .summary-card {
+    background-color: var(--color-sage-card);
+    border: 1px solid var(--color-sage-border);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .summary-card-label {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: var(--ls-caption);
+    color: var(--color-text-light);
+  }
+  .summary-card-value {
+    font-family: var(--font-sans);
+    font-size: 25px;
+    font-weight: var(--weight-bold);
+    color: var(--color-primary-dark);
+    line-height: 1.15;
+  }
+  .summary-card-date {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-muted);
+  }
+
+  /* Chart wrapper */
+  .chart-card {
+    background-color: var(--color-card-bg);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: 22px 24px;
+    margin-bottom: 24px;
+  }
+  .chart-title {
+    font-family: var(--font-sans);
+    font-size: 23px;
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-main);
+    margin: 0 0 10px 0;
+  }
+  .chart-subtitle {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin: 0 0 16px 0;
+  }
+  .chart-wrap {
+    position: relative;
+    height: 320px;
+    width: 100%;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--color-text-muted);
+  }
+  .empty-state p {
+    margin-top: 12px;
+    max-width: 420px;
+  }
+
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+  }
+  .loading::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 3px solid var(--color-sage-bg);
+    border-top-color: var(--color-primary-dark);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 0.8s linear infinite;
+    top: 10px;
+    right: 10px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .stale-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background-color: var(--status-poor-bg);
+    color: var(--status-poor);
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: var(--weight-semibold);
+  }
+
+  @media (max-width: 768px) {
+    .filter-bar {
+      grid-template-columns: 1fr;
+    }
+    .price-cards {
+      grid-template-columns: 1fr;
+    }
+    .summary-cards {
+      grid-template-columns: 1fr;
+    }
+    .chart-wrap {
+      height: 260px;
+    }
+    .price-card-value {
+      font-size: 24px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mandi-page">
+
+  <!-- Page Header -->
+  <div class="mandi-section-header">
+    <div class="mandi-eyebrow">Market Prices</div>
+    <h1 class="mandi-title">Mandi Prices</h1>
+    <p class="mandi-desc">
+      Check current agricultural commodity prices across different mandis. Data sourced from
+      <strong>data.gov.in AGMARKNET</strong> (Government of India).
+    </p>
+    <div class="mandi-meta">
+      <div class="meta-item">
+        <span>Source:</span>
+        <span id="metaSource">data.gov.in AGMARKNET</span>
+      </div>
+      <div class="meta-item">
+        <span>Last sync:</span>
+        <span id="metaLastSync">{{ last_sync or '--' }}</span>
+      </div>
+      <div class="meta-item">
+        <span>Records:</span>
+        <span id="metaRecordCount">{{ record_count }}</span>
+      </div>
+      <div class="meta-item" id="metaStale" style="display:none;">
+        <span class="stale-badge" title="Latest reported data is older than 7 days.">Stale data</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty-data guidance banner (shown when no records are cached) -->
+  {% if record_count == 0 %}
+  <div class="ks-card ks-card-sage" style="margin-bottom: 24px;">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink: 0; color: var(--color-accent-green);">
+        <path d="M9 11l3 3L22 4"></path><circle cx="12" cy="13" r="1"></circle>
+      </svg>
+      <div>
+        <div style="font-weight: var(--weight-semibold); color: var(--color-text-main); margin-bottom: 4px;">No mandi price data available yet</div>
+        <div style="font-size: 13.5px; color: var(--color-text-muted); line-height: 1.5; max-width: 600px;">
+          The filter dropdowns are empty because no price records have been synced. To load live data:
+          <ol style="margin: 6px 0 0 0; padding-left: 20px; font-size: 13.5px; color: var(--color-text-muted);">
+            <li>Add your data.gov.in API key as <code>MANDI_API_KEY</code> in <code>.env</code>.</li>
+            <li>Click <strong>Sync now</strong> to fetch AGMARKNET records.</li>
+            <li>Then select a state, district, mandi and crop to view prices.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Filters -->
+  <div class="ks-card" style="padding: 20px 24px;">
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label class="filter-label">State</label>
+        <select class="filter-select" id="filterState">
+          <option value="">Select a state</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">District</label>
+        <select class="filter-select" id="filterDistrict" disabled>
+          <option value="">Select a district</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Mandi / Market</label>
+        <select class="filter-select" id="filterMarket" disabled>
+          <option value="">Select a market</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Crop / Commodity</label>
+        <select class="filter-select" id="filterCommodity" disabled>
+          <option value="">Select a crop</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary btn-sm" id="btnRefresh">
+          <span>Refresh</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btnSync">
+          <span>Sync now</span>
+        </button>
+      </div>
+    </div>
+    <div class="filter-bar" style="margin-bottom: 0;">
+      <div class="filter-group" style="grid-column: 1 / -1; display: flex; gap: 14px; align-items: end;">
+        <label class="filter-label">Historical date range</label>
+        <span style="color: var(--color-text-muted); font-size: 13px;">
+          Automatic: last 15 calendar days
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Current Price Cards -->
+  <div class="price-cards" id="priceCards" style="display:none;">
+    <div class="price-card">
+      <div class="price-card-label">Minimum Price</div>
+      <div class="price-card-value" id="priceMin">--</div>
+      <div class="price-card-unit">₹ / quintal</div>
+      <div class="price-card-date">Arrival: <span id="priceMinDate">--</span></div>
+    </div>
+    <div class="price-card">
+      <div class="price-card-label">Maximum Price</div>
+      <div class="price-card-value" id="priceMax">--</div>
+      <div class="price-card-unit">₹ / quintal</div>
+      <div class="price-card-date">Arrival: <span id="priceMaxDate">--</span></div>
+    </div>
+    <div class="price-card">
+      <div class="price-card-label" id="priceAvgLabel">Average Price</div>
+      <div class="price-card-value" id="priceAvg">--</div>
+      <div class="price-card-unit">₹ / quintal</div>
+      <div class="price-card-date">Arrival: <span id="priceAvgDate">--</span></div>
+    </div>
+  </div>
+
+  <div id="priceEmpty" class="empty-state" style="display:none;">
+    <div style="width: 48px; height: 48px; border-radius: 50%; background-color: var(--color-sage-bg); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+    </div>
+    <p id="priceEmptyMsg">No price records available for the selected combination.</p>
+  </div>
+
+  <!-- Historical Summary -->
+  <div class="summary-cards" id="summaryCards" style="display:none;">
+    <div class="summary-card">
+      <div class="summary-card-label">Highest Maximum Price</div>
+      <div class="summary-card-value" id="summaryHigh">--</div>
+      <div class="summary-card-date">on <span id="summaryHighDate">--</span></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-label">Lowest Minimum Price</div>
+      <div class="summary-card-value" id="summaryLow">--</div>
+      <div class="summary-card-date">on <span id="summaryLowDate">--</span></div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-card" id="chartCard" style="display:none;">
+    <div class="chart-title">15-Day Price Movement</div>
+    <p class="chart-subtitle" id="chartSubtitle">Maximum, minimum and modal prices for the selected crop and mandi.</p>
+    <div class="chart-wrap">
+      <canvas id="mandiChart"></canvas>
+    </div>
+    <p class="chart-subtitle" style="margin-top: 10px; font-size: 12px; color: var(--color-text-light);">
+      Missing dates appear as gaps in the lines. Only actual reported records are shown.
+    </p>
+  </div>
+
+  <div id="chartEmpty" class="empty-state" style="display:none;">
+    <div style="width: 48px; height: 48px; border-radius: 50%; background-color: var(--color-sage-bg); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+    </div>
+    <p>No historical price records available for the selected combination.</p>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+<script src="{{ url_for('static', filename='js/mandi.js') }}"></script>
+<script>
+  // Initialise Mandi Prices module once the DOM is ready.
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.MandiPrices) {
+      window.MandiPrices.init({
+        statesUrl: '/api/mandi/states',
+        districtsUrl: '/api/mandi/districts',
+        marketsUrl: '/api/mandi/markets',
+        commoditiesUrl: '/api/mandi/commodities',
+        pricesUrl: '/api/mandi/prices',
+        historyUrl: '/api/mandi/history',
+        summaryUrl: '/api/mandi/summary',
+        graphUrl: '/api/mandi/graph',
+        syncUrl: '/api/mandi/sync',
+      });
+    }
+  });
+</script>
+{% endblock %}

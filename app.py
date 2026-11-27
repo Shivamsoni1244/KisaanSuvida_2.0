@@ -25,6 +25,7 @@ from routes.schemes_routes import schemes_bp
 from routes.support_routes import support_bp
 from routes.location_routes import location_bp
 from routes.crop_suitability_routes import crop_suitability_bp
+from routes.mandi_routes import mandi_bp
 
 
 def _generate_csrf_token():
@@ -62,6 +63,9 @@ def create_app():
     app.register_blueprint(support_bp)
     app.register_blueprint(location_bp)
     app.register_blueprint(crop_suitability_bp)
+    app.register_blueprint(mandi_bp)
+
+    _init_mandi_scheduler(app)
 
     IST = pytz.timezone("Asia/Kolkata")
 
@@ -145,7 +149,46 @@ def create_app():
         """Redirect old /suitability route to new crop-suitability module."""
         return redirect(url_for("crop_suitability.suitability_analysis"))
 
+    _init_mandi_scheduler(app)
+
     return app
+
+
+def _init_mandi_scheduler(app):
+    """Initialise optional background synchronisation for mandi prices.
+
+    Uses APScheduler when available to refresh mandi price records periodically
+    (every 6 hours) independent of page requests. If APScheduler is not
+    installed, this is a no-op and records can be refreshed manually via
+    POST /api/mandi/sync.
+    """
+    try:
+        from apscheduler.schedulers.background import BackgroundScheduler
+    except Exception:
+        app.logger.info("APScheduler not installed; mandi sync scheduler disabled.")
+        return
+
+    def _sync_job():
+        with app.app_context():
+            try:
+                from services.mandi_service import sync_mandi_prices
+                result = sync_mandi_prices()
+                if result.get("success"):
+                    app.logger.info(
+                        "Mandi sync completed: %s fetched, %s inserted, %s updated",
+                        result.get("fetched"),
+                        result.get("inserted"),
+                        result.get("updated"),
+                    )
+                else:
+                    app.logger.warning("Mandi sync failed: %s", result.get("error"))
+            except Exception as e:
+                app.logger.error("Mandi sync job error: %s", e)
+
+    scheduler = BackgroundScheduler(daemon=True)
+    scheduler.add_job(_sync_job, "interval", hours=6, id="mandi_price_sync", replace_existing=True)
+    scheduler.start()
+    app.logger.info("Mandi price synchronisation scheduler started (6-hour interval).")
 
 
 app = create_app()

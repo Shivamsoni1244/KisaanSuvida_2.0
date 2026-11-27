@@ -79,3 +79,10 @@ instance/
 .venv/
 venv/
 __pycache__/
+
+# Large model binaries (provided locally; do not commit)
+models/plant_disease/*.keras
+
+# Temporary uploads / model caches
+static/images/uploads/
+*.tmp
